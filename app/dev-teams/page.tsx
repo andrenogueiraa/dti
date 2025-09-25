@@ -6,8 +6,11 @@ import {
   PgTitle,
 } from "@/components/ui/pg";
 import { Progress } from "@/components/ui/progress";
+import { db } from "@/drizzle";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "Equipes de Desenvolvimento",
@@ -23,88 +26,62 @@ export default function Server() {
         <PgDescription>{metadata.description}</PgDescription>
       </PgHeader>
       <PgContent className="space-y-8">
-        <DevTeams />
+        <Suspense fallback={<div>Loading...</div>}>
+          <DevTeams />
+        </Suspense>
       </PgContent>
     </Pg>
   );
 }
 
-function DevTeams() {
-  const devTeams = [
-    {
-      name: "Rubens",
-      tags: ["Florestal"],
-      src: "https://media.licdn.com/dms/image/v2/C4D03AQEJ6uw1lHR5wQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1579229541634?e=1761782400&v=beta&t=Dpe5OMxTPE_A6p1MisGL70lOSWtBKEqh6qJhhOdXeM0",
-      projecs: [
-        {
-          name: "AQC - Autorização de Queima Controlada Automatizada",
-          description:
-            "Procedimento SIGA para autorização de queima controlada",
-          color: "bg-green-100",
-          sprints: [
-            {
-              name: "Sprint 1",
-              progress: 100,
-              startDate: "2025-01-01",
-              endDate: "2025-01-15",
-            },
-            {
-              name: "Sprint 2",
-              progress: 100,
-              startDate: "2025-01-16",
-              endDate: "2025-01-31",
-            },
-            {
-              name: "Sprint 3",
-              progress: 50,
-              startDate: "2025-02-01",
-              endDate: "2025-02-15",
-            },
-          ],
+async function getDevTeams() {
+  return await db.query.devTeams.findMany({
+    with: {
+      projects: {
+        with: {
+          sprints: true,
         },
-        {
-          name: "Corte de Árvores Isoladas",
-          description: "Procedimento SIGA para corte de árvores isoladas",
-          color: "bg-blue-100",
-        },
-      ],
+      },
     },
-    {
-      name: "Breno",
-      tags: ["Biodiversidade"],
-      src: "https://media.licdn.com/dms/image/v2/D4D03AQEqlmR2UWDZEw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1725931294109?e=1761782400&v=beta&t=krGxuW_k2uFJA5fZkWEG2BuMS24DOEducWz0KA55FNI",
-    },
-    {
-      name: "Isaías Araújo",
-      tags: ["Fiscalização"],
-      src: "https://media.licdn.com/dms/image/v2/D4E03AQFe5M60-Zm2Nw/profile-displayphoto-crop_800_800/B4EZjUXF_8GoAI-/0/1755909481718?e=1761782400&v=beta&t=9uqbdupAO6bZTGr-zKHQ8exF7pVZP3lTaaGe-gIU_7o",
-    },
-  ];
+  });
+}
+
+async function DevTeams() {
+  const devTeams = await getDevTeams();
 
   return (
     <>
+      <div className="grid grid-cols-3 gap-4 text-center">
+        <div></div>
+        <div className="font-semibold">Atual</div>
+        <div className="font-semibold">Próximo</div>
+      </div>
       {devTeams.map((devTeam) => (
         <div key={devTeam.name} className="grid grid-cols-3 gap-4">
           <div className="flex flex-col items-center justify-center">
             <Image
-              src={devTeam.src}
-              alt={devTeam.name}
+              src={devTeam.imageUrl ?? ""}
+              alt={devTeam.name ?? ""}
               width={100}
               height={100}
               className="rounded-full w-20 h-20"
             />
-            <h1 className="font-semibold">{devTeam.name}</h1>
-            <p>{devTeam.tags.join(", ")}</p>
+            <h1 className="font-semibold mt-2">{devTeam.name}</h1>
+            <p className="leading-4 text-sm text-muted-foreground">
+              {devTeam.description ?? ""}
+            </p>
           </div>
 
-          {devTeam.projecs &&
-            devTeam.projecs.map((project) => (
-              <div
-                key={project.name}
-                className={cn("p-3 rounded-md", project.color)}
+          {devTeam.projects &&
+            devTeam.projects.map((project) => (
+              <Link
+                key={project.id}
+                href={`/projects/${project.id}`}
+                className={cn("block p-3 rounded-md", project.color)}
               >
-                <h2 className="font-semibold">{project.name}</h2>
-                <p>{project.description}</p>
+                <h2 className="font-medium">{project.name}</h2>
+                <p className="text-muted-foreground">{project.description}</p>
+
                 <div>
                   {project.sprints &&
                     project.sprints.map((sprint, index) => (
@@ -113,20 +90,20 @@ function DevTeams() {
                         <Progress value={sprint.progress} />
                         <div className="flex justify-between">
                           <small>
-                            {new Date(sprint.startDate).toLocaleDateString(
-                              "pt-br"
-                            )}
+                            {new Date(
+                              sprint.startDate ?? ""
+                            ).toLocaleDateString("pt-br")}
                           </small>
                           <small>
-                            {new Date(sprint.endDate).toLocaleDateString(
-                              "pt-br"
-                            )}
+                            {new Date(
+                              sprint.finishDate ?? ""
+                            ).toLocaleDateString("pt-br")}
                           </small>
                         </div>
                       </div>
                     ))}
                 </div>
-              </div>
+              </Link>
             ))}
         </div>
       ))}

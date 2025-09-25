@@ -51,12 +51,12 @@
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
+  --primary: oklch(0.54 0.25 293);
   --primary-foreground: oklch(0.984 0.003 247.858);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
+  --muted-foreground: oklch(0.44 0 0);
   --accent: oklch(0.968 0.007 247.896);
   --accent-foreground: oklch(0.208 0.042 265.755);
   --destructive: oklch(0.577 0.245 27.325);
@@ -120,7 +120,7 @@
     @apply bg-background text-foreground;
   }
   .prose h1 {
-    @apply scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance;
+    @apply scroll-m-20 text-4xl font-bold tracking-tight text-balance;
   }
 
   .prose h2 {
@@ -136,7 +136,7 @@
   }
 
   .prose p {
-    @apply leading-7 [&:not(:first-child)]:mt-6;
+    @apply leading-6;
   }
 
   .prose blockquote {

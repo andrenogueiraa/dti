@@ -51,11 +51,6 @@ function Menu() {
       label: "Dev Teams",
       href: "/dev-teams",
     },
-    {
-      icon: <UserIcon />,
-      label: "Usuários",
-      href: "/users",
-    },
   ];
 
   return (

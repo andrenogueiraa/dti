@@ -29,12 +29,16 @@ function PgHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function PgTitle({ className, ...props }: React.ComponentProps<"h1">) {
-  return <h2 data-slot="pg-title" className={cn("", className)} {...props} />;
+  return <h1 data-slot="pg-title" className={cn("", className)} {...props} />;
 }
 
 function PgDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
-    <p data-slot="pg-description" className={cn("", className)} {...props} />
+    <p
+      data-slot="pg-description"
+      className={cn("text-muted-foreground text-lg", className)}
+      {...props}
+    />
   );
 }
 
