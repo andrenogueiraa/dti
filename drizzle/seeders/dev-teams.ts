@@ -64,7 +64,7 @@ export async function seedDevTeams() {
           .set({
             description: teamData.description,
             imageUrl: teamData.imageUrl,
-            updated_at: new Date(),
+            updatedAt: new Date(),
           })
           .where(eq(devTeams.id, existingTeam.id));
 

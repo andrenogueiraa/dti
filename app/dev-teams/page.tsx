@@ -7,7 +7,9 @@ import {
 } from "@/components/ui/pg";
 import { Progress } from "@/components/ui/progress";
 import { db } from "@/drizzle";
+import { projects } from "@/drizzle/core-schema";
 import { cn } from "@/lib/utils";
+import { desc } from "drizzle-orm";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -38,6 +40,8 @@ async function getDevTeams() {
   return await db.query.devTeams.findMany({
     with: {
       projects: {
+        orderBy: () => [desc(projects.createdAt)],
+        limit: 2,
         with: {
           sprints: true,
         },
