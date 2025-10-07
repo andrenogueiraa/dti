@@ -1,5 +1,5 @@
 import { db } from "../index";
-import { projects } from "../core-schema";
+import { projects, devTeams } from "../core-schema";
 import { eq } from "drizzle-orm";
 
 const projectsData = [
@@ -41,7 +41,12 @@ export async function seedProjects() {
   console.log("🌱 Seeding projects...");
 
   // First, get all dev teams to map names to IDs
-  const teams = await db.query.devTeams.findMany();
+  const teams = await db
+    .select({
+      id: devTeams.id,
+      name: devTeams.name,
+    })
+    .from(devTeams);
   const teamMap = new Map(teams.map((team) => [team.name, team.id]));
 
   for (const projectData of projectsData) {
@@ -56,9 +61,15 @@ export async function seedProjects() {
       }
 
       // Check if project already exists
-      const existingProject = await db.query.projects.findFirst({
-        where: eq(projects.name, projectData.name),
-      });
+      const existingProject = await db
+        .select({
+          id: projects.id,
+          name: projects.name,
+        })
+        .from(projects)
+        .where(eq(projects.name, projectData.name))
+        .limit(1)
+        .then((rows) => rows[0] || null);
 
       const projectValues = {
         name: projectData.name,

@@ -87,7 +87,7 @@ export default function CreateProject() {
     ];
 
     return (
-      <Card className="max-w-md mx-auto mt-8">
+      <Card className="max-w-md mx-auto mt-8 text-center">
         <CardHeader>
           <CardTitle>Projeto criado com sucesso</CardTitle>
           <CardDescription>O projeto foi criado com sucesso.</CardDescription>

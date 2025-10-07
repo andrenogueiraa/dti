@@ -19,7 +19,7 @@ PGADMIN_EMAIL=admin@admin.com
 PGADMIN_PASSWORD=admin
 
 # Next.js Database URL
-DATABASE_URL=postgresql://postgres:password@localhost:5432/dti_db
+POSTGRES_URL=postgresql://postgres:password@localhost:5432/dti_db
 ```
 
 ### 2. Iniciar os serviços

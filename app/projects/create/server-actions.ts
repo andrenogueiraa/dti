@@ -3,6 +3,7 @@
 import { db } from "@/drizzle";
 import { projects } from "@/drizzle/core-schema";
 import { CreateProjectFormSchema } from "./page";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function getDevTeams() {
   return await db.query.devTeams.findMany();
@@ -27,6 +28,9 @@ export default async function createProject(data: CreateProjectFormSchema) {
       deletedBy: null,
     })
     .returning({ id: projects.id });
+
+  revalidatePath("/dev-teams");
+  revalidateTag("dev-teams");
 
   return project;
 }

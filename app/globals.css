@@ -51,7 +51,7 @@
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.54 0.25 293);
+  --primary: oklch(0.4 0.18 277);
   --primary-foreground: oklch(0.984 0.003 247.858);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
@@ -119,6 +119,11 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  a {
+    @apply cursor-pointer;
+  }
+
   .prose h1 {
     @apply scroll-m-20 text-4xl font-bold tracking-tight text-balance;
   }

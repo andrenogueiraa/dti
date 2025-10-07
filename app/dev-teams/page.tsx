@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Pg,
   PgContent,
@@ -6,10 +7,10 @@ import {
   PgTitle,
 } from "@/components/ui/pg";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { db } from "@/drizzle";
-import { projects } from "@/drizzle/core-schema";
 import { cn } from "@/lib/utils";
-import { desc } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -22,28 +23,38 @@ export const metadata = {
 
 export default function Server() {
   return (
-    <Pg className="max-w-5xl">
+    <Pg className="max-w-full">
       <PgHeader>
         <PgTitle>{metadata.title}</PgTitle>
         <PgDescription>{metadata.description}</PgDescription>
       </PgHeader>
+
       <PgContent className="space-y-8">
         <Suspense fallback={<div>Loading...</div>}>
           <DevTeams />
         </Suspense>
+
+        <Separator />
+
+        <Button>
+          <Link href="/projects/create">Novo Projeto</Link>
+        </Button>
       </PgContent>
     </Pg>
   );
 }
 
 async function getDevTeams() {
+  "use server";
   return await db.query.devTeams.findMany({
+    orderBy: (devTeams, { asc }) => [asc(devTeams.name)],
     with: {
       projects: {
-        orderBy: () => [desc(projects.createdAt)],
-        limit: 2,
+        orderBy: (projects, { asc }) => [asc(projects.id)],
         with: {
-          sprints: true,
+          sprints: {
+            orderBy: (sprints, { asc }) => [asc(sprints.createdAt)],
+          },
         },
       },
     },
@@ -51,18 +62,23 @@ async function getDevTeams() {
 }
 
 async function DevTeams() {
-  const devTeams = await getDevTeams();
+  const cachedDevTeams = unstable_cache(getDevTeams, ["dev-teams"], {
+    revalidate: 60,
+  });
+
+  const devTeams = await cachedDevTeams();
 
   return (
-    <>
-      <div className="grid grid-cols-3 gap-4 text-center">
-        <div></div>
-        <div className="font-semibold">Atual</div>
-        <div className="font-semibold">Próximo</div>
+    <section className="space-y-8">
+      <div className="flex gap-6 text-center pt-6">
+        <div className="min-w-48 font-semibold"></div>
+        <div className="w-full max-w-sm font-semibold">Projeto Atual</div>
+        <div className="w-full max-w-sm font-semibold">Próximo</div>
       </div>
+
       {devTeams.map((devTeam) => (
-        <div key={devTeam.name} className="grid grid-cols-3 gap-4">
-          <div className="flex flex-col items-center justify-center">
+        <div key={devTeam.name} className="flex gap-6">
+          <div className="flex flex-col items-center justify-center min-w-48">
             <Image
               src={devTeam.imageUrl ?? ""}
               alt={devTeam.name ?? ""}
@@ -77,11 +93,14 @@ async function DevTeams() {
           </div>
 
           {devTeam.projects &&
-            devTeam.projects.map((project) => (
+            devTeam.projects.map((project, index) => (
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
-                className={cn("block p-3 rounded-md", project.color)}
+                className={cn(
+                  "block p-3 rounded-md w-full max-w-sm",
+                  index > 1 ? "bg-slate-100" : project.color
+                )}
               >
                 <h2 className="font-medium">{project.name}</h2>
                 <p className="text-muted-foreground">{project.description}</p>
@@ -111,6 +130,6 @@ async function DevTeams() {
             ))}
         </div>
       ))}
-    </>
+    </section>
   );
 }

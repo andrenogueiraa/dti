@@ -45,6 +45,12 @@ const devTeamsData = [
     imageUrl:
       "https://media.licdn.com/dms/image/v2/D4D03AQFfB2ur3TVkhQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1695454116725?e=1761782400&v=beta&t=v7zpwg75i1Jpd9sIm4pCDKPtLKydLdic6weXxYNmZ2M",
   },
+  {
+    name: "André",
+    description: "Geral",
+    imageUrl:
+      "https://media.licdn.com/dms/image/v2/D4D03AQGuD-6YnyqJyQ/profile-displayphoto-shrink_200_200/B4DZY7KfRsHwAo-/0/1744749328130?e=1762992000&v=beta&t=NLMhqq54SAoKHQjrBSelu1Lwd-xjHJGN_5S4k3fYbVw",
+  },
 ];
 
 export async function seedDevTeams() {
@@ -53,9 +59,15 @@ export async function seedDevTeams() {
   for (const teamData of devTeamsData) {
     try {
       // Check if team already exists
-      const existingTeam = await db.query.devTeams.findFirst({
-        where: eq(devTeams.name, teamData.name),
-      });
+      const existingTeam = await db
+        .select({
+          id: devTeams.id,
+          name: devTeams.name,
+        })
+        .from(devTeams)
+        .where(eq(devTeams.name, teamData.name))
+        .limit(1)
+        .then((rows) => rows[0] || null);
 
       if (existingTeam) {
         // Update existing team

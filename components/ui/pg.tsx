@@ -36,7 +36,7 @@ function PgDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
       data-slot="pg-description"
-      className={cn("text-muted-foreground text-lg", className)}
+      className={cn("text-muted-foreground text-lg max-w-prose", className)}
       {...props}
     />
   );

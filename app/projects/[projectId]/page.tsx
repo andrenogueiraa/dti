@@ -31,10 +31,13 @@ export default async function Server({
 }
 
 async function getProject(projectId: string) {
+  "use server";
   return await db.query.projects.findFirst({
     where: eq(projects.id, projectId),
     with: {
-      sprints: true,
+      sprints: {
+        orderBy: (sprints, { asc }) => [asc(sprints.startDate)],
+      },
     },
   });
 }
