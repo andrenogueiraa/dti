@@ -51,9 +51,9 @@ export const projects = pgTable("projects", {
   ...statusColumns,
   ...dateColumns,
   color: text(),
-  responsibleTeamId: uuid()
-    .notNull()
-    .references(() => devTeams.id, { onDelete: "restrict" }),
+  responsibleTeamId: uuid().references(() => devTeams.id, {
+    onDelete: "restrict",
+  }),
 });
 
 export const sprints = pgTable("sprints", {

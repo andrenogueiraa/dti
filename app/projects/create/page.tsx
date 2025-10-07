@@ -37,7 +37,7 @@ const createProjectFormSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
   color: z.string().min(1),
-  responsibleTeamId: z.string().min(1),
+  responsibleTeamId: z.string().nullable(),
 });
 
 export type CreateProjectFormSchema = z.infer<typeof createProjectFormSchema>;
@@ -54,7 +54,7 @@ export default function CreateProject() {
       name: "",
       description: "",
       color: "",
-      responsibleTeamId: "",
+      responsibleTeamId: undefined,
     },
   });
 
@@ -227,7 +227,7 @@ export default function CreateProject() {
                       devTeamsQuery.data.length > 0 ? (
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={field.value ?? undefined}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select a team" />

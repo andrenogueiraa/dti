@@ -63,7 +63,7 @@ async function getDevTeams() {
 
 async function DevTeams() {
   const cachedDevTeams = unstable_cache(getDevTeams, ["dev-teams"], {
-    revalidate: 60,
+    revalidate: 10,
   });
 
   const devTeams = await cachedDevTeams();

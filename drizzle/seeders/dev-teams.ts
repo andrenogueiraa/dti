@@ -51,6 +51,12 @@ const devTeamsData = [
     imageUrl:
       "https://media.licdn.com/dms/image/v2/D4D03AQGuD-6YnyqJyQ/profile-displayphoto-shrink_200_200/B4DZY7KfRsHwAo-/0/1744749328130?e=1762992000&v=beta&t=NLMhqq54SAoKHQjrBSelu1Lwd-xjHJGN_5S4k3fYbVw",
   },
+  {
+    name: "Bruno",
+    description: "A contratar",
+    imageUrl:
+      "https://media.licdn.com/dms/image/v2/D4D03AQHEseR10Na78g/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1692553729534?e=1762992000&v=beta&t=nqjUjhzQ-Y8q2HM8eU-FGWm2Z--Fc3ipF1ksBxjQj-Y",
+  },
 ];
 
 export async function seedDevTeams() {
