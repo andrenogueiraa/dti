@@ -14,9 +14,9 @@ import {
   PgTitle,
 } from "@/components/ui/pg";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { db } from "@/drizzle";
 import { cn } from "@/lib/utils";
+import { PlusIcon } from "lucide-react";
 import { unstable_cache } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,7 +31,17 @@ export const metadata = {
 export default function Server() {
   return (
     <Pg className="max-w-full">
-      <PgHeader>
+      <PgHeader className="relative">
+        <Link
+          href="/projects/create"
+          className="absolute top-0 right-4 flex items-center gap-2"
+        >
+          <Button variant="secondary">
+            <PlusIcon />
+            <span>Novo Projeto</span>
+          </Button>
+        </Link>
+
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -49,16 +59,10 @@ export default function Server() {
         <PgDescription>{metadata.description}</PgDescription>
       </PgHeader>
 
-      <PgContent className="space-y-8 overflow-x-auto max-w-screen">
+      <PgContent className="space-y-8 pr-0">
         <Suspense fallback={<div>Carregando projetos...</div>}>
           <DevTeams />
         </Suspense>
-
-        <Separator />
-
-        <Button>
-          <Link href="/projects/create">Novo Projeto</Link>
-        </Button>
       </PgContent>
     </Pg>
   );
@@ -98,7 +102,7 @@ async function DevTeams() {
 
       {devTeams.map((devTeam) => (
         <div key={devTeam.name} className="flex gap-6">
-          <div className="flex flex-col items-center justify-center min-w-48">
+          <div className="flex flex-col items-center justify-center min-w-48 max-w-48">
             <Image
               src={devTeam.imageUrl ?? ""}
               alt={devTeam.name ?? ""}
@@ -112,42 +116,44 @@ async function DevTeams() {
             </p>
           </div>
 
-          {devTeam.projects &&
-            devTeam.projects.map((project, index) => (
-              <Link
-                key={project.id}
-                href={`/projects/${project.id}`}
-                className={cn(
-                  "block p-3 rounded-md w-full max-w-sm",
-                  index > 1 ? "bg-slate-100" : project.color
-                )}
-              >
-                <h2 className="font-medium">{project.name}</h2>
-                <p className="text-muted-foreground">{project.description}</p>
+          <div className="flex gap-6">
+            {devTeam.projects &&
+              devTeam.projects.map((project, index) => (
+                <Link
+                  key={project.id}
+                  href={`/projects/${project.id}`}
+                  className={cn(
+                    "block p-3 rounded-md min-w-sm max-w-sm",
+                    index > 1 ? "bg-slate-100" : project.color
+                  )}
+                >
+                  <h2 className="font-medium">{project.name}</h2>
+                  <p className="text-muted-foreground">{project.description}</p>
 
-                <div>
-                  {project.sprints &&
-                    project.sprints.map((sprint, index) => (
-                      <div key={index}>
-                        <small className="text-xs">{sprint.name}</small>
-                        <Progress value={sprint.progress} />
-                        <div className="flex justify-between">
-                          <small>
-                            {new Date(
-                              sprint.startDate ?? ""
-                            ).toLocaleDateString("pt-br")}
-                          </small>
-                          <small>
-                            {new Date(
-                              sprint.finishDate ?? ""
-                            ).toLocaleDateString("pt-br")}
-                          </small>
+                  <div>
+                    {project.sprints &&
+                      project.sprints.map((sprint, index) => (
+                        <div key={index}>
+                          <small className="text-xs">{sprint.name}</small>
+                          <Progress value={sprint.progress} />
+                          <div className="flex justify-between">
+                            <small>
+                              {new Date(
+                                sprint.startDate ?? ""
+                              ).toLocaleDateString("pt-br")}
+                            </small>
+                            <small>
+                              {new Date(
+                                sprint.finishDate ?? ""
+                              ).toLocaleDateString("pt-br")}
+                            </small>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                </div>
-              </Link>
-            ))}
+                      ))}
+                  </div>
+                </Link>
+              ))}
+          </div>
         </div>
       ))}
     </section>

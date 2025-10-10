@@ -73,7 +73,17 @@ async function Project({ projectId }: { projectId: string }) {
 
   return (
     <Pg>
-      <PgHeader>
+      <PgHeader className="relative">
+        <Link
+          href={`/projects/${projectId}/sprints/create`}
+          className="absolute top-0 right-4"
+        >
+          <Button className="flex items-center gap-2" variant="secondary">
+            <PlusIcon />
+            Criar nova Sprint
+          </Button>
+        </Link>
+
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -91,7 +101,7 @@ async function Project({ projectId }: { projectId: string }) {
             <BreadcrumbItem>{project.name}</BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <PgTitle>{project.name}</PgTitle>
+        <PgTitle className="max-w-xl">{project.name}</PgTitle>
         <PgDescription>{project.description}</PgDescription>
       </PgHeader>
 
@@ -114,22 +124,37 @@ async function Project({ projectId }: { projectId: string }) {
                 <small>{sprint.startDate?.toLocaleDateString()}</small>
                 <small>{sprint.finishDate?.toLocaleDateString()}</small>
               </div>
-              <div className="flex justify-end gap-8">
+
+              <div className="flex justify-end gap-6 mt-2">
                 <Link
                   href={`/projects/${projectId}/sprints/${sprint.id}/tasks`}
+                  className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
                 >
                   <Icon
                     icon="tabler:layout-kanban-filled"
-                    className="w-8 h-8 cursor-pointer text-primary"
+                    className="w-7 h-7 cursor-pointer text-primary"
                   />
+                  <span className="text-xs">Tarefas</span>
+                </Link>
+
+                <Link
+                  href={`/projects/${projectId}/sprints/${sprint.id}/atas`}
+                  className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
+                >
+                  <Icon
+                    icon="tabler:file-text"
+                    className="w-7 h-7 cursor-pointer text-primary"
+                  />
+                  <span className="text-xs">Retrospective</span>
                 </Link>
 
                 <Dialog>
-                  <DialogTrigger>
+                  <DialogTrigger className="flex items-center gap-2 rounded bg-border/30 px-2 py-1">
                     <Icon
                       icon="solar:document-text-bold"
-                      className="w-8 h-8 cursor-pointer text-primary"
+                      className="w-7 h-7 cursor-pointer text-primary"
                     />
+                    <span className="text-xs">Review</span>
                   </DialogTrigger>
                   <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-prose">
                     <DialogHeader hidden>
@@ -145,16 +170,6 @@ async function Project({ projectId }: { projectId: string }) {
             </div>
           </div>
         ))}
-
-        <Link
-          href={`/projects/${projectId}/sprints/create`}
-          className="flex justify-end pt-4"
-        >
-          <Button className="flex items-center gap-2">
-            <PlusIcon />
-            Criar nova Sprint
-          </Button>
-        </Link>
       </PgContent>
     </Pg>
   );
