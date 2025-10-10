@@ -12,7 +12,6 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.POSTGRES_URL,
   },
-  // extensionsFilters: ["postgis"],
+  extensionsFilters: ["postgis"],
   verbose: true,
-  casing: "snake_case",
 });
