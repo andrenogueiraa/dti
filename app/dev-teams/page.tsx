@@ -1,3 +1,10 @@
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Pg,
@@ -25,12 +32,25 @@ export default function Server() {
   return (
     <Pg className="max-w-full">
       <PgHeader>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/">Inicio</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+
+            <BreadcrumbSeparator />
+
+            <BreadcrumbItem>{metadata.title}</BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <PgTitle>{metadata.title}</PgTitle>
         <PgDescription>{metadata.description}</PgDescription>
       </PgHeader>
 
-      <PgContent className="space-y-8">
-        <Suspense fallback={<div>Loading...</div>}>
+      <PgContent className="space-y-8 overflow-x-auto max-w-screen">
+        <Suspense fallback={<div>Carregando projetos...</div>}>
           <DevTeams />
         </Suspense>
 
