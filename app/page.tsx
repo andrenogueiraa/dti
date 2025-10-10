@@ -5,7 +5,16 @@ import {
   PgHeader,
   PgTitle,
 } from "@/components/ui/pg";
-import { Code2Icon, HomeIcon, SettingsIcon, UserIcon } from "lucide-react";
+import {
+  Code2Icon,
+  HomeIcon,
+  LayoutDashboardIcon,
+  LogInIcon,
+  LogOutIcon,
+  PaletteIcon,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -42,14 +51,34 @@ function Menu() {
       href: "/users",
     },
     {
+      icon: <LayoutDashboardIcon />,
+      label: "Dashboard",
+      href: "/dashboard",
+    },
+    {
       icon: <SettingsIcon />,
       label: "Configurações",
-      href: "/settings",
+      href: "/config",
     },
     {
       icon: <Code2Icon />,
       label: "Dev Teams",
       href: "/dev-teams",
+    },
+    {
+      icon: <PaletteIcon />,
+      label: "Tema",
+      href: "/theme",
+    },
+    {
+      icon: <LogInIcon />,
+      label: "Login",
+      href: "/login",
+    },
+    {
+      icon: <LogOutIcon />,
+      label: "Logout",
+      href: "/logout",
     },
   ];
 
