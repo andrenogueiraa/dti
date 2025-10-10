@@ -1,6 +1,4 @@
 import { seedDevTeams } from "./dev-teams";
-import { seedProjects } from "./projects";
-import { seedSprints } from "./sprints";
 
 async function runSeeders() {
   console.log("🚀 Starting database seeding...");
@@ -8,12 +6,6 @@ async function runSeeders() {
   try {
     // Seed dev teams first (required for projects)
     await seedDevTeams();
-
-    // Then seed projects (depends on dev teams)
-    await seedProjects();
-
-    // Finally seed sprints (depends on projects)
-    await seedSprints();
 
     console.log("✨ All seeders completed successfully!");
   } catch (error) {
@@ -32,4 +24,4 @@ if (require.main === module) {
     });
 }
 
-export { runSeeders, seedDevTeams, seedProjects, seedSprints };
+export { runSeeders, seedDevTeams };

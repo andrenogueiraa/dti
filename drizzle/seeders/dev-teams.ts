@@ -7,7 +7,7 @@ const devTeamsData = [
     name: "Breno",
     description: "Biodiversidade",
     imageUrl:
-      "https://media.licdn.com/dms/image/v2/D4D03AQEqlmR2UWDZEw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1725931294109?e=1761782400&v=beta&t=krGxuW_k2uFJA5fZkWEG2BuMS24DOEducWz0KA55FNI",
+      "https://media.licdn.com/dms/image/v2/D4D03AQHX3KR5s8SnBA/profile-displayphoto-crop_800_800/B4DZl80JGJIEAI-/0/1758735668206?e=1762992000&v=beta&t=i7nfcjL7tubnrBtwUG1CMs4rJY64ulmU1ss7X0GUCBo",
   },
   {
     name: "Rubens",
