@@ -1,4 +1,14 @@
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Icon } from "@iconify/react";
+
+import {
   Pg,
   PgContent,
   PgDescription,
@@ -9,7 +19,19 @@ import { Progress } from "@/components/ui/progress";
 import { db } from "@/drizzle";
 import { projects } from "@/drizzle/core-schema";
 import { eq } from "drizzle-orm";
+import Image from "next/image";
 import { Suspense } from "react";
+import LoadingPage from "@/components/custom/loading-page";
+import { PlusIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const metadata = {
   title: "Projeto",
@@ -24,7 +46,7 @@ export default async function Server({
   const { projectId } = await params;
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingPage />}>
       <Project projectId={projectId} />
     </Suspense>
   );
@@ -52,22 +74,138 @@ async function Project({ projectId }: { projectId: string }) {
   return (
     <Pg>
       <PgHeader>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/">Inicio</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dev-teams">Equipes</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>{project.name}</BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <PgTitle>{project.name}</PgTitle>
         <PgDescription>{project.description}</PgDescription>
       </PgHeader>
+
       <PgContent className="space-y-6">
         {project.sprints.map((sprint) => (
           <div key={sprint.id}>
-            <span className="font-semibold">{sprint.name}: </span>
-            <span className="text-muted-foreground">{sprint.description}</span>
-            <Progress value={sprint.progress} className="mt-1" />
-            <div className="flex justify-between text-muted-foreground mt-1">
-              <small>{sprint.startDate?.toLocaleDateString()}</small>
-              <small>{sprint.finishDate?.toLocaleDateString()}</small>
+            <div>
+              <Icon
+                icon="fluent:arrow-sprint-16-filled"
+                className="text-primary/40 w-12 h-12"
+              />
+              <span className="font-semibold">{sprint.name}: </span>
+              <span className="text-muted-foreground">
+                {sprint.description}
+              </span>
+
+              <Progress value={sprint.progress} className="mt-1" />
+
+              <div className="flex justify-between text-muted-foreground mt-1">
+                <small>{sprint.startDate?.toLocaleDateString()}</small>
+                <small>{sprint.finishDate?.toLocaleDateString()}</small>
+              </div>
+              <div className="flex justify-end gap-8">
+                <Link
+                  href={`/projects/${projectId}/sprints/${sprint.id}/tasks`}
+                >
+                  <Icon
+                    icon="tabler:layout-kanban-filled"
+                    className="w-8 h-8 cursor-pointer text-primary"
+                  />
+                </Link>
+
+                <Dialog>
+                  <DialogTrigger>
+                    <Icon
+                      icon="solar:document-text-bold"
+                      className="w-8 h-8 cursor-pointer text-primary"
+                    />
+                  </DialogTrigger>
+                  <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-prose">
+                    <DialogHeader hidden>
+                      <DialogTitle>{sprint.name}</DialogTitle>
+                      <DialogDescription>
+                        {sprint.description}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Ata />
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </div>
         ))}
+
+        <Link
+          href={`/projects/${projectId}/sprints/create`}
+          className="flex justify-end pt-4"
+        >
+          <Button className="flex items-center gap-2">
+            <PlusIcon />
+            Criar nova Sprint
+          </Button>
+        </Link>
       </PgContent>
     </Pg>
+  );
+}
+
+function Ata() {
+  return (
+    <main className="space-y-4 prose">
+      <h2>Ata da Reunião</h2>
+      <p>
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum
+        expedita explicabo nostrum nesciunt quasi alias nam quidem optio
+        repellendus voluptatem.
+      </p>
+
+      <h3>Novos Requisitos</h3>
+      <p>
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum
+        expedita explicabo nostrum nesciunt quasi alias nam quidem optio
+        repellendus voluptatem.
+      </p>
+      <p>
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum
+        expedita explicabo nostrum nesciunt quasi alias nam quidem optio
+        repellendus voluptatem.
+      </p>
+
+      <h3>Imagens</h3>
+      <Image
+        src="/reuniao.jpeg"
+        alt="Evidências"
+        width={720}
+        height={480}
+        className="rounded"
+      />
+
+      <h3>Assinaturas</h3>
+      <ul>
+        <li>
+          Assinado digitalmente por André Nogueira em{" "}
+          {new Date().toLocaleDateString("pt-br")}
+        </li>
+        <li>
+          Assinado digitalmente por Rubens Carvalho em{" "}
+          {new Date().toLocaleDateString("pt-br")}
+        </li>
+        <li>
+          Assinado digitalmente por Anna Ester em{" "}
+          {new Date().toLocaleDateString("pt-br")}
+        </li>
+      </ul>
+    </main>
   );
 }
