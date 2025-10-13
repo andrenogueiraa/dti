@@ -38,7 +38,7 @@ export default function LoginPage() {
     <Bg>
       <ContainerCenter>
         <Card className="w-full max-w-md mx-auto relative">
-          <ButtonClose />
+          <ButtonClose href="/" />
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl">Iniciar sessão</CardTitle>
             <CardDescription>

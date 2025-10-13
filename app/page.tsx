@@ -4,13 +4,12 @@ import {
   BookIcon,
   Code2Icon,
   LayoutDashboardIcon,
-  LogInIcon,
-  LogOutIcon,
   PaletteIcon,
   UserIcon,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { LogInLogOut } from "./client";
 
 export default function Home() {
   return (
@@ -56,16 +55,6 @@ function Menu() {
       href: "/theme",
     },
     {
-      icon: <LogInIcon />,
-      label: "Login",
-      href: "/login",
-    },
-    {
-      icon: <LogOutIcon />,
-      label: "Logout",
-      href: "/logout",
-    },
-    {
       icon: <BookIcon />,
       label: "Regras",
       href: "/regras",
@@ -75,15 +64,25 @@ function Menu() {
   return (
     <>
       {menuItems.map((item, index) => (
-        <Link
-          key={index}
-          href={item.href}
-          className="bg-secondary hover:bg-primary hover:text-primary-foreground p-2 rounded-md flex items-center gap-2"
-        >
-          <div className="size-6 text-muted-foreground">{item.icon}</div>
-          <span className="text-sm">{item.label}</span>
-        </Link>
+        <LinkItem key={index} item={item} />
       ))}
+      <LogInLogOut />
     </>
+  );
+}
+
+export function LinkItem({
+  item,
+}: {
+  item: { icon: React.ReactNode; label: string; href: string };
+}) {
+  return (
+    <Link
+      href={item.href}
+      className="bg-secondary hover:bg-primary hover:text-primary-foreground p-2 rounded-md flex items-center gap-2"
+    >
+      <div className="size-6 text-muted-foreground">{item.icon}</div>
+      <span className="text-sm">{item.label}</span>
+    </Link>
   );
 }
