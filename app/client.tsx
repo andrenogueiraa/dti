@@ -1,7 +1,8 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
-import { Link, LogInIcon, LogOutIcon } from "lucide-react";
+import { LogInIcon, LogOutIcon } from "lucide-react";
+import Link from "next/link";
 
 export function LogInLogOut() {
   const { data: session } = authClient.useSession();
