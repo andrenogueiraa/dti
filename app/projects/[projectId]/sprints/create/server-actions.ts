@@ -2,7 +2,7 @@
 
 import { db } from "@/drizzle";
 import { sprints } from "@/drizzle/core-schema";
-import { CreateSprintFormSchema } from "./page";
+import { CreateSprintFormSchema } from "./form";
 
 export async function createSprint({
   data,
