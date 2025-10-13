@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
+import { Bg } from "@/components/custom/bg";
+import { Pg, PgContent, PgHeader, PgTitle } from "@/components/ui/pg";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
@@ -29,12 +30,12 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">Dashboard</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+    <Bg>
+      <Pg className="relative">
+        <PgHeader>
+          <PgTitle className="text-center">Dashboard</PgTitle>
+        </PgHeader>
+        <PgContent className="space-y-6">
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="size-24">
               <AvatarImage src={user.image || undefined} alt={user.name} />
@@ -60,8 +61,8 @@ export default async function DashboardPage() {
               </Link>
             </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </PgContent>
+      </Pg>
+    </Bg>
   );
 }

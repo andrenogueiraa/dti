@@ -1,17 +1,10 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Icon } from "@iconify/react";
 
 import {
   Pg,
   PgContent,
   PgDescription,
+  PgFooter,
   PgHeader,
   PgTitle,
 } from "@/components/ui/pg";
@@ -19,19 +12,14 @@ import { Progress } from "@/components/ui/progress";
 import { db } from "@/drizzle";
 import { projects } from "@/drizzle/core-schema";
 import { eq } from "drizzle-orm";
-import Image from "next/image";
 import { Suspense } from "react";
-import LoadingPage from "@/components/custom/loading-page";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Bg } from "@/components/custom/bg";
+import { ContainerCenter } from "@/components/custom/container-center";
+import { LoadingSpinner } from "@/components/custom/loading-spinner";
+import { ButtonClose } from "@/components/custom/button-close";
 
 export const metadata = {
   title: "Projeto",
@@ -46,9 +34,20 @@ export default async function Server({
   const { projectId } = await params;
 
   return (
-    <Suspense fallback={<LoadingPage />}>
-      <Project projectId={projectId} />
-    </Suspense>
+    <Bg>
+      <Pg className="relative">
+        <ButtonClose />
+        <Suspense
+          fallback={
+            <ContainerCenter>
+              <LoadingSpinner />
+            </ContainerCenter>
+          }
+        >
+          <Project projectId={projectId} />
+        </Suspense>
+      </Pg>
+    </Bg>
   );
 }
 
@@ -59,6 +58,10 @@ async function getProject(projectId: string) {
     with: {
       sprints: {
         orderBy: (sprints, { asc }) => [asc(sprints.startDate)],
+        with: {
+          docReview: true,
+          docRetrospective: true,
+        },
       },
     },
   });
@@ -72,155 +75,111 @@ async function Project({ projectId }: { projectId: string }) {
   }
 
   return (
-    <Pg>
-      <PgHeader className="relative">
-        <Link
-          href={`/projects/${projectId}/sprints/create`}
-          className="absolute top-0 right-4"
-        >
+    <>
+      <PgHeader>
+        <PgTitle className="max-w-xl">{project.name}</PgTitle>
+        <PgDescription>{project.description}</PgDescription>
+      </PgHeader>
+
+      <PgContent className="space-y-6 prose">
+        <h2>Sprints</h2>
+
+        <ul>
+          {project.sprints.length > 0 ? (
+            project.sprints.map((sprint) => (
+              <li key={sprint.id}>
+                {/* <Icon
+                  icon="fluent:arrow-sprint-16-filled"
+                  className="text-primary/40 w-12 h-12"
+                /> */}
+                <div className="font-semibold">{sprint.name}</div>
+                <div className="text-muted-foreground">
+                  {sprint.description}
+                </div>
+
+                <Progress value={sprint.progress} className="mt-1" />
+
+                <div className="flex justify-between text-muted-foreground mt-1">
+                  <small>{sprint.startDate?.toLocaleDateString()}</small>
+                  <small>{sprint.finishDate?.toLocaleDateString()}</small>
+                </div>
+
+                <div className="flex justify-end gap-6 mt-2">
+                  <Link
+                    href={`/projects/${projectId}/sprints/${sprint.id}/tasks`}
+                    className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
+                  >
+                    <Icon
+                      icon="tabler:layout-kanban-filled"
+                      className="w-7 h-7 cursor-pointer text-primary"
+                    />
+                    <span className="text-xs">Tarefas</span>
+                  </Link>
+
+                  {sprint.docRetrospective ? (
+                    <Link
+                      href={`/projects/${projectId}/sprints/${sprint.id}/retrospective`}
+                      className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
+                    >
+                      <Icon
+                        icon="tabler:file-text"
+                        className="w-7 h-7 cursor-pointer text-primary"
+                      />
+                      <span className="text-xs">Retrospective</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/projects/${projectId}/sprints/${sprint.id}/retrospective/create`}
+                      className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
+                    >
+                      <Icon
+                        icon="tabler:file-text"
+                        className="w-7 h-7 cursor-pointer text-muted-foreground"
+                      />
+                      <span className="text-xs">Criar Retrospective</span>
+                    </Link>
+                  )}
+
+                  {sprint.docReview ? (
+                    <Link
+                      href={`/projects/${projectId}/sprints/${sprint.id}/review`}
+                      className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
+                    >
+                      <Icon
+                        icon="solar:document-text-bold"
+                        className="w-7 h-7 cursor-pointer text-primary"
+                      />
+                      <span className="text-xs">Ver Review</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/projects/${projectId}/sprints/${sprint.id}/review/create`}
+                      className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
+                    >
+                      <Icon
+                        icon="solar:document-text-bold"
+                        className="w-7 h-7 cursor-pointer text-muted-foreground"
+                      />
+                      <span className="text-xs">Criar Review</span>
+                    </Link>
+                  )}
+                </div>
+              </li>
+            ))
+          ) : (
+            <li className="text-muted-foreground">Nenhuma sprint encontrada</li>
+          )}
+        </ul>
+      </PgContent>
+
+      <PgFooter className="flex justify-end mt-auto">
+        <Link href={`/projects/${projectId}/sprints/create`}>
           <Button className="flex items-center gap-2" variant="secondary">
             <PlusIcon />
             Criar nova Sprint
           </Button>
         </Link>
-
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/">Inicio</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/dev-teams">Equipes</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>{project.name}</BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <PgTitle className="max-w-xl">{project.name}</PgTitle>
-        <PgDescription>{project.description}</PgDescription>
-      </PgHeader>
-
-      <PgContent className="space-y-6">
-        {project.sprints.map((sprint) => (
-          <div key={sprint.id}>
-            <div>
-              <Icon
-                icon="fluent:arrow-sprint-16-filled"
-                className="text-primary/40 w-12 h-12"
-              />
-              <span className="font-semibold">{sprint.name}: </span>
-              <span className="text-muted-foreground">
-                {sprint.description}
-              </span>
-
-              <Progress value={sprint.progress} className="mt-1" />
-
-              <div className="flex justify-between text-muted-foreground mt-1">
-                <small>{sprint.startDate?.toLocaleDateString()}</small>
-                <small>{sprint.finishDate?.toLocaleDateString()}</small>
-              </div>
-
-              <div className="flex justify-end gap-6 mt-2">
-                <Link
-                  href={`/projects/${projectId}/sprints/${sprint.id}/tasks`}
-                  className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
-                >
-                  <Icon
-                    icon="tabler:layout-kanban-filled"
-                    className="w-7 h-7 cursor-pointer text-primary"
-                  />
-                  <span className="text-xs">Tarefas</span>
-                </Link>
-
-                <Link
-                  href={`/projects/${projectId}/sprints/${sprint.id}/atas`}
-                  className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
-                >
-                  <Icon
-                    icon="tabler:file-text"
-                    className="w-7 h-7 cursor-pointer text-primary"
-                  />
-                  <span className="text-xs">Retrospective</span>
-                </Link>
-
-                <Dialog>
-                  <DialogTrigger className="flex items-center gap-2 rounded bg-border/30 px-2 py-1">
-                    <Icon
-                      icon="solar:document-text-bold"
-                      className="w-7 h-7 cursor-pointer text-primary"
-                    />
-                    <span className="text-xs">Review</span>
-                  </DialogTrigger>
-                  <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-prose">
-                    <DialogHeader hidden>
-                      <DialogTitle>{sprint.name}</DialogTitle>
-                      <DialogDescription>
-                        {sprint.description}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Ata />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-          </div>
-        ))}
-      </PgContent>
-    </Pg>
-  );
-}
-
-function Ata() {
-  return (
-    <main className="space-y-4 prose">
-      <h2>Ata da Reunião</h2>
-      <p>
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum
-        expedita explicabo nostrum nesciunt quasi alias nam quidem optio
-        repellendus voluptatem.
-      </p>
-
-      <h3>Novos Requisitos</h3>
-      <p>
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum
-        expedita explicabo nostrum nesciunt quasi alias nam quidem optio
-        repellendus voluptatem.
-      </p>
-      <p>
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laborum
-        expedita explicabo nostrum nesciunt quasi alias nam quidem optio
-        repellendus voluptatem.
-      </p>
-
-      <h3>Imagens</h3>
-      <Image
-        src="/reuniao.jpeg"
-        alt="Evidências"
-        width={720}
-        height={480}
-        className="rounded"
-      />
-
-      <h3>Assinaturas</h3>
-      <ul>
-        <li>
-          Assinado digitalmente por André Nogueira em{" "}
-          {new Date().toLocaleDateString("pt-br")}
-        </li>
-        <li>
-          Assinado digitalmente por Rubens Carvalho em{" "}
-          {new Date().toLocaleDateString("pt-br")}
-        </li>
-        <li>
-          Assinado digitalmente por Anna Ester em{" "}
-          {new Date().toLocaleDateString("pt-br")}
-        </li>
-      </ul>
-    </main>
+      </PgFooter>
+    </>
   );
 }

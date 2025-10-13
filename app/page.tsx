@@ -1,50 +1,40 @@
+import { Bg } from "@/components/custom/bg";
+import { Pg, PgContent, PgHeader, PgTitle } from "@/components/ui/pg";
 import {
-  Pg,
-  PgContent,
-  PgDescription,
-  PgHeader,
-  PgTitle,
-} from "@/components/ui/pg";
-import {
+  BookIcon,
   Code2Icon,
-  HomeIcon,
   LayoutDashboardIcon,
   LogInIcon,
   LogOutIcon,
   PaletteIcon,
-  SettingsIcon,
   UserIcon,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <Pg>
-      <PgHeader>
-        <PgTitle>Página Inicial</PgTitle>
-        <PgDescription>
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ratione
-          dignissimos ullam vitae velit totam aut architecto. Facere adipisci
-          quo illo.
-        </PgDescription>
-      </PgHeader>
+    <Bg>
+      <Pg>
+        <PgHeader className="text-center">
+          <div className="flex justify-center">
+            <Image src="/oflow.webp" alt="Logo" width={75} height={75} />
+          </div>
+          <PgTitle className="text-xl tracking-wide font-light">SCRULL</PgTitle>
+        </PgHeader>
 
-      <PgContent>
-        <div className="grid grid-cols-3 gap-4">
-          <Menu />
-        </div>
-      </PgContent>
-    </Pg>
+        <PgContent className="mt-8">
+          <div className="grid grid-cols-3 gap-4">
+            <Menu />
+          </div>
+        </PgContent>
+      </Pg>
+    </Bg>
   );
 }
 
 function Menu() {
   const menuItems = [
-    {
-      icon: <HomeIcon />,
-      label: "Inicio",
-      href: "/",
-    },
     {
       icon: <UserIcon />,
       label: "Usuários",
@@ -54,11 +44,6 @@ function Menu() {
       icon: <LayoutDashboardIcon />,
       label: "Dashboard",
       href: "/dashboard",
-    },
-    {
-      icon: <SettingsIcon />,
-      label: "Configurações",
-      href: "/config",
     },
     {
       icon: <Code2Icon />,
@@ -80,6 +65,11 @@ function Menu() {
       label: "Logout",
       href: "/logout",
     },
+    {
+      icon: <BookIcon />,
+      label: "Regras",
+      href: "/regras",
+    },
   ];
 
   return (
@@ -90,7 +80,7 @@ function Menu() {
           href={item.href}
           className="bg-secondary hover:bg-primary hover:text-primary-foreground p-2 rounded-md flex items-center gap-2"
         >
-          <div className="size-6">{item.icon}</div>
+          <div className="size-6 text-muted-foreground">{item.icon}</div>
           <span className="text-sm">{item.label}</span>
         </Link>
       ))}

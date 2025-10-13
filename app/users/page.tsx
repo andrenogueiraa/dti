@@ -1,3 +1,11 @@
+import { Bg } from "@/components/custom/bg";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import {
   Pg,
   PgContent,
@@ -5,8 +13,11 @@ import {
   PgHeader,
   PgTitle,
 } from "@/components/ui/pg";
-import { db } from "@/drizzle";
+import Link from "next/link";
 import { Suspense } from "react";
+import { UsersDataTable } from "./table";
+import { getUsers } from "./server-actions";
+import { ButtonClose } from "@/components/custom/button-close";
 
 export const metadata = {
   title: "Usuários",
@@ -16,23 +27,37 @@ export const metadata = {
 
 export default function Server() {
   return (
-    <Pg>
-      <PgHeader>
-        <PgTitle>{metadata.title}</PgTitle>
-        <PgDescription>{metadata.description}</PgDescription>
-      </PgHeader>
+    <Bg>
+      <Pg className="max-w-5xl relative">
+        <ButtonClose />
+        <PgHeader>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Inicio</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>{metadata.title}</BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <PgTitle>{metadata.title}</PgTitle>
+          <PgDescription>{metadata.description}</PgDescription>
+        </PgHeader>
 
-      <PgContent>
-        <Suspense fallback={<div>Carregando usuários...</div>}>
-          <Users />
-        </Suspense>
-      </PgContent>
-    </Pg>
+        <PgContent>
+          <Suspense fallback={<div>Carregando usuários...</div>}>
+            <Users />
+          </Suspense>
+        </PgContent>
+      </Pg>
+    </Bg>
   );
 }
 
 async function Users() {
-  const users = await db.query.user.findMany();
+  const users = await getUsers();
 
   if (!users) {
     return <div>Erro ao carregar usuários</div>;
@@ -43,13 +68,7 @@ async function Users() {
   }
 
   if (users.length > 0) {
-    return (
-      <div>
-        {users.map((user) => (
-          <div key={user.id}>{user.name}</div>
-        ))}
-      </div>
-    );
+    return <UsersDataTable users={users} />;
   }
 
   return <div>Erro desconhecido</div>;

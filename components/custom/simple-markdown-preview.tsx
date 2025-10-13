@@ -19,13 +19,13 @@ export function SimpleMarkdownPreview({
   const renderLine = (line: string) => {
     // Render headings
     if (line.startsWith("# ")) {
-      return <h2>{line.slice(2)}</h2>;
+      return <h1>{line.slice(2)}</h1>;
     }
     if (line.startsWith("## ")) {
-      return <h3>{line.slice(3)}</h3>;
+      return <h2>{line.slice(3)}</h2>;
     }
     if (line.startsWith("### ")) {
-      return <h4>{line.slice(4)}</h4>;
+      return <h3>{line.slice(4)}</h3>;
     }
 
     // Render bold and italic
@@ -49,20 +49,25 @@ export function SimpleMarkdownPreview({
       return <br />;
     }
 
-    return <p dangerouslySetInnerHTML={{ __html: formatted }} />;
+    return (
+      <p dangerouslySetInnerHTML={{ __html: formatted }} className="mt-2" />
+    );
   };
 
   const lines = content.split("\n");
 
   return (
-    <div className={cn("prose max-w-none", className)}>
-      <header className="flex justify-between mb-6 relative">
-        {typeLabel && <h2 className="w-full">{typeLabel}</h2>}
-        {date && <p className="text-lg absolute right-0 top-2">{date}</p>}
+    <article className={cn("prose max-w-none", className)}>
+      <header className="mb-6 relative">
+        {typeLabel && <h1 className="w-full">{typeLabel}</h1>}
+        {date && (
+          <p className="mt-2 text-muted-foreground">Data da reunião: {date}</p>
+        )}
       </header>
+
       {lines.map((line, index) => (
         <React.Fragment key={index}>{renderLine(line)}</React.Fragment>
       ))}
-    </div>
+    </article>
   );
 }

@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/card";
 import { Github, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Bg } from "@/components/custom/bg";
+import { ContainerCenter } from "@/components/custom/container-center";
+import { ButtonClose } from "@/components/custom/button-close";
 
 export default function LoginPage() {
   const [isGithubLoading, setIsGithubLoading] = useState(false);
@@ -32,34 +35,39 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription>Sign in to your account to continue</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={handleGithubLogin}
-            disabled={isGithubLoading}
-          >
-            {isGithubLoading ? (
-              <>
-                <Loader2 className="animate-spin" />
-                Connecting...
-              </>
-            ) : (
-              <>
-                <Github />
-                Sign in with GitHub
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+    <Bg>
+      <ContainerCenter>
+        <Card className="w-full max-w-md mx-auto relative">
+          <ButtonClose />
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl">Iniciar sessão</CardTitle>
+            <CardDescription>
+              Escolha uma opção de login para continuar
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleGithubLogin}
+              disabled={isGithubLoading}
+            >
+              {isGithubLoading ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <Github />
+                  Sign in with GitHub
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </ContainerCenter>
+    </Bg>
   );
 }

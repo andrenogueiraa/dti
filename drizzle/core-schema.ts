@@ -12,10 +12,16 @@ import { relations } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { user } from "./auth-schema";
 import { TASK_STATUS_VALUES } from "@/shared-data/task-statuses";
+import { DOC_TYPE_VALUES } from "@/shared-data/doc-types";
 
 export const taskStatusEnum = pgEnum(
   "task_status",
   TASK_STATUS_VALUES as [string, ...string[]]
+);
+
+export const docTypeEnum = pgEnum(
+  "doc_type",
+  DOC_TYPE_VALUES as [string, ...string[]]
 );
 
 const baseColumns = {
@@ -99,6 +105,14 @@ export const sprintsRelations = relations(sprints, ({ one, many }) => ({
     references: [projects.id],
   }),
   tasks: many(tasks),
+  docReview: one(docs, {
+    fields: [sprints.docReviewId],
+    references: [docs.id],
+  }),
+  docRetrospective: one(docs, {
+    fields: [sprints.docRetrospectiveId],
+    references: [docs.id],
+  }),
 }));
 
 export const tasks = pgTable("tasks", {
@@ -217,25 +231,6 @@ export const docs = pgTable("docs", {
     .$defaultFn(() => uuidv7()),
   content: text().notNull(),
   date: timestamp().notNull(),
-  typeId: uuid()
-    .notNull()
-    .references(() => docTypes.id, { onDelete: "restrict" }),
+  type: docTypeEnum("type").notNull(),
   ...auditColumns,
 });
-
-export const docsRelations = relations(docs, ({ one }) => ({
-  type: one(docTypes, {
-    fields: [docs.typeId],
-    references: [docTypes.id],
-  }),
-}));
-
-export const docTypes = pgTable("doc_types", {
-  ...baseColumns,
-});
-
-export const docTypesRelations = relations(docTypes, ({ many }) => ({
-  docs: many(docs),
-}));
-
-// Relations

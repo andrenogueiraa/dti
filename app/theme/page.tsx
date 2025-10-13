@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Moon, Sun, Monitor, Check } from "lucide-react";
 import { ButtonClose } from "@/components/custom/button-close";
+import { Bg } from "@/components/custom/bg";
+import { ContainerCenter } from "@/components/custom/container-center";
 
 export default function ThemePage() {
   const { theme, setTheme } = useTheme();
@@ -48,47 +50,49 @@ export default function ThemePage() {
   ];
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md relative">
-        <ButtonClose />
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Tema</CardTitle>
-          <CardDescription>
-            Escolha como o DTI parece para você. Selecione um tema, ou
-            sincronize com o sistema e automaticamente mude entre dia e noite.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            {themes.map((themeOption) => {
-              const Icon = themeOption.icon;
-              const isSelected = theme === themeOption.value;
+    <Bg>
+      <ContainerCenter>
+        <Card className="w-full max-w-md relative">
+          <ButtonClose />
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Tema</CardTitle>
+            <CardDescription>
+              Selecione um tema específico ou sincronize com o tema do seu
+              sistema operacional.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              {themes.map((themeOption) => {
+                const Icon = themeOption.icon;
+                const isSelected = theme === themeOption.value;
 
-              return (
-                <Button
-                  key={themeOption.value}
-                  variant={isSelected ? "default" : "outline"}
-                  className="h-auto justify-start gap-4 p-4"
-                  onClick={() => setTheme(themeOption.value)}
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold">{themeOption.label}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {themeOption.description}
+                return (
+                  <Button
+                    key={themeOption.value}
+                    variant={isSelected ? "default" : "outline"}
+                    className="h-auto justify-start gap-4 p-4"
+                    onClick={() => setTheme(themeOption.value)}
+                  >
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                        <Icon className="h-5 w-5" />
                       </div>
+                      <div className="flex-1 text-left">
+                        <div className="font-semibold">{themeOption.label}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {themeOption.description}
+                        </div>
+                      </div>
+                      {isSelected && <Check className="h-5 w-5 ml-auto" />}
                     </div>
-                    {isSelected && <Check className="h-5 w-5 ml-auto" />}
-                  </div>
-                </Button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                  </Button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </ContainerCenter>
+    </Bg>
   );
 }

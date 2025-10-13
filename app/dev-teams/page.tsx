@@ -63,6 +63,10 @@ export default function Server() {
         <Suspense fallback={<div>Carregando projetos...</div>}>
           <DevTeams />
         </Suspense>
+
+        <Suspense fallback={<div>Carregando projetos sem equipe...</div>}>
+          <ProjectsWithNoTeam />
+        </Suspense>
       </PgContent>
     </Pg>
   );
@@ -102,7 +106,10 @@ async function DevTeams() {
 
       {devTeams.map((devTeam) => (
         <div key={devTeam.name} className="flex gap-6">
-          <div className="flex flex-col items-center justify-center min-w-48 max-w-48">
+          <Link
+            href={`/dev-teams/${devTeam.id}`}
+            className="flex flex-col items-center justify-center min-w-48 max-w-48"
+          >
             <Image
               src={devTeam.imageUrl ?? ""}
               alt={devTeam.name ?? ""}
@@ -114,7 +121,7 @@ async function DevTeams() {
             <p className="leading-4 text-sm text-muted-foreground">
               {devTeam.description ?? ""}
             </p>
-          </div>
+          </Link>
 
           <div className="flex gap-6">
             {devTeam.projects &&
@@ -157,5 +164,77 @@ async function DevTeams() {
         </div>
       ))}
     </section>
+  );
+}
+
+async function getProjectsWithNoTeam() {
+  "use server";
+  return await db.query.projects.findMany({
+    where: (projects, { isNull }) => isNull(projects.responsibleTeamId),
+    with: {
+      sprints: {
+        orderBy: (sprints, { asc }) => [asc(sprints.createdAt)],
+      },
+    },
+  });
+}
+
+async function ProjectsWithNoTeam() {
+  const cachedProjectsWithNoTeam = unstable_cache(
+    getProjectsWithNoTeam,
+    ["projects-with-no-team"],
+    {
+      revalidate: 10,
+    }
+  );
+
+  const projectsWithNoTeam = await cachedProjectsWithNoTeam();
+
+  return (
+    <section className="space-y-8 prose">
+      <h2>Projetos sem equipe</h2>
+      <div className="flex gap-6">
+        {projectsWithNoTeam.map((project) => (
+          <ProjectCard key={project.id} project={project} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ProjectCard({
+  project,
+}: {
+  project: Awaited<ReturnType<typeof getProjectsWithNoTeam>>[number];
+}) {
+  return (
+    <Link
+      key={project.id}
+      href={`/projects/${project.id}`}
+      className={cn("block p-3 rounded-md min-w-sm max-w-sm", project.color)}
+    >
+      <div className="font-medium">{project.name}</div>
+      <p className="text-muted-foreground">{project.description}</p>
+
+      <div>
+        {project.sprints &&
+          project.sprints.map((sprint, index) => (
+            <div key={index}>
+              <small className="text-xs">{sprint.name}</small>
+              <Progress value={sprint.progress} />
+              <div className="flex justify-between">
+                <small>
+                  {new Date(sprint.startDate ?? "").toLocaleDateString("pt-br")}
+                </small>
+                <small>
+                  {new Date(sprint.finishDate ?? "").toLocaleDateString(
+                    "pt-br"
+                  )}
+                </small>
+              </div>
+            </div>
+          ))}
+      </div>
+    </Link>
   );
 }

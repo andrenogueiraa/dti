@@ -13,20 +13,12 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  ChevronDown,
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
-} from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -42,12 +34,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DocType } from "./server-actions";
-import { DOC_TYPES } from "@/shared-data/doc-types";
 
-// Remove the hardcoded data - we'll pass it as props
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  image: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-export const columns: ColumnDef<DocType>[] = [
+export const columns: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -78,7 +76,7 @@ export const columns: ColumnDef<DocType>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Nome
+          Name
           <ArrowUpDown />
         </Button>
       );
@@ -88,47 +86,51 @@ export const columns: ColumnDef<DocType>[] = [
     ),
   },
   {
-    accessorKey: "description",
-    header: "Descrição",
-    cell: ({ row }) => {
-      const description = row.getValue("description") as string;
-      return (
-        <div className="max-w-[300px] truncate">
-          {description || "Sem descrição"}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "date",
+    accessorKey: "email",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Data
+          Email
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+  },
+  {
+    accessorKey: "emailVerified",
+    header: "Verified",
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        {row.getValue("emailVerified") ? (
+          <span className="text-green-600">✓</span>
+        ) : (
+          <span className="text-red-600">✗</span>
+        )}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Created
           <ArrowUpDown />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const date = row.getValue("date") as Date;
+      const date = new Date(row.getValue("createdAt"));
       return (
-        <div className="text-sm">
-          {date ? new Date(date).toLocaleDateString("pt-BR") : "N/A"}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "type",
-    header: "Tipo",
-    cell: ({ row }) => {
-      const type = row.original.type;
-      return (
-        <div className="capitalize">
-          {DOC_TYPES.find((t) => t.value === type)?.label || "Sem tipo"}
+        <div className="text-sm text-muted-foreground">
+          {date.toLocaleDateString()}
         </div>
       );
     },
@@ -137,38 +139,26 @@ export const columns: ColumnDef<DocType>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const doc = row.original;
+      const user = row.original;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menu</span>
+              <span className="sr-only">Open menu</span>
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações</DropdownMenuLabel>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(doc.id)}
+              onClick={() => navigator.clipboard.writeText(user.id)}
             >
-              Copiar ID
+              Copy user ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => window.open(`/docs/${doc.id}`, "_blank")}
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Visualizar
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Excluir
-            </DropdownMenuItem>
+            <DropdownMenuItem>View user details</DropdownMenuItem>
+            <DropdownMenuItem>Edit user</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -176,11 +166,7 @@ export const columns: ColumnDef<DocType>[] = [
   },
 ];
 
-interface DataTableProps {
-  data: DocType[];
-}
-
-export function DataTable({ data }: DataTableProps) {
+export function UsersDataTable({ users }: { users: User[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -190,7 +176,7 @@ export function DataTable({ data }: DataTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data,
+    data: users,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -212,39 +198,13 @@ export function DataTable({ data }: DataTableProps) {
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filtrar por nome..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter emails..."
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("email")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Colunas <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       <div className="overflow-hidden rounded-md border">
         <Table>
@@ -289,7 +249,7 @@ export function DataTable({ data }: DataTableProps) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Nenhum resultado encontrado.
+                  No results.
                 </TableCell>
               </TableRow>
             )}
@@ -298,8 +258,8 @@ export function DataTable({ data }: DataTableProps) {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} de{" "}
-          {table.getFilteredRowModel().rows.length} linha(s) selecionada(s).
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <div className="space-x-2">
           <Button
@@ -308,7 +268,7 @@ export function DataTable({ data }: DataTableProps) {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Anterior
+            Previous
           </Button>
           <Button
             variant="outline"
@@ -316,7 +276,7 @@ export function DataTable({ data }: DataTableProps) {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Próximo
+            Next
           </Button>
         </div>
       </div>

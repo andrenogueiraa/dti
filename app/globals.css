@@ -124,6 +124,10 @@
     @apply cursor-pointer;
   }
 
+  select {
+    @apply h-9 w-full min-w-0 rounded-md border bg-transparent px-1 py-1 text-base outline-none;
+  }
+
   .prose h1 {
     @apply scroll-m-20 text-4xl font-bold tracking-tight text-balance;
   }
@@ -173,7 +177,7 @@
   }
 
   .prose ul {
-    @apply my-6 ml-6 list-disc [&>li]:mt-2;
+    @apply ml-6 list-disc [&>li]:mt-2;
   }
 
   .prose code {

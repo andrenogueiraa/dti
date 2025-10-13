@@ -37,7 +37,7 @@ const createProjectFormSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
   color: z.string().min(1),
-  responsibleTeamId: z.string().nullable(),
+  responsibleTeamId: z.string(),
 });
 
 export type CreateProjectFormSchema = z.infer<typeof createProjectFormSchema>;
@@ -54,7 +54,7 @@ export default function CreateProject() {
       name: "",
       description: "",
       color: "",
-      responsibleTeamId: undefined,
+      responsibleTeamId: "",
     },
   });
 

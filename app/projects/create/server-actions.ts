@@ -15,10 +15,11 @@ export default async function createProject(data: CreateProjectFormSchema) {
     .values({
       name: data.name,
       description: data.description,
-      responsibleTeamId: data.responsibleTeamId,
+      color: data.color,
+      responsibleTeamId:
+        data.responsibleTeamId !== "" ? data.responsibleTeamId : null,
       startDate: new Date(),
       finishDate: new Date(),
-      color: data.color,
       isActive: true,
       isDeleted: false,
       createdAt: new Date(),
