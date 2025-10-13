@@ -8,8 +8,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { LogInLogOut } from "./client";
+import { LinkItem, LogInLogOut } from "./client";
 
 export default function Home() {
   return (
@@ -68,21 +67,5 @@ function Menu() {
       ))}
       <LogInLogOut />
     </>
-  );
-}
-
-export function LinkItem({
-  item,
-}: {
-  item: { icon: React.ReactNode; label: string; href: string };
-}) {
-  return (
-    <Link
-      href={item.href}
-      className="bg-secondary hover:bg-primary hover:text-primary-foreground p-2 rounded-md flex items-center gap-2"
-    >
-      <div className="size-6 text-muted-foreground">{item.icon}</div>
-      <span className="text-sm">{item.label}</span>
-    </Link>
   );
 }

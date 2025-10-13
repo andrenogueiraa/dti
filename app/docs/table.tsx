@@ -45,8 +45,6 @@ import {
 import { DocType } from "./server-actions";
 import { DOC_TYPES } from "@/shared-data/doc-types";
 
-// Remove the hardcoded data - we'll pass it as props
-
 export const columns: ColumnDef<DocType>[] = [
   {
     id: "select",

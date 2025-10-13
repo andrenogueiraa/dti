@@ -1,8 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
-import { LinkItem } from "./page";
-import { LogInIcon, LogOutIcon } from "lucide-react";
+import { Link, LogInIcon, LogOutIcon } from "lucide-react";
 
 export function LogInLogOut() {
   const { data: session } = authClient.useSession();
@@ -15,5 +14,21 @@ export function LogInLogOut() {
         href: session ? "/logout" : "/login",
       }}
     />
+  );
+}
+
+export function LinkItem({
+  item,
+}: {
+  item: { icon: React.ReactNode; label: string; href: string };
+}) {
+  return (
+    <Link
+      href={item.href}
+      className="bg-secondary hover:bg-primary hover:text-primary-foreground p-2 rounded-md flex items-center gap-2"
+    >
+      <div className="size-6 text-muted-foreground">{item.icon}</div>
+      <span className="text-sm">{item.label}</span>
+    </Link>
   );
 }
