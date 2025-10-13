@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/drizzle";
 
 export async function getItems() {
