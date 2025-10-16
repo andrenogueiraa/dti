@@ -10,7 +10,6 @@ import { Progress } from "@/components/ui/progress";
 import { db } from "@/drizzle";
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "lucide-react";
-import { unstable_cache } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -70,11 +69,7 @@ async function getDevTeams() {
 }
 
 async function DevTeams() {
-  const cachedDevTeams = unstable_cache(getDevTeams, ["dev-teams"], {
-    revalidate: 10,
-  });
-
-  const devTeams = await cachedDevTeams();
+  const devTeams = await getDevTeams();
 
   return (
     <section className="space-y-8">
@@ -160,22 +155,30 @@ async function getProjectsWithNoTeam() {
 }
 
 async function ProjectsWithNoTeam() {
-  const cachedProjectsWithNoTeam = unstable_cache(getProjectsWithNoTeam, [
-    "projects-with-no-team",
-  ]);
+  const projectsWithNoTeam = await getProjectsWithNoTeam();
 
-  const projectsWithNoTeam = await cachedProjectsWithNoTeam();
+  if (!projectsWithNoTeam) {
+    return <div>Erro ao carregar projetos</div>;
+  }
 
-  return (
-    <section className="space-y-8 prose pt-12">
-      <h2>Backlog de Projetos</h2>
-      <div className="flex gap-6">
-        {projectsWithNoTeam.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
-    </section>
-  );
+  if (projectsWithNoTeam.length === 0) {
+    return <div>Nenhum projeto encontrado</div>;
+  }
+
+  if (projectsWithNoTeam.length > 0) {
+    return (
+      <section className="space-y-8 prose pt-12">
+        <h2>Backlog de Projetos</h2>
+        <div className="flex gap-6">
+          {projectsWithNoTeam.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  return <div>Erro desconhecido</div>;
 }
 
 function ProjectCard({

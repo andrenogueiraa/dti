@@ -27,6 +27,18 @@ export const metadata = {
   description: "Descrição do projeto",
 };
 
+export async function generateStaticParams() {
+  const projects = await db.query.projects.findMany({
+    columns: {
+      id: true,
+    },
+  });
+
+  return projects.map((project) => ({
+    id: project.id,
+  }));
+}
+
 export default async function Server({
   params,
 }: {

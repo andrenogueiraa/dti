@@ -21,6 +21,25 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Metadata } from "next";
+import { db } from "@/drizzle";
+
+export const metadata: Metadata = {
+  title: "Detalhes da equipe",
+  description: "Detalhes da equipe",
+};
+
+export async function generateStaticParams() {
+  const devTeams = await db.query.devTeams.findMany({
+    columns: {
+      id: true,
+    },
+  });
+
+  return devTeams.map((devTeam) => ({
+    id: devTeam.id,
+  }));
+}
 
 export default async function Server({
   params,
