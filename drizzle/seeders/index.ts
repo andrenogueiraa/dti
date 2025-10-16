@@ -1,4 +1,5 @@
 import { seedDevTeams } from "./dev-teams";
+import { seedTeamRoles } from "./teamRoles";
 
 async function runSeeders() {
   console.log("🚀 Starting database seeding...");
@@ -6,6 +7,9 @@ async function runSeeders() {
   try {
     // Seed dev teams first (required for projects)
     await seedDevTeams();
+
+    // Seed team roles
+    await seedTeamRoles();
 
     console.log("✨ All seeders completed successfully!");
   } catch (error) {

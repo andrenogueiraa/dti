@@ -10,7 +10,6 @@ import { Suspense } from "react";
 import { Bg } from "@/components/custom/bg";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ButtonClose } from "@/components/custom/button-close";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
@@ -23,6 +22,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Metadata } from "next";
 import { db } from "@/drizzle";
+import { ButtonLinkRole } from "./client";
 
 export const metadata: Metadata = {
   title: "Detalhes da equipe",
@@ -72,6 +72,10 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
   if (!devTeam) {
     return <div>Equipe não encontrada</div>;
   }
+
+  const usersIds = devTeam.userDevTeams.map(
+    (userDevTeam) => userDevTeam.user.id
+  );
 
   return (
     <>
@@ -128,9 +132,13 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
           </ul>
 
           <div className="flex justify-end">
-            <Link href={`/dev-teams/${devTeamId}/users/add`}>
-              <Button variant="secondary">Adicionar usuário</Button>
-            </Link>
+            <ButtonLinkRole
+              variant="secondary"
+              href={`/dev-teams/${devTeamId}/users/add`}
+              roles={["admin"]}
+              label="Adicionar usuário"
+              allowedUsersIds={usersIds}
+            />
           </div>
         </section>
 
@@ -158,9 +166,13 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
           </ul>
 
           <div className="flex justify-end">
-            <Link href={`/dev-teams/${devTeamId}/projects/add`}>
-              <Button variant="secondary">Adicionar projeto</Button>
-            </Link>
+            <ButtonLinkRole
+              variant="secondary"
+              href={`/dev-teams/${devTeamId}/projects/add`}
+              roles={["admin"]}
+              label="Adicionar projeto"
+              allowedUsersIds={usersIds}
+            />
           </div>
         </section>
       </PgContent>

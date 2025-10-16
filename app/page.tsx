@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Pg,
   PgContent,
@@ -9,7 +8,6 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { db } from "@/drizzle";
 import { cn } from "@/lib/utils";
-import { PlusIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -20,19 +18,9 @@ export const metadata = {
     "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Amet, fugit nostrum maxime consectetur obcaecati repellendus consequatur sequi omnis ab earum!",
 };
 
-export default function Server() {
+export default async function Server() {
   return (
     <Pg className="max-w-full relative">
-      <Link
-        href="/projects/create"
-        className="absolute top-4 right-4 flex items-center gap-2"
-      >
-        <Button variant="secondary">
-          <PlusIcon />
-          <span>Novo Projeto</span>
-        </Button>
-      </Link>
-
       <PgHeader>
         <PgTitle>{metadata.title}</PgTitle>
         <PgDescription>{metadata.description}</PgDescription>
@@ -43,9 +31,12 @@ export default function Server() {
           <DevTeams />
         </Suspense>
 
-        <Suspense fallback={<div>Carregando Backlog de Projetos...</div>}>
-          <ProjectsWithNoTeam />
-        </Suspense>
+        <section className="prose">
+          <h2>Backlog de Projetos</h2>
+          <Suspense fallback={<div>Carregando Backlog de Projetos...</div>}>
+            <ProjectsWithNoTeam />
+          </Suspense>
+        </section>
       </PgContent>
     </Pg>
   );
@@ -167,14 +158,11 @@ async function ProjectsWithNoTeam() {
 
   if (projectsWithNoTeam.length > 0) {
     return (
-      <section className="space-y-8 prose pt-12">
-        <h2>Backlog de Projetos</h2>
-        <div className="flex gap-6">
-          {projectsWithNoTeam.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-      </section>
+      <div className="flex gap-6">
+        {projectsWithNoTeam.map((project) => (
+          <ProjectCard key={project.id} project={project} />
+        ))}
+      </div>
     );
   }
 

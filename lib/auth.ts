@@ -1,9 +1,15 @@
 import { db } from "@/drizzle";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { organizationClient } from "better-auth/client/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { organization } from "better-auth/plugins";
+import {
+  admin,
+  jwt,
+  openAPI,
+  organization,
+  phoneNumber,
+  username,
+} from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -20,10 +26,17 @@ export const auth = betterAuth({
   },
   plugins: [
     nextCookies(),
+    openAPI(),
+
+    admin({
+      adminUserIds: [process.env.ADMIN_USER_ID as string],
+    }),
+    jwt(),
     organization({
       teams: { enabled: true },
     }),
-    organizationClient(),
+    phoneNumber(),
+    username(),
   ],
   session: {
     cookieCache: {

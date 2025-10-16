@@ -203,6 +203,7 @@ export const userDevTeams = pgTable("user_dev_teams", {
     .references(() => roles.id, { onDelete: "restrict" }),
   joinedAt: timestamp().defaultNow(),
   leftAt: timestamp(),
+  ...auditColumns,
 });
 
 export const userDevTeamsRelations = relations(userDevTeams, ({ one }) => ({
