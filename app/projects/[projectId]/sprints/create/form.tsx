@@ -24,6 +24,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createSprint } from "./server-actions";
 import { useParams, useRouter } from "next/navigation";
 import { ButtonClose } from "@/components/custom/button-close";
+import { toast } from "sonner";
 
 const createSprintFormSchema = z.object({
   name: z.string().min(1),
@@ -53,6 +54,7 @@ export default function CreateSprintForm() {
   const createSprintMutation = useMutation({
     mutationFn: createSprint,
     onSuccess() {
+      toast.success("Sprint criada com sucesso");
       router.push(`/projects/${projectId}`);
     },
   });

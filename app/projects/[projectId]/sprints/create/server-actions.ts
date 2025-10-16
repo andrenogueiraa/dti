@@ -3,6 +3,7 @@
 import { db } from "@/drizzle";
 import { sprints } from "@/drizzle/core-schema";
 import { CreateSprintFormSchema } from "./form";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function createSprint({
   data,
@@ -11,9 +12,10 @@ export async function createSprint({
   data: CreateSprintFormSchema;
   projectId: string;
 }) {
-  const [sprint] = await db
-    .insert(sprints)
-    .values({ ...data, projectId })
-    .returning({ id: sprints.id });
-  return sprint;
+  await db.insert(sprints).values({ ...data, projectId });
+
+  revalidateTag(projectId);
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/`);
 }

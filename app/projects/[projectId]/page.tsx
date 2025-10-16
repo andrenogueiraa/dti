@@ -20,6 +20,7 @@ import { Bg } from "@/components/custom/bg";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 import { ButtonClose } from "@/components/custom/button-close";
+import { unstable_cache } from "next/cache";
 
 export const metadata = {
   title: "Projeto",
@@ -36,7 +37,7 @@ export default async function Server({
   return (
     <Bg>
       <Pg className="relative">
-        <ButtonClose />
+        <ButtonClose href="/" />
         <Suspense
           fallback={
             <ContainerCenter>
@@ -55,12 +56,34 @@ async function getProject(projectId: string) {
   "use server";
   return await db.query.projects.findFirst({
     where: eq(projects.id, projectId),
+    columns: {
+      id: true,
+      name: true,
+      description: true,
+      color: true,
+    },
     with: {
       sprints: {
+        columns: {
+          id: true,
+          name: true,
+          description: true,
+          startDate: true,
+          finishDate: true,
+          progress: true,
+        },
         orderBy: (sprints, { asc }) => [asc(sprints.startDate)],
         with: {
-          docReview: true,
-          docRetrospective: true,
+          docReview: {
+            columns: {
+              id: true,
+            },
+          },
+          docRetrospective: {
+            columns: {
+              id: true,
+            },
+          },
         },
       },
     },
@@ -68,7 +91,11 @@ async function getProject(projectId: string) {
 }
 
 async function Project({ projectId }: { projectId: string }) {
-  const project = await getProject(projectId);
+  const getCachedProject = unstable_cache(getProject, ["project", projectId], {
+    tags: ["project", projectId],
+  });
+
+  const project = await getCachedProject(projectId);
 
   if (!project) {
     return <div>Project not found</div>;
@@ -100,8 +127,16 @@ async function Project({ projectId }: { projectId: string }) {
                 <Progress value={sprint.progress} className="mt-1" />
 
                 <div className="flex justify-between text-muted-foreground mt-1">
-                  <small>{sprint.startDate?.toLocaleDateString()}</small>
-                  <small>{sprint.finishDate?.toLocaleDateString()}</small>
+                  {sprint.startDate && (
+                    <small>
+                      {new Date(sprint.startDate).toLocaleDateString("pt-BR")}
+                    </small>
+                  )}
+                  {sprint.finishDate && (
+                    <small>
+                      {new Date(sprint.finishDate).toLocaleDateString("pt-BR")}
+                    </small>
+                  )}
                 </div>
 
                 <div className="flex justify-end gap-6 mt-2">

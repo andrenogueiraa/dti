@@ -44,7 +44,7 @@ export default function Server() {
           <DevTeams />
         </Suspense>
 
-        <Suspense fallback={<div>Carregando projetos sem equipe...</div>}>
+        <Suspense fallback={<div>Carregando Backlog de Projetos...</div>}>
           <ProjectsWithNoTeam />
         </Suspense>
       </PgContent>
@@ -160,19 +160,15 @@ async function getProjectsWithNoTeam() {
 }
 
 async function ProjectsWithNoTeam() {
-  const cachedProjectsWithNoTeam = unstable_cache(
-    getProjectsWithNoTeam,
-    ["projects-with-no-team"],
-    {
-      revalidate: 10,
-    }
-  );
+  const cachedProjectsWithNoTeam = unstable_cache(getProjectsWithNoTeam, [
+    "projects-with-no-team",
+  ]);
 
   const projectsWithNoTeam = await cachedProjectsWithNoTeam();
 
   return (
-    <section className="space-y-8 prose">
-      <h2>Projetos sem equipe</h2>
+    <section className="space-y-8 prose pt-12">
+      <h2>Backlog de Projetos</h2>
       <div className="flex gap-6">
         {projectsWithNoTeam.map((project) => (
           <ProjectCard key={project.id} project={project} />
