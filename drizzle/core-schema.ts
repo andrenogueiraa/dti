@@ -34,11 +34,11 @@ const baseColumns = {
 
 const auditColumns = {
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  updatedAt: timestamp(),
   deletedAt: timestamp(),
-  createdBy: integer(),
-  updatedBy: integer(),
-  deletedBy: integer(),
+  createdBy: text().references(() => user.id, { onDelete: "cascade" }),
+  updatedBy: text().references(() => user.id, { onDelete: "cascade" }),
+  deletedBy: text().references(() => user.id, { onDelete: "cascade" }),
 };
 
 const statusColumns = {
@@ -153,8 +153,8 @@ export const rolesRelations = relations(roles, ({ many }) => ({
 
 export const permissions = pgTable("permissions", {
   ...baseColumns,
-  ...auditColumns,
   ...statusColumns,
+  ...auditColumns,
 });
 
 export const permissionsRelations = relations(permissions, ({ many }) => ({
@@ -171,8 +171,7 @@ export const rolePermissions = pgTable("role_permissions", {
   permissionId: uuid()
     .notNull()
     .references(() => permissions.id, { onDelete: "cascade" }),
-  createdAt: timestamp().defaultNow(),
-  createdBy: integer(),
+  ...auditColumns,
 });
 
 export const rolePermissionsRelations = relations(

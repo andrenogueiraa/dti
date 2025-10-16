@@ -2,15 +2,11 @@
 
 import { db } from "@/drizzle";
 import { projects } from "@/drizzle/core-schema";
-import { CreateProjectFormSchema } from "./page";
+import { CreateProjectFormSchema } from "./client";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-
-export async function getDevTeams() {
-  return await db.query.devTeams.findMany();
-}
+import { redirect } from "next/navigation";
 
 export default async function createProject(data: CreateProjectFormSchema) {
   const session = await auth.api.getSession({
@@ -27,20 +23,15 @@ export default async function createProject(data: CreateProjectFormSchema) {
       name: data.name,
       description: data.description,
       color: data.color,
-      responsibleTeamId:
-        data.responsibleTeamId !== "" ? data.responsibleTeamId : null,
+      responsibleTeamId: data.responsibleTeamId,
       startDate: new Date(),
       finishDate: new Date(),
-      isActive: true,
-      isDeleted: false,
       createdAt: new Date(),
-      updatedAt: new Date(),
       createdBy: session.user.id,
-      updatedBy: session.user.id,
-      deletedBy: null,
     })
     .returning({ id: projects.id });
 
+  revalidatePath("/");
   revalidatePath("/dev-teams");
   revalidateTag("dev-teams");
 

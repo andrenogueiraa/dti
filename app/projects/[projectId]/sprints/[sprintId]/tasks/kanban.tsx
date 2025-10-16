@@ -46,9 +46,9 @@ type DbTask = {
   createdAt: Date | null;
   updatedAt: Date | null;
   deletedAt: Date | null;
-  createdBy: number | null;
-  updatedBy: number | null;
-  deletedBy: number | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  deletedBy: string | null;
   responsibleUser: {
     id: string;
     name: string | null;

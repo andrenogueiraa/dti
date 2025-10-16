@@ -14,6 +14,13 @@ import { Button } from "@/components/ui/button";
 import { ButtonClose } from "@/components/custom/button-close";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default async function Server({
   params,
@@ -25,7 +32,7 @@ export default async function Server({
   return (
     <Bg>
       <Pg className="relative">
-        <ButtonClose />
+        <ButtonClose href="/dev-teams" />
         <Suspense
           fallback={
             <ContainerCenter>
@@ -50,14 +57,32 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
   return (
     <>
       <PgHeader>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/">Inicio</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dev-teams">Equipes</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>Equipe {devTeam.name}</BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <Image
           src={devTeam.imageUrl ?? ""}
           alt={devTeam.name ?? ""}
           width={150}
           height={150}
-          className="rounded-lg w-32 h-32 mb-4"
+          className="rounded-lg w-32 h-32 mt-4"
         />
-        <PgTitle>Equipe {devTeam.name}</PgTitle>
+        <PgTitle className="mt-4">Equipe {devTeam.name}</PgTitle>
         <PgDescription>{devTeam.description}</PgDescription>
       </PgHeader>
 
