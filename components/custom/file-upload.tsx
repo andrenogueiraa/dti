@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { uploadImage } from "@/app/uploads/server-actions";
 import { useState, useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, File, X, CheckCircle, AlertCircle } from "lucide-react";
@@ -175,7 +174,11 @@ export default function FileUpload({
           formData.append("height", height.toString());
         }
 
-        const result = await uploadImage(formData);
+        const response = await fetch("/api/upload/image", {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.json();
 
         if (!result.isSuccess) {
           throw new Error(result.error || "Upload failed");
