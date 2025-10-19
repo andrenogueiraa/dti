@@ -34,7 +34,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import {
   CheckCircle,
@@ -44,6 +44,7 @@ import {
   Cloud,
   Link,
 } from "lucide-react";
+import Image from "next/image";
 
 const URL_EXPIRES_IN = 60 * 60 * 24; // 24 hours
 
@@ -74,6 +75,8 @@ export default function AddImageToProjectForm({
   const [currentStep, setCurrentStep] = useState<UploadStep>("idle");
   const [progress, setProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imageId, setImageId] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
@@ -81,6 +84,15 @@ export default function AddImageToProjectForm({
       image: undefined,
     },
   });
+
+  // Clean up object URL when component unmounts or file changes
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   // Step 1: Validate Image
   const validateImageMutation = useMutation({
@@ -240,12 +252,30 @@ export default function AddImageToProjectForm({
         projectId,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (result) => {
       setProgress(90);
-      getFileSignedUrlMutation.mutate({
-        path: data.path,
-        expiresIn: URL_EXPIRES_IN,
-      });
+
+      // Check if the result is an error object or the image data
+      if ("isSuccess" in result && !result.isSuccess) {
+        // This is an error object, handle it as an error
+        setCurrentStep("error");
+        toast.error(`Erro ao criar registro: ${result.error}`);
+        return;
+      }
+
+      // This is the image data
+      if ("id" in result) {
+        setImageId((result as { id: string }).id);
+      }
+
+      // Get the path from the metadata, not from the database result
+      const metadata = getFileMetadataMutation.data;
+      if (metadata) {
+        getFileSignedUrlMutation.mutate({
+          path: metadata.path,
+          expiresIn: URL_EXPIRES_IN,
+        });
+      }
     },
     onError: (error) => {
       setCurrentStep("error");
@@ -270,7 +300,6 @@ export default function AddImageToProjectForm({
       });
     },
     onSuccess: (url) => {
-      const imageId = createImageOnDatabaseMutation.data.id;
       if (imageId) {
         updateImageUrlOnDatabaseMutation.mutate({
           imageId,
@@ -328,6 +357,15 @@ export default function AddImageToProjectForm({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Clean up previous preview URL
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+
+      // Create new preview URL
+      const newPreviewUrl = URL.createObjectURL(file);
+      setPreviewUrl(newPreviewUrl);
+
       form.setValue("image", file);
       setSelectedFile(file);
     }
@@ -453,6 +491,11 @@ export default function AddImageToProjectForm({
                 setCurrentStep("idle");
                 setProgress(0);
                 setSelectedFile(null);
+                setImageId(null);
+                if (previewUrl) {
+                  URL.revokeObjectURL(previewUrl);
+                  setPreviewUrl(null);
+                }
                 form.reset();
               }}
               variant="outline"
@@ -484,15 +527,37 @@ export default function AddImageToProjectForm({
                 )}
               />
               {selectedFile && (
-                <div className="p-3 bg-muted rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <FileImage className="h-4 w-4" />
-                    <span className="text-sm font-medium">
-                      {selectedFile.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
-                    </span>
+                <div className="space-y-3">
+                  {/* File Info */}
+                  <div className="p-3 bg-muted rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <FileImage className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        {selectedFile.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Image Preview */}
+                  <div className="relative">
+                    <div className="text-sm font-medium mb-2 text-muted-foreground">
+                      Preview:
+                    </div>
+                    <div className="relative w-full">
+                      <Image
+                        width={720}
+                        height={720}
+                        src={previewUrl || ""}
+                        alt="Preview"
+                        className="w-full object-cover rounded-lg"
+                      />
+                      <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                        {selectedFile.type}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

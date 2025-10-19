@@ -8,7 +8,8 @@ import {
 import { getProject } from "./server-actions";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
-import FileUpload from "@/components/custom/file-upload";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function ProjectCarousel({
   images,
@@ -47,14 +48,11 @@ export function ProjectCarousel({
             ratio={4 / 3}
             className="flex flex-col items-center justify-center space-y-4 border p-4 rounded-lg"
           >
-            <form>
-              <FileUpload
-                config={{
-                  allowedTypes: ["image/jpeg", "image/png", "image/webp"],
-                }}
-                projectId={projectId}
-              />
-            </form>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/projects/${projectId}/images/add`}>
+                Adicionar imagem
+              </Link>
+            </Button>
           </AspectRatio>
         </CarouselItem>
       </CarouselContent>
