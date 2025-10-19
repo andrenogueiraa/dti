@@ -76,15 +76,16 @@ export async function getFileMetadata({ file }: { file: File }) {
   // Full path: YYYY/MM/DD/uuidv7.extension (for Supabase storage)
   const path = `images/${year}/${month}/${day}/${uniqueFilename}`;
 
-  // Convert file to buffer
+  // Convert file to buffer and then to base64 for serialization
   const buffer = Buffer.from(await file.arrayBuffer());
+  const base64Buffer = buffer.toString("base64");
 
   if (!buffer) {
     throw new Error("Failed to convert file to buffer");
   }
 
   const imageWithAttributes = {
-    buffer,
+    buffer: base64Buffer,
     name: uniqueFilename,
     path,
     type: file.type,
@@ -100,15 +101,18 @@ export async function uploadFileToS3({
   type,
   size,
 }: {
-  buffer: Buffer;
+  buffer: string; // Now expecting base64 string
   path: string;
   type: string;
   size: number;
 }) {
+  // Convert base64 string back to Buffer
+  const bufferData = Buffer.from(buffer, "base64");
+
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: path,
-    Body: buffer,
+    Body: bufferData,
     ContentType: type,
     ContentLength: size,
   });
@@ -141,9 +145,9 @@ export async function createImageOnDatabase({
   width,
   height,
   projectId,
-  sprintId,
-  docId,
-  taskId,
+  sprintId = null,
+  docId = null,
+  taskId = null,
 }: {
   uniqueFilename: string;
   path: string;
@@ -153,9 +157,9 @@ export async function createImageOnDatabase({
   width: number;
   height: number;
   projectId: string;
-  sprintId: string;
-  docId: string;
-  taskId: string;
+  sprintId?: string | null;
+  docId?: string | null;
+  taskId?: string | null;
 }) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -172,39 +176,43 @@ export async function createImageOnDatabase({
 
   const userId = session.user.id;
 
-  const [insertedImage] = await db
-    .insert(images)
-    .values({
-      name: uniqueFilename,
-      path,
-      originalName,
-      size,
-      type,
-      width,
-      height,
-      createdBy: userId,
-      projectId,
-      sprintId,
-      docId,
-      taskId,
-    })
-    .returning({ id: images.id });
+  console.log("creating-image-on-database", {
+    uniqueFilename,
+    path,
+    originalName,
+    size,
+    type,
+    width,
+    height,
+  });
 
-  if (!insertedImage) {
-    return {
-      isSuccess: false,
-      isError: true,
-      data: null,
-      error: "Failed to insert image into database",
-    };
+  try {
+    const [insertedImage] = await db
+      .insert(images)
+      .values({
+        name: uniqueFilename,
+        path,
+        originalName,
+        size,
+        type,
+        width,
+        height,
+        createdBy: userId,
+        projectId,
+        sprintId: sprintId || null,
+        docId: docId || null,
+        taskId: taskId || null,
+      })
+      .returning({ id: images.id });
+
+    if (!insertedImage) {
+      throw new Error("Failed to insert image into database");
+    }
+    return insertedImage;
+  } catch (error) {
+    console.error("Create image on database error:", error);
+    throw new Error("Failed to insert image into database");
   }
-
-  return {
-    isSuccess: true,
-    isError: false,
-    data: insertedImage,
-    error: null,
-  };
 }
 
 export async function getFileSignedUrl({
@@ -228,20 +236,10 @@ export async function getFileSignedUrl({
       expiresIn,
     });
 
-    return {
-      isSuccess: true,
-      isError: false,
-      data: signedUrl,
-      error: null,
-    };
+    return signedUrl;
   } catch (error) {
     console.error("Get signed URL error:", error);
-    return {
-      isSuccess: false,
-      isError: true,
-      data: null,
-      error: "Failed to generate file URL",
-    };
+    throw new Error("Failed to generate file URL");
   }
 }
 
