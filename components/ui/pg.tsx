@@ -7,7 +7,7 @@ function Pg({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="pg"
       className={cn(
-        "max-w-prose mx-auto min-h-dvh bg-card text-card-foreground flex flex-col gap-6 py-6",
+        "shadow-lg max-w-prose mx-auto min-h-dvh bg-card text-card-foreground flex flex-col gap-6 py-6",
         className
       )}
       {...props}

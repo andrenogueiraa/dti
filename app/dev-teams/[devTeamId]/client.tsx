@@ -44,7 +44,7 @@ export function ButtonLinkRole({
   }
 
   if (
-    // (session.user.role && roles.includes(session.user.role as string)) ||
+    (session.user.role && roles.includes(session.user.role as string)) ||
     allowedUsersIds.includes(session.user.id)
   ) {
     return (

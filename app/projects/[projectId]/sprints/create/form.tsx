@@ -104,8 +104,8 @@ export default function CreateSprintForm() {
     <Card className="max-w-md mx-auto relative">
       <CardHeader>
         <ButtonClose />
-        <CardTitle>Criar sprint</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-2xl">Criar sprint</CardTitle>
+        <CardDescription className="text-base">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel, aperiam.
         </CardDescription>
       </CardHeader>
@@ -204,7 +204,9 @@ export default function CreateSprintForm() {
               )}
             />
 
-            <Button type="submit">Submit</Button>
+            <Button type="submit" className="w-full">
+              Criar
+            </Button>
           </form>
         </Form>
       </CardContent>

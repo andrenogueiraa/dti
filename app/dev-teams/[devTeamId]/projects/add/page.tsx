@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import CreateProject from "./client";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { Card } from "@/components/ui/card";
+import { ButtonClose } from "@/components/custom/button-close";
 
 export const metadata: Metadata = {
   title: "Adicionar projeto",
@@ -19,7 +20,8 @@ export default async function Page({
   return (
     <Bg>
       <ContainerCenter>
-        <Card className="max-w-md mx-auto mt-8 w-full">
+        <Card className="max-w-md mx-auto mt-8 w-full relative">
+          <ButtonClose href={`/`} />
           <CreateProject devTeamId={devTeamId} />
         </Card>
       </ContainerCenter>

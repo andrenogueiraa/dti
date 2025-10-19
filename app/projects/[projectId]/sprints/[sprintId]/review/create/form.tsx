@@ -25,7 +25,9 @@ import { useRouter } from "next/navigation";
 
 import { Textarea } from "@/components/ui/textarea";
 import { SimpleMarkdownPreview } from "@/components/custom/simple-markdown-preview";
+import FileUpload from "@/components/custom/file-upload";
 import { createSprintReview } from "./server-actions";
+import { useState } from "react";
 
 const createSprintReviewFormSchema = z.object({
   date: z.date(),
@@ -44,6 +46,7 @@ export default function CreateSprintReview({
   sprintId: string;
 }) {
   const router = useRouter();
+  const [imageIds, setImageIds] = useState<string[]>([]);
 
   const form = useForm<CreateSprintReviewFormSchema>({
     resolver: zodResolver(createSprintReviewFormSchema),
@@ -62,12 +65,12 @@ export default function CreateSprintReview({
   });
 
   const onSubmit = (data: CreateSprintReviewFormSchema) => {
-    createSprintReviewMutation.mutate({ data, sprintId });
+    createSprintReviewMutation.mutate({ data, sprintId, imageIds });
   };
 
   if (createSprintReviewMutation.isSuccess) {
     return (
-      <Card className="max-w-md mx-auto mt-8 text-center">
+      <Card className="w-full max-w-md mx-auto mt-8 text-center">
         <CardHeader>
           <CardTitle>Sprint Review criado com sucesso</CardTitle>
           <CardDescription>O documento foi criado com sucesso.</CardDescription>
@@ -78,11 +81,12 @@ export default function CreateSprintReview({
 
   if (createSprintReviewMutation.isError) {
     return (
-      <Card className="max-w-md mx-auto mt-8">
+      <Card className="w-full max-w-md mx-auto mt-8">
         <CardHeader>
           <CardTitle>Erro ao criar Sprint Review</CardTitle>
           <CardDescription>
-            O documento não foi criado. Por favor, tente novamente.
+            {createSprintReviewMutation.error?.message ??
+              "Erro ao criar Sprint Review"}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -91,7 +95,7 @@ export default function CreateSprintReview({
 
   if (createSprintReviewMutation.isPending) {
     return (
-      <Card className="max-w-md mx-auto mt-8">
+      <Card className="w-full max-w-md mx-auto mt-8">
         <CardHeader>
           <CardTitle>Carregando...</CardTitle>
           <CardDescription>
@@ -103,8 +107,8 @@ export default function CreateSprintReview({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 max-w-fit mx-auto">
-      <Card className="max-w-prose w-full mx-auto mt-8">
+    <div className="grid grid-cols-2 gap-4 mx-auto">
+      <Card className="w-full max-w-prose min-w-prose mx-auto mt-8">
         <CardHeader>
           <CardTitle>Criar Sprint Review</CardTitle>
           <CardDescription>
@@ -162,13 +166,28 @@ export default function CreateSprintReview({
                 )}
               />
 
-              <Button type="submit">Confirmar</Button>
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Imagens</h3>
+                <FileUpload
+                  config={{
+                    maxFiles: 5,
+                    maxFileSize: 5 * 1024 * 1024, // 5MB
+                    allowedTypes: ["image/jpeg", "image/png", "image/webp"],
+                  }}
+                  onFilesChange={setImageIds}
+                  language="pt-br"
+                />
+              </div>
+
+              <Button type="submit" className="w-full">
+                Salvar Sprint Review
+              </Button>
             </form>
           </Form>
         </CardContent>
       </Card>
 
-      <Card className="w-full max-w-prose mx-auto mt-8">
+      <Card className="w-full max-w-prose min-w-prose mx-auto mt-8">
         <CardHeader hidden>
           <CardTitle>Preview</CardTitle>
           <CardDescription>Visualize o documento criado.</CardDescription>

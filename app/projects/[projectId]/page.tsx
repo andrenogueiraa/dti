@@ -9,9 +9,7 @@ import {
   PgTitle,
 } from "@/components/ui/pg";
 import { Progress } from "@/components/ui/progress";
-import { db } from "@/drizzle";
-import { projects } from "@/drizzle/core-schema";
-import { eq } from "drizzle-orm";
+
 import { Suspense } from "react";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +18,9 @@ import { Bg } from "@/components/custom/bg";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 import { ButtonClose } from "@/components/custom/button-close";
-import { unstable_cache } from "next/cache";
+import { db } from "@/drizzle";
+import { getProject } from "./server-actions";
+import { ProjectCarousel } from "./carousel";
 
 export const metadata = {
   title: "Projeto",
@@ -64,50 +64,8 @@ export default async function Server({
   );
 }
 
-async function getProject(projectId: string) {
-  "use server";
-  return await db.query.projects.findFirst({
-    where: eq(projects.id, projectId),
-    columns: {
-      id: true,
-      name: true,
-      description: true,
-      color: true,
-    },
-    with: {
-      sprints: {
-        columns: {
-          id: true,
-          name: true,
-          description: true,
-          startDate: true,
-          finishDate: true,
-          progress: true,
-        },
-        orderBy: (sprints, { asc }) => [asc(sprints.startDate)],
-        with: {
-          docReview: {
-            columns: {
-              id: true,
-            },
-          },
-          docRetrospective: {
-            columns: {
-              id: true,
-            },
-          },
-        },
-      },
-    },
-  });
-}
-
 async function Project({ projectId }: { projectId: string }) {
-  const getCachedProject = unstable_cache(getProject, ["project", projectId], {
-    tags: ["project", projectId],
-  });
-
-  const project = await getCachedProject(projectId);
+  const project = await getProject(projectId);
 
   if (!project) {
     return <div>Project not found</div>;
@@ -120,38 +78,42 @@ async function Project({ projectId }: { projectId: string }) {
         <PgDescription>{project.description}</PgDescription>
       </PgHeader>
 
-      <PgContent className="space-y-6 prose">
-        <h2>Sprints</h2>
+      <PgContent className="space-y-6">
+        <ProjectCarousel images={project.images} projectId={projectId} />
 
-        <ul>
+        <div className="prose">
+          <h2 className="prose">Sprints</h2>
+        </div>
+
+        <ul className="space-y-8">
           {project.sprints.length > 0 ? (
             project.sprints.map((sprint) => (
-              <li key={sprint.id}>
-                {/* <Icon
-                  icon="fluent:arrow-sprint-16-filled"
-                  className="text-primary/40 w-12 h-12"
-                /> */}
-                <div className="font-semibold">{sprint.name}</div>
-                <div className="text-muted-foreground">
-                  {sprint.description}
+              <li key={sprint.id} className="grid grid-cols-4 gap-4">
+                <div className="col-span-3">
+                  <div className="font-semibold">{sprint.name}</div>
+                  <div className="text-muted-foreground">
+                    {sprint.description}
+                  </div>
+
+                  <Progress value={50} className="my-2" />
+
+                  <div className="flex justify-between text-muted-foreground pt-1">
+                    {sprint.startDate && (
+                      <small>
+                        {new Date(sprint.startDate).toLocaleDateString("pt-BR")}
+                      </small>
+                    )}
+                    {sprint.finishDate && (
+                      <small>
+                        {new Date(sprint.finishDate).toLocaleDateString(
+                          "pt-BR"
+                        )}
+                      </small>
+                    )}
+                  </div>
                 </div>
 
-                <Progress value={sprint.progress} className="mt-1" />
-
-                <div className="flex justify-between text-muted-foreground mt-1">
-                  {sprint.startDate && (
-                    <small>
-                      {new Date(sprint.startDate).toLocaleDateString("pt-BR")}
-                    </small>
-                  )}
-                  {sprint.finishDate && (
-                    <small>
-                      {new Date(sprint.finishDate).toLocaleDateString("pt-BR")}
-                    </small>
-                  )}
-                </div>
-
-                <div className="flex justify-end gap-6 mt-2">
+                <div className="space-y-4">
                   <Link
                     href={`/projects/${projectId}/sprints/${sprint.id}/tasks`}
                     className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
@@ -163,7 +125,7 @@ async function Project({ projectId }: { projectId: string }) {
                     <span className="text-xs">Tarefas</span>
                   </Link>
 
-                  {sprint.docRetrospective ? (
+                  {/* {sprint.docRetrospective ? (
                     <Link
                       href={`/projects/${projectId}/sprints/${sprint.id}/retrospective`}
                       className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
@@ -185,7 +147,7 @@ async function Project({ projectId }: { projectId: string }) {
                       />
                       <span className="text-xs">Criar Retrospective</span>
                     </Link>
-                  )}
+                  )} */}
 
                   {sprint.docReview ? (
                     <Link

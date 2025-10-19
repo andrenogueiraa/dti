@@ -1,12 +1,6 @@
 import { Bg } from "@/components/custom/bg";
 import { Pg, PgContent, PgHeader, PgTitle } from "@/components/ui/pg";
-import {
-  BookIcon,
-  Code2Icon,
-  LayoutDashboardIcon,
-  PaletteIcon,
-  UserIcon,
-} from "lucide-react";
+import { BookIcon, PaletteIcon } from "lucide-react";
 import Image from "next/image";
 import { LinkItem, LogInLogOut } from "./client";
 
@@ -33,21 +27,6 @@ export default function Home() {
 
 function Menu() {
   const menuItems = [
-    {
-      icon: <UserIcon />,
-      label: "Usuários",
-      href: "/users",
-    },
-    {
-      icon: <LayoutDashboardIcon />,
-      label: "Dashboard",
-      href: "/dashboard",
-    },
-    {
-      icon: <Code2Icon />,
-      label: "Dev Teams",
-      href: "/dev-teams",
-    },
     {
       icon: <PaletteIcon />,
       label: "Tema",

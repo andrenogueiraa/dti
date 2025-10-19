@@ -6,6 +6,7 @@ import { Bg } from "@/components/custom/bg";
 import { ButtonClose } from "@/components/custom/button-close";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
+import Image from "next/image";
 
 export const metadata = {
   title: "Sprint Review",
@@ -27,7 +28,7 @@ export default async function Page({
     <Bg>
       <Pg className="relative">
         <ButtonClose href={`/projects/${projectId}`} />
-        <PgContent>
+        <PgContent className="space-y-8">
           <Suspense
             fallback={
               <ContainerCenter>
@@ -54,11 +55,43 @@ async function SprintReview({ sprintId }: { sprintId: string }) {
     return <div>Ocorreu um erro ao carregar a ata de review.</div>;
   }
 
+  const images = sprintReview.docReview.images;
+
   return (
-    <SimpleMarkdownPreview
-      content={sprintReview.docReview.content}
-      typeLabel="Sprint Review"
-      date={sprintReview.docReview.date.toLocaleDateString("pt-BR")}
-    />
+    <>
+      <SimpleMarkdownPreview
+        content={sprintReview.docReview.content}
+        typeLabel="Sprint Review"
+        date={sprintReview.docReview.date.toLocaleDateString("pt-BR")}
+      />
+
+      {images.length > 0 && (
+        <section className="prose space-y-4">
+          <h2>Anexos</h2>
+          <div className="grid gap-4">
+            {images.map((image) => (
+              <div key={image.id}>
+                <Image
+                  src={image.url || ""}
+                  alt={image.originalName}
+                  width={image.width || 800}
+                  height={image.height || 600}
+                  className="rounded-lg object-cover"
+                  priority
+                />
+                <div>
+                  <div className="text-sm font-medium">
+                    {image.originalName}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {(image.size / 1024).toFixed(2)} KB
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
   );
 }

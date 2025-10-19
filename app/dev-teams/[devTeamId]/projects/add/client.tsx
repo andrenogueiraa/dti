@@ -28,10 +28,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { tailwindColors } from "@/shared-data/colors";
+import { COLOR_VALUES, getColorClassName } from "@/enums/colors";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const createProjectFormSchema = z.object({
   name: z.string().min(1),
@@ -43,6 +44,7 @@ const createProjectFormSchema = z.object({
 export type CreateProjectFormSchema = z.infer<typeof createProjectFormSchema>;
 
 export default function CreateProject({ devTeamId }: { devTeamId: string }) {
+  const router = useRouter();
   const form = useForm<CreateProjectFormSchema>({
     resolver: zodResolver(createProjectFormSchema),
     defaultValues: {
@@ -55,6 +57,10 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
 
   const createProjectMutation = useMutation({
     mutationFn: createProject,
+    onSuccess() {
+      toast.success("Projeto criado com sucesso");
+      router.push(`/dev-teams/${devTeamId}`);
+    },
   });
 
   const onSubmit = (data: CreateProjectFormSchema) => {
@@ -62,43 +68,12 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
   };
 
   if (createProjectMutation.isSuccess) {
-    const options = [
-      {
-        label: "Voltar para a lista de projetos",
-        href: `/dev-teams/${devTeamId}`,
-      },
-      {
-        label: "Ir para o perfil do projeto criado",
-        href: `/projects/${createProjectMutation.data.id}`,
-      },
-      {
-        label: "Criar outro projeto",
-        href: `/dev-teams/${devTeamId}/projects/add`,
-        command: () => {
-          form.reset();
-          createProjectMutation.reset();
-        },
-      },
-    ];
-
     return (
       <>
         <CardHeader>
-          <CardTitle>Projeto criado com sucesso</CardTitle>
-          <CardDescription>O projeto foi criado com sucesso.</CardDescription>
+          <CardTitle>Sucesso!</CardTitle>
+          <CardDescription>O projeto foi criado!</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {options.map((option) => (
-            <Link
-              href={option.href}
-              className="block"
-              key={option.label}
-              onClick={option.command}
-            >
-              <Button className="w-full">{option.label}</Button>
-            </Link>
-          ))}
-        </CardContent>
       </>
     );
   }
@@ -107,12 +82,11 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
     return (
       <>
         <CardHeader>
-          <CardTitle>Erro ao criar projeto</CardTitle>
+          <CardTitle>Erro!</CardTitle>
           <CardDescription>
             O projeto não foi criado. Por favor, tente novamente.
           </CardDescription>
         </CardHeader>
-        <CardContent></CardContent>
       </>
     );
   }
@@ -133,9 +107,9 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
   return (
     <>
       <CardHeader>
-        <CardTitle>Criar projeto</CardTitle>
+        <CardTitle className="text-2xl">Criar projeto</CardTitle>
         <CardDescription>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel, aperiam.
+          Crie um novo projeto para esta equipe.
         </CardDescription>
       </CardHeader>
 
@@ -147,7 +121,7 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -160,7 +134,7 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Descrição</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
                   </FormControl>
@@ -173,22 +147,25 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
               name="color"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Color</FormLabel>
+                  <FormLabel>Cor</FormLabel>
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a color" />
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione uma cor" />
                       </SelectTrigger>
                       <SelectContent>
-                        {tailwindColors.map((color) => (
-                          <SelectItem key={color.value} value={color.value}>
+                        {COLOR_VALUES.map((color) => (
+                          <SelectItem key={color} value={color}>
                             <div
-                              className={cn(color.value, "px-2 py-1 rounded")}
+                              className={cn(
+                                getColorClassName(color),
+                                "px-2 py-1 rounded"
+                              )}
                             >
-                              {color.label}
+                              {color}
                             </div>
                           </SelectItem>
                         ))}
@@ -200,7 +177,9 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
               )}
             />
 
-            <Button type="submit">Submit</Button>
+            <Button type="submit" className="w-full">
+              Criar projeto
+            </Button>
           </form>
         </Form>
       </CardContent>

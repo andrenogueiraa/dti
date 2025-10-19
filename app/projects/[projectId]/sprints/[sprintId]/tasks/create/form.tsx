@@ -22,7 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -31,7 +30,7 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createTask, getUsers } from "./server-actions";
 import { useRouter } from "next/navigation";
-import { TASK_PRIORITIES } from "@/shared-data/task-priorities";
+import { TASK_PRIORITIES } from "@/enums/task-priorities";
 
 const createTaskFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -81,56 +80,56 @@ export default function CreateTaskForm({
 
   if (isLoadingUsers) {
     return (
-      <Card className="max-w-md mx-auto mt-8">
+      <>
         <CardHeader>
           <CardTitle>Carregando...</CardTitle>
           <CardDescription>
             Carregando usuários. Por favor, aguarde.
           </CardDescription>
         </CardHeader>
-      </Card>
+      </>
     );
   }
 
   if (createTaskMutation.isSuccess) {
     return (
-      <Card className="max-w-md mx-auto mt-8 text-center">
+      <>
         <CardHeader>
           <CardTitle>Tarefa criada com sucesso</CardTitle>
           <CardDescription>A tarefa foi criada com sucesso.</CardDescription>
         </CardHeader>
-      </Card>
+      </>
     );
   }
 
   if (createTaskMutation.isError) {
     return (
-      <Card className="max-w-md mx-auto mt-8">
+      <>
         <CardHeader>
           <CardTitle>Erro ao criar tarefa</CardTitle>
           <CardDescription>
             A tarefa não foi criada. Por favor, tente novamente.
           </CardDescription>
         </CardHeader>
-      </Card>
+      </>
     );
   }
 
   if (createTaskMutation.isPending) {
     return (
-      <Card className="max-w-md mx-auto mt-8">
+      <>
         <CardHeader>
           <CardTitle>Carregando...</CardTitle>
           <CardDescription>
             A tarefa está sendo criada. Por favor, aguarde.
           </CardDescription>
         </CardHeader>
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card className="max-w-prose mx-auto mt-8">
+    <>
       <CardHeader>
         <CardTitle>Criar tarefa</CardTitle>
         <CardDescription>
@@ -180,7 +179,7 @@ export default function CreateTaskForm({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione uma prioridade" />
                       </SelectTrigger>
                     </FormControl>
@@ -208,7 +207,7 @@ export default function CreateTaskForm({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione um responsável" />
                       </SelectTrigger>
                     </FormControl>
@@ -252,10 +251,12 @@ export default function CreateTaskForm({
               )}
             />
 
-            <Button type="submit">Criar tarefa</Button>
+            <Button type="submit" className="w-full">
+              Criar tarefa
+            </Button>
           </form>
         </Form>
       </CardContent>
-    </Card>
+    </>
   );
 }

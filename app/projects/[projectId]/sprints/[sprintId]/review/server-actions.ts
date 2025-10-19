@@ -8,7 +8,11 @@ export async function getSprintReview(sprintId: string) {
   return await db.query.sprints.findFirst({
     where: eq(sprints.id, sprintId),
     with: {
-      docReview: true,
+      docReview: {
+        with: {
+          images: true,
+        },
+      },
     },
   });
 }

@@ -37,7 +37,7 @@ const devTeamsData = [
     name: "Gustavo",
     description: "Financeiro",
     imageUrl:
-      "https://media.licdn.com/dms/image/v2/D4D03AQGrU1kIUdk-Gg/profile-displayphoto-shrink_800_800/B4DZaJZEHLHwAg-/0/1746061771833?e=1761782400&v=beta&t=bkHWfk60Hd0XU__WiRdePw7Yxr9xgc5UDWcExdVs3Q4",
+      "https://media.licdn.com/dms/image/v2/D4D03AQHtbhBHrFft7A/profile-displayphoto-crop_800_800/B4DZnlegJyHwAI-/0/1760491603087?e=1762387200&v=beta&t=--NwRDr0m3oR8c1cZ4n9w57Owx7StTQigrBXgWIEOjM",
   },
   {
     name: "Leonardo",

@@ -8,6 +8,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { db } from "@/drizzle";
 import { cn } from "@/lib/utils";
+import { getColorClassName } from "@/enums/colors";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -97,7 +98,9 @@ async function DevTeams() {
                   href={`/projects/${project.id}`}
                   className={cn(
                     "block p-3 rounded-md min-w-sm max-w-sm",
-                    index > 1 ? "bg-slate-100" : project.color
+                    index > 1
+                      ? "bg-slate-100 dark:bg-slate-700"
+                      : getColorClassName(project.color)
                   )}
                 >
                   <h2 className="font-medium">{project.name}</h2>
