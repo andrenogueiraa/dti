@@ -3,7 +3,7 @@ import { ButtonClose } from "@/components/custom/button-close";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { Card } from "@/components/ui/card";
 import { Metadata } from "next";
-import AddImageToProjectForm from "./form";
+import FormUploadImage from "./form";
 
 const title = "Adicionar imagem ao projeto";
 const description = "Adicionar imagem ao projeto";
@@ -25,7 +25,8 @@ export default async function Page({
       <ContainerCenter>
         <Card className="max-w-md mx-auto w-full relative">
           <ButtonClose href={`/projects/${projectId}`} />
-          <AddImageToProjectForm projectId={projectId} />
+
+          <FormUploadImage projectId={projectId} />
         </Card>
       </ContainerCenter>
     </Bg>
