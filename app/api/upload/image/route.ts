@@ -1,11 +1,7 @@
 import { db } from "@/drizzle";
 import { images } from "@/drizzle/core-schema";
 import { auth } from "@/lib/auth";
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { uuidv7 } from "uuidv7";
@@ -39,8 +35,6 @@ export async function POST(request: Request) {
   const sprintId = file.get("sprintId") as string | null;
   const docId = file.get("docId") as string | null;
   const taskId = file.get("taskId") as string | null;
-
-  const expiresIn = 60 * 60 * 24 * 7; // 7 days (max for AWS Signature v4)
 
   if (!image) {
     return NextResponse.json(
@@ -159,33 +153,13 @@ export async function POST(request: Request) {
     );
   }
 
-  // Get signed url from s3 (using supabase storage)
-
-  const getObjectCommand = new GetObjectCommand({
-    Bucket: bucketName,
-    Key: path,
-  });
-
-  const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
-
-  let signedUrl: string;
-  try {
-    signedUrl = await getSignedUrl(s3Client, getObjectCommand, {
-      expiresIn,
-    });
-  } catch (error) {
-    console.error("Failed to get signed URL:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return NextResponse.json(
-      {
-        isSuccess: false,
-        isError: true,
-        data: null,
-        error: `Failed to generate signed URL: ${errorMessage}`,
-      },
-      { status: 500 }
-    );
-  }
+  // Generate public URL from S3 bucket endpoint and file path (bucket is now public)
+  // Extract project ID from endpoint (e.g., "https://fbheohfabygwevlvniuz.storage.supabase.co/..." -> "fbheohfabygwevlvniuz")
+  const supabaseProjectId = endpoint
+    .split(".")[0]
+    .replace("https://", "")
+    .replace("http://", "");
+  const publicUrl = `https://${supabaseProjectId}.supabase.co/storage/v1/object/public/${bucketName}/${path}`;
 
   // Create database record
 
@@ -199,8 +173,7 @@ export async function POST(request: Request) {
         path,
         type,
         size,
-        url: signedUrl,
-        urlExpiresAt: new Date(Date.now() + expiresIn * 1000),
+        url: publicUrl,
         width,
         height,
         createdBy: userId,

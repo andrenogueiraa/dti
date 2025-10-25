@@ -149,27 +149,27 @@ async function Project({ projectId }: { projectId: string }) {
                     </Link>
                   )} */}
 
-                  {sprint.docReview ? (
+                  {sprint.docReview && sprint.docReview.finishedAt ? (
                     <Link
                       href={`/projects/${projectId}/sprints/${sprint.id}/review`}
                       className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
                     >
                       <Icon
                         icon="solar:document-text-bold"
-                        className="w-7 h-7 cursor-pointer text-primary"
+                        className="w-7 h-7 cursor-pointer text-muted-foreground"
                       />
                       <span className="text-xs">Ver Review</span>
                     </Link>
                   ) : (
                     <Link
-                      href={`/projects/${projectId}/sprints/${sprint.id}/review/create`}
+                      href={`/projects/${projectId}/sprints/${sprint.id}/review/edit`}
                       className="flex items-center gap-2 rounded bg-border/30 px-2 py-1"
                     >
                       <Icon
                         icon="solar:document-text-bold"
-                        className="w-7 h-7 cursor-pointer text-muted-foreground"
+                        className="w-7 h-7 cursor-pointer text-primary"
                       />
-                      <span className="text-xs">Criar Review</span>
+                      <span className="text-xs">Editar Review</span>
                     </Link>
                   )}
                 </div>

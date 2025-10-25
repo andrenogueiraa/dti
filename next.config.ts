@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    useCache: true,
-  },
+  cacheComponents: true,
   images: {
     remotePatterns: [
       {
@@ -17,7 +15,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "fbheohfabygwevlvniuz.storage.supabase.co",
+        hostname: "fbheohfabygwevlvniuz.supabase.co",
       },
     ],
   },

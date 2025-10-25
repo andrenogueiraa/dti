@@ -243,6 +243,7 @@ export const docs = pgTable("docs", {
   content: text().notNull(),
   date: timestamp().notNull(),
   type: docTypeEnum("type").notNull(),
+  finishedAt: timestamp(),
   ...auditColumns,
 });
 
@@ -255,13 +256,13 @@ const fileColumns = {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => uuidv7()),
+  description: text(),
   originalName: text().notNull(),
   name: varchar({ length: 255 }),
   path: text().notNull(),
   type: varchar({ length: 255 }).notNull(),
   size: integer().notNull(),
   url: text(),
-  urlExpiresAt: timestamp(),
 };
 
 export const images = pgTable("images", {
