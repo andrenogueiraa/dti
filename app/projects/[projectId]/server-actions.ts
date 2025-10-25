@@ -30,11 +30,13 @@ export async function getProject(projectId: string) {
           docReview: {
             columns: {
               id: true,
+              finishedAt: true,
             },
           },
           docRetrospective: {
             columns: {
               id: true,
+              finishedAt: true,
             },
           },
         },

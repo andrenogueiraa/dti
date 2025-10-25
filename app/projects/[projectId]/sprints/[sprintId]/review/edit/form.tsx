@@ -58,6 +58,7 @@ export default function EditSprintReviewForm({
   const updateSprintReviewMutation = useMutation({
     mutationFn: updateSprintReview,
     onSuccess() {
+      updateSprintReviewMutation.reset();
       router.push(`/projects/${projectId}/sprints/${sprintId}/review/`);
     },
   });
@@ -104,7 +105,7 @@ export default function EditSprintReviewForm({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 max-w-fit mx-auto">
+    <div className="grid grid-cols-2 gap-4 mx-auto">
       <Card className="max-w-prose w-full mx-auto mt-8">
         <CardHeader>
           <CardTitle>Atualizar Sprint Review</CardTitle>
