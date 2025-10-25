@@ -154,7 +154,12 @@ export async function POST(request: Request) {
   }
 
   // Generate public URL from S3 bucket endpoint and file path (bucket is now public)
-  const publicUrl = `${endpoint}/${bucketName}/${path}`;
+  // Extract project ID from endpoint (e.g., "https://fbheohfabygwevlvniuz.storage.supabase.co/..." -> "fbheohfabygwevlvniuz")
+  const supabaseProjectId = endpoint
+    .split(".")[0]
+    .replace("https://", "")
+    .replace("http://", "");
+  const publicUrl = `https://${supabaseProjectId}.supabase.co/storage/v1/object/public/${bucketName}/${path}`;
 
   // Create database record
 

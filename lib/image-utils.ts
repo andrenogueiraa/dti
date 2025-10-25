@@ -2,11 +2,11 @@ import imageCompression from "browser-image-compression";
 
 export async function compressAndConvertToWebP({
   file,
-  maxSizeMB = 1,
-  maxWidthOrHeight = 1920,
+  maxSizeMB = 5,
+  maxWidthOrHeight,
   useWebWorker = true,
   fileType = "image/webp",
-  initialQuality = 0.8,
+  initialQuality = 1.0,
 }: {
   file: File;
   maxSizeMB?: number;
@@ -15,9 +15,16 @@ export async function compressAndConvertToWebP({
   fileType?: string;
   initialQuality?: number;
 }): Promise<File> {
+  // Calculate maxWidthOrHeight if not provided (1080px max, or original if smaller)
+  let calculatedMaxWidth = maxWidthOrHeight;
+  if (!calculatedMaxWidth) {
+    const { width: originalWidth } = await getImageDimensions(file);
+    calculatedMaxWidth = Math.min(originalWidth, 1080);
+  }
+
   const options = {
     maxSizeMB,
-    maxWidthOrHeight,
+    maxWidthOrHeight: calculatedMaxWidth,
     useWebWorker,
     fileType,
     initialQuality,

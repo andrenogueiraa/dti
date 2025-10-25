@@ -1,7 +1,10 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { getImageDimensions } from "@/lib/image-utils";
+import {
+  getImageDimensions,
+  compressAndConvertToWebP,
+} from "@/lib/image-utils";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -20,14 +23,23 @@ export default function FormUploadImage({ projectId }: { projectId: string }) {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const formData = new FormData();
-      formData.append("image", file);
-      formData.append("projectId", projectId);
-      const { width, height } = await getImageDimensions(file);
-      formData.append("width", width.toString());
-      formData.append("height", height.toString());
+      try {
+        // Convert image to WebP with 100% quality and max 1080px width
+        const convertedFile = await compressAndConvertToWebP({ file });
 
-      uploadMutation.mutate(formData);
+        const formData = new FormData();
+        formData.append("image", convertedFile);
+        formData.append("projectId", projectId);
+        const { width, height } = await getImageDimensions(convertedFile);
+        formData.append("width", width.toString());
+        formData.append("height", height.toString());
+
+        uploadMutation.mutate(formData);
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to process image"
+        );
+      }
     }
   };
 
