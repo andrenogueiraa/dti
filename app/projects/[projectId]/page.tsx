@@ -18,7 +18,7 @@ import { Bg } from "@/components/custom/bg";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 import { ButtonClose } from "@/components/custom/button-close";
-import { db } from "@/drizzle";
+// import { db } from "@/drizzle";
 import { getProject } from "./server-actions";
 import { ProjectCarousel } from "./carousel";
 
@@ -27,17 +27,17 @@ export const metadata = {
   description: "Descrição do projeto",
 };
 
-export async function generateStaticParams() {
-  const projects = await db.query.projects.findMany({
-    columns: {
-      id: true,
-    },
-  });
+// export async function generateStaticParams() {
+//   const projects = await db.query.projects.findMany({
+//     columns: {
+//       id: true,
+//     },
+//   });
 
-  return projects.map((project) => ({
-    id: project.id,
-  }));
-}
+//   return projects.map((project) => ({
+//     id: project.id,
+//   }));
+// }
 
 export default async function Server({
   params,
