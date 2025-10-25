@@ -15,7 +15,7 @@ import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 
 import { Metadata } from "next";
-import { db } from "@/drizzle";
+// import { db } from "@/drizzle";
 import { ButtonLinkRole } from "./client";
 
 export const metadata: Metadata = {
@@ -23,17 +23,17 @@ export const metadata: Metadata = {
   description: "Detalhes da equipe",
 };
 
-export async function generateStaticParams() {
-  const devTeams = await db.query.devTeams.findMany({
-    columns: {
-      id: true,
-    },
-  });
+// export async function generateStaticParams() {
+//   const devTeams = await db.query.devTeams.findMany({
+//     columns: {
+//       id: true,
+//     },
+//   });
 
-  return devTeams.map((devTeam) => ({
-    id: devTeam.id,
-  }));
-}
+//   return devTeams.map((devTeam) => ({
+//     id: devTeam.id,
+//   }));
+// }
 
 export default async function Server({
   params,
