@@ -1,5 +1,3 @@
-"use cache";
-
 import {
   Pg,
   PgContent,
@@ -14,7 +12,7 @@ import { getColorClassName } from "@/enums/colors";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { revalidatePath } from "next/cache";
+import { cacheLife, revalidatePath } from "next/cache";
 import { Button } from "@/components/ui/button";
 import { redirect } from "next/navigation";
 
@@ -25,6 +23,9 @@ export const metadata = {
 };
 
 export default async function Server() {
+  "use cache";
+
+  cacheLife("max");
   return (
     <Pg className="max-w-full relative">
       <PgHeader>
