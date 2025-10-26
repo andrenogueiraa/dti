@@ -1,3 +1,5 @@
+"use cache";
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -12,7 +14,7 @@ export const metadata: Metadata = {
   description: "DTI",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

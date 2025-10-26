@@ -32,7 +32,7 @@ export async function createSprint({
         type: "SREV",
         date: data.finishDate,
         content:
-          "## Tópicos abordados\n- Tópico 1\n- Tópico 2\n\n## Participantes\n- Participante 1\n- Participante 2",
+          "## Tópicos abordados\n- Tópico 1\n- Tópico 2\n\n## Metas para a próxima sprint\n- Meta 1\n- Meta 2\n\n## Participantes\n- Participante 1\n- Participante 2",
         createdBy: userId,
       })
       .returning({ id: docs.id });
