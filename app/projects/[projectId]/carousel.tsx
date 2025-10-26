@@ -43,17 +43,12 @@ export function ProjectCarousel({
             </CarouselItem>
           );
         })}
-        <CarouselItem>
-          <AspectRatio
-            ratio={4 / 3}
-            className="flex flex-col items-center justify-center space-y-4 border p-4 rounded-lg"
-          >
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/projects/${projectId}/images/add`}>
-                Adicionar imagem
-              </Link>
-            </Button>
-          </AspectRatio>
+        <CarouselItem className="flex flex-col justify-center items-center">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/projects/${projectId}/images/add`}>
+              Adicionar imagem
+            </Link>
+          </Button>
         </CarouselItem>
       </CarouselContent>
       <CarouselPrevious />
