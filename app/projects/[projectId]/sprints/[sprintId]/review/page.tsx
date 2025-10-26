@@ -68,7 +68,7 @@ async function SprintReview({ sprintId }: { sprintId: string }) {
       {images.length > 0 && (
         <section className="prose space-y-4">
           <h2>Anexos</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-6">
             {images.map((image) => (
               <div key={image.id}>
                 <Image
@@ -79,14 +79,6 @@ async function SprintReview({ sprintId }: { sprintId: string }) {
                   className="rounded-lg object-cover"
                   priority
                 />
-                <div>
-                  <div className="text-sm font-medium">
-                    {image.originalName}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {(image.size / 1024).toFixed(2)} KB
-                  </div>
-                </div>
               </div>
             ))}
           </div>

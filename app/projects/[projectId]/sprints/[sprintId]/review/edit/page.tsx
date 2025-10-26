@@ -39,6 +39,10 @@ async function SprintReview({
     return <div>Ocorreu um erro ao carregar a sprint review.</div>;
   }
 
+  if (docReview.finishedAt) {
+    return <div>O documento já foi finalizado. Você não pode editá-lo.</div>;
+  }
+
   return (
     <EditSprintReviewForm
       docReview={docReview}
