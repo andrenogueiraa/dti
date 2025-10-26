@@ -17,7 +17,7 @@ import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 
 import { Metadata } from "next";
-// import { db } from "@/drizzle";
+import { db } from "@/drizzle";
 import { ButtonLinkRole } from "./client";
 import { cacheLife } from "next/cache";
 
@@ -26,18 +26,14 @@ export const metadata: Metadata = {
   description: "Detalhes da equipe",
 };
 
-// export async function generateStaticParams() {
-//   "use server";
-//   const devTeams = await db.query.devTeams.findMany({
-//     columns: {
-//       id: true,
-//     },
-//   });
+export async function generateStaticParams(): Promise<{ devTeamId: string }[]> {
+  "use server";
+  const devTeams = await db.query.devTeams.findMany({
+    columns: { id: true },
+  });
 
-//   return devTeams.map((devTeam) => ({
-//     id: devTeam.id,
-//   }));
-// }
+  return devTeams.map((devTeam) => ({ devTeamId: devTeam.id }));
+}
 
 export default async function Server({
   params,
@@ -45,8 +41,8 @@ export default async function Server({
   params: Promise<{ devTeamId: string }>;
 }) {
   cacheLife("max");
-  const { devTeamId } = await params;
 
+  const { devTeamId } = await params;
   return (
     <Bg>
       <Pg className="relative">
@@ -66,6 +62,7 @@ export default async function Server({
 }
 
 async function DevTeam({ devTeamId }: { devTeamId: string }) {
+  cacheLife("max");
   const devTeam = await getDevTeam(devTeamId);
 
   if (!devTeam) {

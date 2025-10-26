@@ -1,3 +1,5 @@
+"use cache";
+
 import {
   Pg,
   PgContent,
@@ -6,15 +8,18 @@ import {
   PgTitle,
 } from "@/components/ui/pg";
 import { Progress } from "@/components/ui/progress";
-import { db } from "@/drizzle";
 import { cn } from "@/lib/utils";
 import { getColorClassName } from "@/enums/colors";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { cacheLife, revalidatePath } from "next/cache";
+import { cacheLife } from "next/cache";
 import { Button } from "@/components/ui/button";
-import { redirect } from "next/navigation";
+import {
+  getDevTeams,
+  getProjectsWithNoTeam,
+  revalidateDevTeams,
+} from "./server-actions";
 
 export const metadata = {
   title: "Visão Geral",
@@ -23,8 +28,6 @@ export const metadata = {
 };
 
 export default async function Server() {
-  "use cache";
-
   cacheLife("max");
   return (
     <Pg className="max-w-full relative">
@@ -55,29 +58,6 @@ export default async function Server() {
       </PgContent>
     </Pg>
   );
-}
-
-async function getDevTeams() {
-  "use server";
-  return await db.query.devTeams.findMany({
-    orderBy: (devTeams, { asc }) => [asc(devTeams.name)],
-    with: {
-      projects: {
-        orderBy: (projects, { asc }) => [asc(projects.id)],
-        with: {
-          sprints: {
-            orderBy: (sprints, { asc }) => [asc(sprints.createdAt)],
-          },
-        },
-      },
-    },
-  });
-}
-
-async function revalidateDevTeams() {
-  "use server";
-  revalidatePath("/");
-  redirect("/");
 }
 
 async function DevTeams() {
@@ -168,18 +148,6 @@ async function DevTeams() {
   }
 
   return <div>Erro desconhecido</div>;
-}
-
-async function getProjectsWithNoTeam() {
-  "use server";
-  return await db.query.projects.findMany({
-    where: (projects, { isNull }) => isNull(projects.responsibleTeamId),
-    with: {
-      sprints: {
-        orderBy: (sprints, { asc }) => [asc(sprints.createdAt)],
-      },
-    },
-  });
 }
 
 async function ProjectsWithNoTeam() {
