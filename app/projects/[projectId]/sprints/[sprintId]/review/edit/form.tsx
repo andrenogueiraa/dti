@@ -26,6 +26,9 @@ import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { SimpleMarkdownPreview } from "@/components/custom/simple-markdown-preview";
 import { SprintReviewType, updateSprintReview } from "./server-actions";
+import FormUploadImage from "@/app/projects/[projectId]/images/add/form";
+import Image from "next/image";
+import { ButtonClose } from "@/components/custom/button-close";
 
 const editSprintReviewFormSchema = z.object({
   date: z.date(),
@@ -106,7 +109,8 @@ export default function EditSprintReviewForm({
 
   return (
     <div className="grid grid-cols-2 gap-4 mx-auto">
-      <Card className="max-w-prose w-full mx-auto mt-8">
+      <Card className="max-w-prose w-full mx-auto mt-8 relative">
+        <ButtonClose href={`/projects/${projectId}`} />
         <CardHeader>
           <CardTitle>Atualizar Sprint Review</CardTitle>
           <CardDescription>
@@ -164,13 +168,16 @@ export default function EditSprintReviewForm({
                 )}
               />
 
-              <Button type="submit">Confirmar</Button>
+              <Button type="submit">Salvar alterações</Button>
             </form>
           </Form>
         </CardContent>
+
+        <FormUploadImage docId={docReview.id} />
       </Card>
 
-      <Card className="w-full max-w-prose mx-auto mt-8">
+      <Card className="w-full max-w-prose mx-auto mt-8 relative">
+        <ButtonClose href={`/projects/${projectId}`} />
         <CardHeader hidden>
           <CardTitle>Preview</CardTitle>
           <CardDescription>Visualize o documento criado.</CardDescription>
@@ -181,6 +188,24 @@ export default function EditSprintReviewForm({
             typeLabel={"Sprint Review"}
             date={form.watch("date").toLocaleDateString("pt-BR")}
           />
+
+          {docReview.images.length > 0 && (
+            <section className="prose mt-6">
+              <h2>Anexos</h2>
+              <div className="grid gap-6 mt-4">
+                {docReview.images.map((image) => (
+                  <div key={image.id}>
+                    <Image
+                      src={image.url || ""}
+                      alt={image.originalName}
+                      width={image.width || 800}
+                      height={image.height || 600}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </CardContent>
       </Card>
     </div>

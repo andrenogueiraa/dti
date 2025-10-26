@@ -1,3 +1,5 @@
+"use cache";
+
 import { Icon } from "@iconify/react";
 
 import {

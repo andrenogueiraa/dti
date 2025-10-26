@@ -17,7 +17,13 @@ import {
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 import { CheckIcon, XIcon } from "lucide-react";
 
-export default function FormUploadImage({ projectId }: { projectId: string }) {
+export default function FormUploadImage({
+  projectId,
+  docId,
+}: {
+  projectId?: string;
+  docId?: string;
+}) {
   const router = useRouter();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +35,8 @@ export default function FormUploadImage({ projectId }: { projectId: string }) {
 
         const formData = new FormData();
         formData.append("image", convertedFile);
-        formData.append("projectId", projectId);
+        if (projectId) formData.append("projectId", projectId);
+        if (docId) formData.append("docId", docId);
         const { width, height } = await getImageDimensions(convertedFile);
         formData.append("width", width.toString());
         formData.append("height", height.toString());
@@ -76,7 +83,12 @@ export default function FormUploadImage({ projectId }: { projectId: string }) {
     },
     onSuccess: () => {
       toast.success("Image uploaded successfully");
-      router.push(`/projects/${projectId}`);
+      if (projectId) {
+        router.push(`/projects/${projectId}`);
+      }
+      if (docId) {
+        router.refresh();
+      }
     },
     onError: (error) => {
       toast.error(error.message || "Failed to upload image");

@@ -10,7 +10,11 @@ export async function getSprintReview(sprintId: string) {
     where: eq(sprints.id, sprintId),
     columns: {},
     with: {
-      docReview: true,
+      docReview: {
+        with: {
+          images: true,
+        },
+      },
     },
   });
 }
