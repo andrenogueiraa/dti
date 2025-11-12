@@ -102,15 +102,17 @@ async function Project({ projectId }: { projectId: string }) {
                   <div className="flex justify-between text-muted-foreground pt-1">
                     {sprint.startDate && (
                       <small>
-                        {new Date(sprint.startDate).toLocaleDateString("pt-BR")}
+                        {new Date(sprint.startDate).toISOString().split("T")[0]}
                       </small>
                     )}
                     {sprint.finishDate && (
-                      <small>
-                        {new Date(sprint.finishDate).toLocaleDateString(
-                          "pt-BR"
-                        )}
-                      </small>
+                      <Link
+                        href={`/projects/${projectId}/sprints/${sprint.id}/changeEndDate`}
+                      >
+                        <small>
+                          {sprint.finishDate.toISOString().split("T")[0]}
+                        </small>
+                      </Link>
                     )}
                   </div>
                 </div>
