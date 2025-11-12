@@ -148,14 +148,17 @@ function TaskCard({ task }: { task: Task }) {
     .toUpperCase();
 
   return (
-    <Card className="gap-2 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow">
+    <Card className="gap-2 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow w-full max-w-full">
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-sm font-medium leading-tight">
+          <CardTitle className="text-sm font-medium leading-tight line-clamp-2 flex-1 min-w-0">
             {task.name || "Sem título"}
           </CardTitle>
           {priority && (
-            <Badge variant={priorityColors[priority]} className="text-xs">
+            <Badge
+              variant={priorityColors[priority]}
+              className="text-xs flex-shrink-0"
+            >
               {priorityLabels[priority]}
             </Badge>
           )}
@@ -163,7 +166,7 @@ function TaskCard({ task }: { task: Task }) {
       </CardHeader>
       <CardContent className="space-y-3">
         {task.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2 break-words">
             {task.description}
           </p>
         )}
@@ -219,7 +222,7 @@ function DroppableColumn({
       <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
         <div
           ref={setNodeRef}
-          className={`kanban-column-scroll rounded-lg p-3 h-[calc(100vh-16rem)] overflow-y-auto transition-all duration-300 ease-in-out ${
+          className={`kanban-column-scroll rounded-lg p-3 min-h-[calc(100vh-16rem)] h-full transition-all duration-300 ease-in-out ${
             column.color
           } ${isOver ? "ring-2 ring-primary ring-offset-2" : ""}`}
           style={{
@@ -408,7 +411,7 @@ export default function Kanban({ tasks: initialTasks }: { tasks: DbTask[] }) {
       modifiers={[snapCenterToCursor]}
     >
       <main className="h-full">
-        <div className="grid grid-cols-4 gap-4 h-full min-w-max">
+        <div className="grid grid-cols-4 gap-4 h-full w-full">
           {columns.map((column) => {
             const columnTasks = tasks.filter(
               (task) => task.status === column.id
