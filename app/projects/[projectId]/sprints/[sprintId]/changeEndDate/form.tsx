@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { changeEndDate, getSprint } from "./server-actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -33,17 +33,12 @@ export type ChangeEndDateFormSchema = z.infer<typeof changeEndDateFormSchema>;
 
 export default function ChangeEndDateForm({
   projectId,
-  sprintId,
+  sprint,
 }: {
   projectId: string;
-  sprintId: string;
+  sprint: NonNullable<Awaited<ReturnType<typeof getSprint>>>;
 }) {
   const router = useRouter();
-
-  const { data: sprint, isLoading: isLoadingSprint } = useQuery({
-    queryKey: ["sprint", sprintId],
-    queryFn: async () => await getSprint(sprintId),
-  });
 
   const form = useForm<ChangeEndDateFormSchema>({
     resolver: zodResolver(changeEndDateFormSchema),
@@ -54,7 +49,7 @@ export default function ChangeEndDateForm({
 
   // Update form when sprint data loads
   useEffect(() => {
-    if (sprint?.finishDate) {
+    if (sprint.finishDate) {
       const date = new Date(sprint.finishDate);
       // Only update if the date is valid
       if (!isNaN(date.getTime())) {
@@ -63,7 +58,7 @@ export default function ChangeEndDateForm({
         });
       }
     }
-  }, [sprint, form]);
+  }, [sprint.finishDate, form]);
 
   const changeEndDateMutation = useMutation({
     mutationFn: changeEndDate,
@@ -76,21 +71,8 @@ export default function ChangeEndDateForm({
   });
 
   const onSubmit = (data: ChangeEndDateFormSchema) => {
-    changeEndDateMutation.mutate({ data, sprintId, projectId });
+    changeEndDateMutation.mutate({ data, sprintId: sprint.id, projectId });
   };
-
-  if (isLoadingSprint) {
-    return (
-      <>
-        <CardHeader>
-          <CardTitle>Carregando...</CardTitle>
-          <CardDescription>
-            Carregando dados do sprint. Por favor, aguarde.
-          </CardDescription>
-        </CardHeader>
-      </>
-    );
-  }
 
   if (changeEndDateMutation.isSuccess) {
     return (

@@ -7,9 +7,20 @@ import { ChangeEndDateFormSchema } from "./form";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { unauthorized } from "next/navigation";
 
 export async function getSprint(sprintId: string) {
-  return await db.query.sprints.findFirst({
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    unauthorized();
+  }
+
+  const userId = session.user.id;
+
+  const sprint = await db.query.sprints.findFirst({
     where: eq(sprints.id, sprintId),
     columns: {
       id: true,
@@ -35,6 +46,17 @@ export async function getSprint(sprintId: string) {
       },
     },
   });
+
+  const allowedUserIds =
+    sprint?.project?.responsibleTeam?.userDevTeams.map(
+      (userDevTeam) => userDevTeam.userId
+    ) ?? [];
+
+  if (!allowedUserIds.includes(userId)) {
+    unauthorized();
+  }
+
+  return sprint;
 }
 
 export async function changeEndDate({
