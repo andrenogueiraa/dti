@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/drizzle";
-import { sprints } from "@/drizzle/core-schema";
-import { eq } from "drizzle-orm";
+import { docs, sprints } from "@/drizzle/core-schema";
+import { and, eq } from "drizzle-orm";
 import { ChangeEndDateFormSchema } from "./form";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
@@ -25,6 +25,7 @@ export async function getSprint(sprintId: string) {
     columns: {
       id: true,
       finishDate: true,
+      docReviewId: true,
     },
     with: {
       project: {
@@ -63,29 +64,40 @@ export async function changeEndDate({
   data,
   sprintId,
   projectId,
+  reviewId,
 }: {
   data: ChangeEndDateFormSchema;
   sprintId: string;
   projectId: string;
+  reviewId: string;
 }) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session) {
-    throw new Error("Unauthorized");
+    unauthorized();
   }
 
   const userId = session.user.id;
 
-  await db
-    .update(sprints)
-    .set({
-      finishDate: data.finishDate,
-      updatedAt: new Date(),
-      updatedBy: userId,
-    })
-    .where(eq(sprints.id, sprintId));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(sprints)
+      .set({
+        finishDate: data.finishDate,
+        updatedAt: new Date(),
+        updatedBy: userId,
+      })
+      .where(eq(sprints.id, sprintId));
+
+    await tx
+      .update(docs)
+      .set({
+        date: data.finishDate,
+      })
+      .where(and(eq(docs.id, reviewId), eq(docs.type, "SREV")));
+  });
 
   revalidatePath(`/projects/${projectId}`);
 }

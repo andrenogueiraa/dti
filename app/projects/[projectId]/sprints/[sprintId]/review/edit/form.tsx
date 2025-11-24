@@ -12,7 +12,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -132,39 +131,6 @@ export default function EditSprintReviewForm({
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data</FormLabel>
-                      <FormControl>
-                        <Input
-                          required
-                          type="date"
-                          value={
-                            field.value instanceof Date &&
-                            !isNaN(field.value.getTime())
-                              ? field.value.toISOString().split("T")[0]
-                              : ""
-                          }
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value
-                                ? new Date(e.target.value)
-                                : new Date()
-                            )
-                          }
-                          name={field.name}
-                          ref={field.ref}
-                          onBlur={field.onBlur}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <FormField
                   control={form.control}
                   name="content"

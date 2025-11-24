@@ -12,8 +12,19 @@ export async function getProject(projectId: string) {
       name: true,
       description: true,
       color: true,
+      status: true,
     },
     with: {
+      responsibleTeam: {
+        columns: {},
+        with: {
+          userDevTeams: {
+            columns: {
+              userId: true,
+            },
+          },
+        },
+      },
       images: true,
       pdfs: true,
       sprints: {

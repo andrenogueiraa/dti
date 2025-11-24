@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/pg";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { formatLocalDate } from "@/lib/date-utils";
 import { getColorClassName } from "@/enums/colors";
 import Image from "next/image";
 import Link from "next/link";
@@ -200,12 +201,10 @@ function ProjectCard({
               <Progress value={sprint.progress} />
               <div className="flex justify-between">
                 <small>
-                  {new Date(sprint.startDate ?? "").toLocaleDateString("pt-br")}
+                  {formatLocalDate(sprint.startDate, "pt-BR")}
                 </small>
                 <small>
-                  {new Date(sprint.finishDate ?? "").toLocaleDateString(
-                    "pt-br"
-                  )}
+                  {formatLocalDate(sprint.finishDate, "pt-BR")}
                 </small>
               </div>
             </div>

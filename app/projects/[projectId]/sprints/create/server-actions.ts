@@ -41,6 +41,8 @@ export async function createSprint({
       .insert(sprints)
       .values({
         ...data,
+        startDate: data.startDate,
+        finishDate: data.finishDate,
         projectId,
         createdBy: userId,
         docReviewId: docReview.id,

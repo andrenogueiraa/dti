@@ -7,17 +7,24 @@ import {
   timestamp,
   uuid,
   varchar,
+  date,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { v7 as uuidv7 } from "uuid";
 import { user } from "./auth-schema";
 import { TASK_STATUS_VALUES } from "@/enums/task-statuses";
+import { PROJECT_STATUS_VALUES } from "@/enums/project-statuses";
 import { DOC_TYPE_VALUES } from "@/enums/doc-types";
 import { COLOR_VALUES } from "@/enums/colors";
 
 export const taskStatusEnum = pgEnum(
   "task_status",
   TASK_STATUS_VALUES as [string, ...string[]]
+);
+
+export const projectStatusEnum = pgEnum(
+  "project_status",
+  PROJECT_STATUS_VALUES as [string, ...string[]]
 );
 
 export const docTypeEnum = pgEnum(
@@ -36,9 +43,9 @@ const baseColumns = {
 };
 
 const auditColumns = {
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp(),
-  deletedAt: timestamp(),
+  createdAt: timestamp({ withTimezone: true }).defaultNow(),
+  updatedAt: timestamp({ withTimezone: true }),
+  deletedAt: timestamp({ withTimezone: true }),
   createdBy: text().references(() => user.id, { onDelete: "cascade" }),
   updatedBy: text().references(() => user.id, { onDelete: "cascade" }),
   deletedBy: text().references(() => user.id, { onDelete: "cascade" }),
@@ -50,8 +57,8 @@ const statusColumns = {
 };
 
 const dateColumns = {
-  startDate: timestamp(),
-  finishDate: timestamp(),
+  startDate: date({ mode: "date" }),
+  finishDate: date({ mode: "date" }),
 };
 
 export const devTeams = pgTable("dev_teams", {
@@ -73,6 +80,7 @@ export const projects = pgTable("projects", {
   ...statusColumns,
   ...dateColumns,
   color: colorEnum("color").notNull().default("gray"),
+  status: projectStatusEnum("status").notNull().default("AI"),
   responsibleTeamId: uuid().references(() => devTeams.id, {
     onDelete: "restrict",
   }),
@@ -97,9 +105,11 @@ export const sprints = pgTable("sprints", {
   docRetrospectiveId: uuid().references(() => docs.id, {
     onDelete: "restrict",
   }),
-  docReviewId: uuid().references(() => docs.id, {
-    onDelete: "restrict",
-  }),
+  docReviewId: uuid()
+    .notNull()
+    .references(() => docs.id, {
+      onDelete: "restrict",
+    }),
   projectId: uuid()
     .notNull()
     .references(() => projects.id, { onDelete: "cascade" }),

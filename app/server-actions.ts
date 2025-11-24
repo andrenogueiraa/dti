@@ -9,6 +9,7 @@ export async function getDevTeams() {
     orderBy: (devTeams, { asc }) => [asc(devTeams.name)],
     with: {
       projects: {
+        where: (projects, { ne }) => ne(projects.status, "CO"),
         orderBy: (projects, { asc }) => [asc(projects.id)],
         with: {
           sprints: {

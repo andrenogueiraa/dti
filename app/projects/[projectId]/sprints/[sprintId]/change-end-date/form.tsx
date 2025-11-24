@@ -24,6 +24,7 @@ import { useMutation } from "@tanstack/react-query";
 import { changeEndDate, getSprint } from "./server-actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { formatDateForInput, parseDateFromInput } from "@/lib/date-utils";
 
 const changeEndDateFormSchema = z.object({
   finishDate: z.date(),
@@ -71,7 +72,12 @@ export default function ChangeEndDateForm({
   });
 
   const onSubmit = (data: ChangeEndDateFormSchema) => {
-    changeEndDateMutation.mutate({ data, sprintId: sprint.id, projectId });
+    changeEndDateMutation.mutate({
+      data,
+      sprintId: sprint.id,
+      projectId,
+      reviewId: sprint.docReviewId,
+    });
   };
 
   if (changeEndDateMutation.isSuccess) {
@@ -136,13 +142,16 @@ export default function ChangeEndDateForm({
                       type="date"
                       value={
                         field.value && !isNaN(field.value.getTime())
-                          ? field.value.toISOString().split("T")[0]
+                          ? formatDateForInput(field.value)
                           : ""
                       }
                       onChange={(e) => {
-                        const date = new Date(e.target.value);
-                        if (!isNaN(date.getTime())) {
-                          field.onChange(date);
+                        const dateString = e.target.value;
+                        if (dateString) {
+                          const date = parseDateFromInput(dateString);
+                          if (!isNaN(date.getTime())) {
+                            field.onChange(date);
+                          }
                         }
                       }}
                       name={field.name}

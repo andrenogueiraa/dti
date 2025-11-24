@@ -123,21 +123,23 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
         </section>
 
         <section>
-          <h2>Projetos</h2>
+          <h2>Projetos Ativos</h2>
 
           <ul>
             {devTeam.projects.length > 0 ? (
-              devTeam.projects.map((project) => (
-                <li key={project.id}>
-                  <Link href={`/projects/${project.id}`}>
-                    <span className="font-medium">{project.name}</span>
-                    <br />
-                    <span className="text-muted-foreground text-sm">
-                      {project.description}
-                    </span>
-                  </Link>
-                </li>
-              ))
+              devTeam.projects
+                .filter((project) => project.status !== "CO")
+                .map((project) => (
+                  <li key={project.id}>
+                    <Link href={`/projects/${project.id}`}>
+                      <span className="font-medium">{project.name}</span>
+                      <br />
+                      <span className="text-muted-foreground text-sm">
+                        {project.description}
+                      </span>
+                    </Link>
+                  </li>
+                ))
             ) : (
               <li className="text-muted-foreground">
                 Nenhum projeto encontrado
@@ -154,6 +156,25 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
               allowedUsersIds={usersIds}
             />
           </div>
+        </section>
+
+        <section>
+          <h2>Projetos Inativos</h2>
+          <ul>
+            {devTeam.projects
+              .filter((project) => project.status === "CO")
+              .map((project) => (
+                <li key={project.id}>
+                  <Link href={`/projects/${project.id}`}>
+                    <span className="font-medium">{project.name}</span>
+                    <br />
+                    <span className="text-muted-foreground text-sm">
+                      {project.description}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+          </ul>
         </section>
       </PgContent>
     </>
