@@ -159,8 +159,17 @@ export default function CreateSprintForm() {
                   <FormControl>
                     <Input
                       type="date"
-                      value={field.value.toISOString().split("T")[0]}
-                      onChange={field.onChange}
+                      value={
+                        field.value instanceof Date
+                          ? field.value.toISOString().split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const dateValue = e.target.value
+                          ? new Date(e.target.value)
+                          : new Date();
+                        field.onChange(dateValue);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -177,8 +186,17 @@ export default function CreateSprintForm() {
                   <FormControl>
                     <Input
                       type="date"
-                      value={field.value.toISOString().split("T")[0]}
-                      onChange={field.onChange}
+                      value={
+                        field.value instanceof Date
+                          ? field.value.toISOString().split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const dateValue = e.target.value
+                          ? new Date(e.target.value)
+                          : new Date();
+                        field.onChange(dateValue);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
