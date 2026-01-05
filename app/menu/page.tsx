@@ -1,6 +1,6 @@
 import { Bg } from "@/components/custom/bg";
 import { Pg, PgContent, PgHeader, PgTitle } from "@/components/ui/pg";
-import { BookIcon, PaletteIcon } from "lucide-react";
+import { BookIcon, PaletteIcon, CalendarIcon } from "lucide-react";
 import Image from "next/image";
 import { LinkItem, LogInLogOut } from "./client";
 
@@ -36,6 +36,11 @@ function Menu() {
       icon: <BookIcon />,
       label: "Regras",
       href: "/regras",
+    },
+    {
+      icon: <CalendarIcon />,
+      label: "Projetos Concluídos",
+      href: "/past-projects",
     },
   ];
 

@@ -1,5 +1,6 @@
 import { seedDevTeams } from "./dev-teams";
 import { seedTeamRoles } from "./teamRoles";
+import { seedConcludedProjects } from "./concluded-projects";
 
 async function runSeeders() {
   console.log("🚀 Starting database seeding...");
@@ -10,6 +11,9 @@ async function runSeeders() {
 
     // Seed team roles
     await seedTeamRoles();
+
+    // Seed concluded projects with sprints
+    await seedConcludedProjects();
 
     console.log("✨ All seeders completed successfully!");
   } catch (error) {
@@ -28,4 +32,4 @@ if (require.main === module) {
     });
 }
 
-export { runSeeders, seedDevTeams };
+export { runSeeders, seedDevTeams, seedConcludedProjects };

@@ -19,7 +19,7 @@ export function ButtonClose({ href }: { href?: string }) {
     <Button
       variant="ghost"
       size="icon"
-      className="absolute top-2 right-2"
+      className="absolute top-2 right-2 z-[100]"
       onClick={handleClick}
     >
       <X className="h-4 w-4" />

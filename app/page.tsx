@@ -21,6 +21,7 @@ import {
   getProjectsWithNoTeam,
   revalidateDevTeams,
 } from "./server-actions";
+import { CalendarIcon } from "lucide-react";
 
 export const metadata = {
   title: "Visão Geral",
@@ -55,6 +56,15 @@ export default async function Server() {
               .
             </Button>
           </form>
+        </section>
+
+        <section className="flex justify-center pt-8 border-t">
+          <Link href="/past-projects">
+            <Button variant="outline" className="flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4" />
+              Ver Projetos Concluídos
+            </Button>
+          </Link>
         </section>
       </PgContent>
     </Pg>
