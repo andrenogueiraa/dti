@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/drizzle";
-import { projects } from "@/drizzle/core-schema";
+import { projects, devTeams } from "@/drizzle/core-schema";
 import { eq } from "drizzle-orm";
 
 export async function getConcludedProjects() {
@@ -76,6 +76,18 @@ export async function getConcludedProjects() {
     .filter((p) => p !== null);
 
   return projectsWithDateRanges;
+}
+
+export async function getAllDevTeams() {
+  return await db.query.devTeams.findMany({
+    orderBy: (devTeams, { asc }) => [asc(devTeams.name)],
+    columns: {
+      id: true,
+      name: true,
+      imageUrl: true,
+      description: true,
+    },
+  });
 }
 
 export async function getAvailableYears() {

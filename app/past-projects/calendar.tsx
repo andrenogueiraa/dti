@@ -6,7 +6,7 @@ import { DevTeamColumn } from "./dev-team-column";
 import { ProjectTimeline } from "./project-timeline";
 import { CALENDAR_CONSTANTS } from "./constants";
 import { Button } from "@/components/ui/button";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, ArrowRightIcon } from "lucide-react";
 
 type Project = NonNullable<
   Awaited<
@@ -18,32 +18,41 @@ type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
 
 interface PastProjectsCalendarProps {
   initialProjects: Project[];
+  allDevTeams: Array<{
+    id: string;
+    name: string | null;
+    imageUrl: string | null;
+    description: string | null;
+  }>;
 }
 
 const { PIXELS_PER_DAY } = CALENDAR_CONSTANTS;
 
 export function PastProjectsCalendar({
   initialProjects,
+  allDevTeams,
 }: PastProjectsCalendarProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Group projects by dev team
+  // Group projects by dev team and ensure all teams are included
   const projectsByTeam = useMemo(() => {
-    const grouped = new Map<string, Project[]>();
+    // Create a map of teamId -> projects
+    const projectsByTeamId = new Map<string, Project[]>();
 
     initialProjects.forEach((project) => {
       const teamId = project.responsibleTeam?.id || "no-team";
-      if (!grouped.has(teamId)) {
-        grouped.set(teamId, []);
+      if (!projectsByTeamId.has(teamId)) {
+        projectsByTeamId.set(teamId, []);
       }
-      grouped.get(teamId)!.push(project);
+      projectsByTeamId.get(teamId)!.push(project);
     });
 
-    return Array.from(grouped.entries()).map(([, projects]) => ({
-      team: projects[0].responsibleTeam,
-      projects,
+    // Create entries for all dev teams, including those without projects
+    return allDevTeams.map((team) => ({
+      team,
+      projects: projectsByTeamId.get(team.id) || [],
     }));
-  }, [initialProjects]);
+  }, [initialProjects, allDevTeams]);
 
   // Calculate overall date range from all projects
   const { overallStart, overallEnd, calendarWidth } = useMemo(() => {
@@ -344,7 +353,7 @@ export function PastProjectsCalendar({
             }}
             title="Voltar para hoje"
           >
-            <ArrowRightCircle className="h-6 w-6" />
+            <ArrowRightIcon className="h-10 w-10" />
           </Button>
         )}
       </div>

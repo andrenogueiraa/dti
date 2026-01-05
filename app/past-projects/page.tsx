@@ -3,7 +3,7 @@ import { Bg } from "@/components/custom/bg";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 import { ButtonClose } from "@/components/custom/button-close";
-import { getConcludedProjects } from "./server-actions";
+import { getConcludedProjects, getAllDevTeams } from "./server-actions";
 import { PastProjectsCalendar } from "./calendar";
 
 export const metadata = {
@@ -31,7 +31,15 @@ export default async function PastProjectsPage() {
 }
 
 async function PastProjectsCalendarWrapper() {
-  const projects = await getConcludedProjects();
+  const [projects, allDevTeams] = await Promise.all([
+    getConcludedProjects(),
+    getAllDevTeams(),
+  ]);
 
-  return <PastProjectsCalendar initialProjects={projects} />;
+  return (
+    <PastProjectsCalendar
+      initialProjects={projects}
+      allDevTeams={allDevTeams}
+    />
+  );
 }
