@@ -1,9 +1,6 @@
 "use server";
 
 import { db } from "@/drizzle";
-import { projects } from "@/drizzle/core-schema";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 export async function getAllProjects() {
   return await db.query.projects.findMany({
@@ -37,11 +34,3 @@ export async function getAllProjects() {
     },
   });
 }
-
-export async function updateProjectStatus(projectId: string, status: string) {
-  await db.update(projects).set({ status }).where(eq(projects.id, projectId));
-  
-  revalidatePath("/dashboard");
-  revalidatePath("/");
-}
-
