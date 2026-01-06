@@ -84,6 +84,10 @@ export const projects = pgTable("projects", {
   responsibleTeamId: uuid().references(() => devTeams.id, {
     onDelete: "restrict",
   }),
+  complexity: varchar({ length: 20 }),
+  socialImpact: integer(),
+  semarhImpact: integer(),
+  estimatedWeeks: integer(),
 });
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({

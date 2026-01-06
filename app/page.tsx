@@ -58,7 +58,12 @@ export default async function Server() {
           </form>
         </section>
 
-        <section className="flex justify-center pt-8 border-t">
+        <section className="flex justify-center gap-4 pt-8 border-t">
+          <Link href="/future-projects">
+            <Button variant="outline" className="flex items-center gap-2">
+              Ver Projetos Futuros
+            </Button>
+          </Link>
           <Link href="/past-projects">
             <Button variant="outline" className="flex items-center gap-2">
               <CalendarIcon className="h-4 w-4" />
