@@ -59,6 +59,11 @@ export default async function Server() {
         </section>
 
         <section className="flex justify-center gap-4 pt-8 border-t">
+          <Link href="/dashboard">
+            <Button variant="outline" className="flex items-center gap-2">
+              Dashboard Kanban
+            </Button>
+          </Link>
           <Link href="/future-projects">
             <Button variant="outline" className="flex items-center gap-2">
               Ver Projetos Futuros
