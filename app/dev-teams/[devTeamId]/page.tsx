@@ -1,3 +1,5 @@
+"use cache";
+
 import {
   Pg,
   PgContent,
@@ -15,33 +17,32 @@ import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 
 import { Metadata } from "next";
-// import { db } from "@/drizzle";
+import { db } from "@/drizzle";
 import { ButtonLinkRole } from "./client";
+import { cacheLife } from "next/cache";
 
 export const metadata: Metadata = {
   title: "Detalhes da equipe",
   description: "Detalhes da equipe",
 };
 
-// export async function generateStaticParams() {
-//   const devTeams = await db.query.devTeams.findMany({
-//     columns: {
-//       id: true,
-//     },
-//   });
+export async function generateStaticParams(): Promise<{ devTeamId: string }[]> {
+  "use server";
+  const devTeams = await db.query.devTeams.findMany({
+    columns: { id: true },
+  });
 
-//   return devTeams.map((devTeam) => ({
-//     id: devTeam.id,
-//   }));
-// }
+  return devTeams.map((devTeam) => ({ devTeamId: devTeam.id }));
+}
 
 export default async function Server({
   params,
 }: {
   params: Promise<{ devTeamId: string }>;
 }) {
-  const { devTeamId } = await params;
+  cacheLife("max");
 
+  const { devTeamId } = await params;
   return (
     <Bg>
       <Pg className="relative">
@@ -61,6 +62,7 @@ export default async function Server({
 }
 
 async function DevTeam({ devTeamId }: { devTeamId: string }) {
+  cacheLife("max");
   const devTeam = await getDevTeam(devTeamId);
 
   if (!devTeam) {
@@ -121,21 +123,23 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
         </section>
 
         <section>
-          <h2>Projetos</h2>
+          <h2>Projetos Ativos</h2>
 
           <ul>
             {devTeam.projects.length > 0 ? (
-              devTeam.projects.map((project) => (
-                <li key={project.id}>
-                  <Link href={`/projects/${project.id}`}>
-                    <span className="font-medium">{project.name}</span>
-                    <br />
-                    <span className="text-muted-foreground text-sm">
-                      {project.description}
-                    </span>
-                  </Link>
-                </li>
-              ))
+              devTeam.projects
+                .filter((project) => project.status !== "CO")
+                .map((project) => (
+                  <li key={project.id}>
+                    <Link href={`/projects/${project.id}`}>
+                      <span className="font-medium">{project.name}</span>
+                      <br />
+                      <span className="text-muted-foreground text-sm">
+                        {project.description}
+                      </span>
+                    </Link>
+                  </li>
+                ))
             ) : (
               <li className="text-muted-foreground">
                 Nenhum projeto encontrado
@@ -152,6 +156,25 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
               allowedUsersIds={usersIds}
             />
           </div>
+        </section>
+
+        <section>
+          <h2>Projetos Inativos</h2>
+          <ul>
+            {devTeam.projects
+              .filter((project) => project.status === "CO")
+              .map((project) => (
+                <li key={project.id}>
+                  <Link href={`/projects/${project.id}`}>
+                    <span className="font-medium">{project.name}</span>
+                    <br />
+                    <span className="text-muted-foreground text-sm">
+                      {project.description}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+          </ul>
         </section>
       </PgContent>
     </>

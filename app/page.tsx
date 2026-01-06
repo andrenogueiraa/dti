@@ -1,3 +1,5 @@
+"use cache";
+
 import {
   Pg,
   PgContent,
@@ -6,15 +8,18 @@ import {
   PgTitle,
 } from "@/components/ui/pg";
 import { Progress } from "@/components/ui/progress";
-import { db } from "@/drizzle";
 import { cn } from "@/lib/utils";
 import { getColorClassName } from "@/enums/colors";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { revalidatePath } from "next/cache";
+import { cacheLife } from "next/cache";
 import { Button } from "@/components/ui/button";
-import { redirect } from "next/navigation";
+import {
+  getDevTeams,
+  revalidateDevTeams,
+} from "./server-actions";
+import { CalendarIcon } from "lucide-react";
 
 export const metadata = {
   title: "Visão Geral",
@@ -23,6 +28,7 @@ export const metadata = {
 };
 
 export default async function Server() {
+  cacheLife("max");
   return (
     <Pg className="max-w-full relative">
       <PgHeader>
@@ -35,12 +41,6 @@ export default async function Server() {
           <DevTeams />
         </Suspense>
 
-        <section className="prose space-y-4">
-          <h2>Backlog de Projetos</h2>
-          <Suspense fallback={<div>Carregando Backlog de Projetos...</div>}>
-            <ProjectsWithNoTeam />
-          </Suspense>
-        </section>
 
         <section>
           <form action={revalidateDevTeams} className="flex justify-end">
@@ -49,32 +49,28 @@ export default async function Server() {
             </Button>
           </form>
         </section>
+
+        <section className="flex justify-center gap-4 pt-8 border-t">
+          <Link href="/dashboard">
+            <Button variant="outline" className="flex items-center gap-2">
+              Dashboard Kanban
+            </Button>
+          </Link>
+          <Link href="/future-projects">
+            <Button variant="outline" className="flex items-center gap-2">
+              Ver Projetos Futuros
+            </Button>
+          </Link>
+          <Link href="/past-projects">
+            <Button variant="outline" className="flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4" />
+              Ver Projetos Concluídos
+            </Button>
+          </Link>
+        </section>
       </PgContent>
     </Pg>
   );
-}
-
-async function getDevTeams() {
-  "use server";
-  return await db.query.devTeams.findMany({
-    orderBy: (devTeams, { asc }) => [asc(devTeams.name)],
-    with: {
-      projects: {
-        orderBy: (projects, { asc }) => [asc(projects.id)],
-        with: {
-          sprints: {
-            orderBy: (sprints, { asc }) => [asc(sprints.createdAt)],
-          },
-        },
-      },
-    },
-  });
-}
-
-async function revalidateDevTeams() {
-  "use server";
-  revalidatePath("/");
-  redirect("/");
 }
 
 async function DevTeams() {
@@ -91,12 +87,7 @@ async function DevTeams() {
   if (devTeams.length > 0) {
     return (
       <section className="space-y-8">
-        <div className="flex gap-6 text-center pt-6">
-          <div className="min-w-48 font-semibold"></div>
-          <div className="w-full max-w-sm font-semibold">Projeto Atual</div>
-          <div className="w-full max-w-sm font-semibold">Próximo</div>
-        </div>
-
+        
         {devTeams.map((devTeam) => (
           <div key={devTeam.name} className="flex gap-6">
             <Link
@@ -167,79 +158,4 @@ async function DevTeams() {
   return <div>Erro desconhecido</div>;
 }
 
-async function getProjectsWithNoTeam() {
-  "use server";
-  return await db.query.projects.findMany({
-    where: (projects, { isNull }) => isNull(projects.responsibleTeamId),
-    with: {
-      sprints: {
-        orderBy: (sprints, { asc }) => [asc(sprints.createdAt)],
-      },
-    },
-  });
-}
 
-async function ProjectsWithNoTeam() {
-  const projectsWithNoTeam = await getProjectsWithNoTeam();
-
-  if (!projectsWithNoTeam) {
-    return (
-      <div className="text-muted-foreground">Erro ao carregar projetos</div>
-    );
-  }
-
-  if (projectsWithNoTeam.length === 0) {
-    return (
-      <div className="text-muted-foreground">Nenhum projeto encontrado</div>
-    );
-  }
-
-  if (projectsWithNoTeam.length > 0) {
-    return (
-      <div className="flex gap-6">
-        {projectsWithNoTeam.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
-    );
-  }
-
-  return <div>Erro desconhecido</div>;
-}
-
-function ProjectCard({
-  project,
-}: {
-  project: Awaited<ReturnType<typeof getProjectsWithNoTeam>>[number];
-}) {
-  return (
-    <Link
-      key={project.id}
-      href={`/projects/${project.id}`}
-      className={cn("block p-3 rounded-md min-w-sm max-w-sm", project.color)}
-    >
-      <div className="font-medium">{project.name}</div>
-      <p className="text-muted-foreground">{project.description}</p>
-
-      <div>
-        {project.sprints &&
-          project.sprints.map((sprint, index) => (
-            <div key={index}>
-              <small className="text-xs">{sprint.name}</small>
-              <Progress value={sprint.progress} />
-              <div className="flex justify-between">
-                <small>
-                  {new Date(sprint.startDate ?? "").toLocaleDateString("pt-br")}
-                </small>
-                <small>
-                  {new Date(sprint.finishDate ?? "").toLocaleDateString(
-                    "pt-br"
-                  )}
-                </small>
-              </div>
-            </div>
-          ))}
-      </div>
-    </Link>
-  );
-}

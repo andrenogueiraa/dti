@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +32,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createTask, getUsers } from "./server-actions";
 import { useRouter } from "next/navigation";
 import { TASK_PRIORITIES } from "@/enums/task-priorities";
+import { Textarea } from "@/components/ui/textarea";
 
 const createTaskFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -41,6 +43,34 @@ const createTaskFormSchema = z.object({
 });
 
 export type CreateTaskFormSchema = z.infer<typeof createTaskFormSchema>;
+
+function TagsInput({
+  value,
+  onChange,
+}: {
+  value: string[] | undefined;
+  onChange: (tags: string[]) => void;
+}) {
+  // Initialize from form value, but then maintain independent state
+  const [inputValue, setInputValue] = useState(() => value?.join(", ") || "");
+
+  return (
+    <Input
+      placeholder="Digite as tags separadas por vírgula"
+      value={inputValue}
+      onChange={(e) => {
+        const newValue = e.target.value;
+        setInputValue(newValue);
+        // Parse tags and update form field
+        const tags = newValue
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0);
+        onChange(tags);
+      }}
+    />
+  );
+}
 
 export default function CreateTaskForm({
   projectId,
@@ -75,7 +105,7 @@ export default function CreateTaskForm({
   });
 
   const onSubmit = (data: CreateTaskFormSchema) => {
-    createTaskMutation.mutate({ data, sprintId });
+    createTaskMutation.mutate({ data, sprintId, projectId });
   };
 
   if (isLoadingUsers) {
@@ -161,7 +191,7 @@ export default function CreateTaskForm({
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Textarea {...field} rows={8} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -231,17 +261,7 @@ export default function CreateTaskForm({
                 <FormItem>
                   <FormLabel>Tags</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Digite as tags separadas por vírgula"
-                      value={field.value?.join(", ") || ""}
-                      onChange={(e) => {
-                        const tags = e.target.value
-                          .split(",")
-                          .map((tag) => tag.trim())
-                          .filter((tag) => tag.length > 0);
-                        field.onChange(tags);
-                      }}
-                    />
+                    <TagsInput value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormDescription>
                     Separe as tags com vírgulas (ex: bug, frontend, urgente)

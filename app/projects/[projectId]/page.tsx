@@ -1,3 +1,5 @@
+"use cache";
+
 import { Icon } from "@iconify/react";
 
 import {
@@ -21,6 +23,10 @@ import { ButtonClose } from "@/components/custom/button-close";
 // import { db } from "@/drizzle";
 import { getProject } from "./server-actions";
 import { ProjectCarousel } from "./carousel";
+import { EndDate } from "./client";
+import { formatLocalDate } from "@/lib/date-utils";
+import { Badge } from "@/components/ui/badge";
+import { PROJECT_STATUSES } from "@/enums/project-statuses";
 
 export const metadata = {
   title: "Projeto",
@@ -71,11 +77,24 @@ async function Project({ projectId }: { projectId: string }) {
     return <div>Project not found</div>;
   }
 
+  const statusLabel =
+    PROJECT_STATUSES.find((s) => s.value === project.status)?.label ||
+    project.status;
+
   return (
     <>
       <PgHeader>
-        <PgTitle className="max-w-xl">{project.name}</PgTitle>
-        <PgDescription>{project.description}</PgDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <PgTitle className="max-w-xl">{project.name}</PgTitle>
+            <PgDescription>{project.description}</PgDescription>
+          </div>
+          <Link href={`/projects/${projectId}/change-status`}>
+            <Badge variant="outline" className="cursor-pointer">
+              {statusLabel}
+            </Badge>
+          </Link>
+        </div>
       </PgHeader>
 
       <PgContent className="space-y-6">
@@ -95,20 +114,20 @@ async function Project({ projectId }: { projectId: string }) {
                     {sprint.description}
                   </div>
 
-                  <Progress value={50} className="my-2" />
+                  <Progress value={50} className="mt-2" />
 
                   <div className="flex justify-between text-muted-foreground pt-1">
                     {sprint.startDate && (
                       <small>
-                        {new Date(sprint.startDate).toLocaleDateString("pt-BR")}
+                        {formatLocalDate(sprint.startDate, "pt-BR")}
                       </small>
                     )}
                     {sprint.finishDate && (
-                      <small>
-                        {new Date(sprint.finishDate).toLocaleDateString(
-                          "pt-BR"
-                        )}
-                      </small>
+                      <EndDate
+                        project={project}
+                        sprintId={sprint.id}
+                        sprintFinishDate={new Date(sprint.finishDate)}
+                      />
                     )}
                   </div>
                 </div>

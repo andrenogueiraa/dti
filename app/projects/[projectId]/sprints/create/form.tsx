@@ -17,6 +17,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -25,6 +26,7 @@ import { createSprint } from "./server-actions";
 import { useParams, useRouter } from "next/navigation";
 import { ButtonClose } from "@/components/custom/button-close";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 const createSprintFormSchema = z.object({
   name: z.string().min(1),
@@ -46,7 +48,7 @@ export default function CreateSprintForm() {
       name: "",
       description: "",
       startDate: new Date(),
-      finishDate: new Date(),
+      finishDate: new Date(new Date().setDate(new Date().getDate() + 15)),
       progress: 0,
     },
   });
@@ -67,8 +69,8 @@ export default function CreateSprintForm() {
     return (
       <Card className="max-w-md mx-auto text-center">
         <CardHeader>
-          <CardTitle>Projeto criado com sucesso</CardTitle>
-          <CardDescription>O projeto foi criado com sucesso.</CardDescription>
+          <CardTitle>Sprint criada com sucesso</CardTitle>
+          <CardDescription>O sprint foi criada com sucesso.</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -76,13 +78,19 @@ export default function CreateSprintForm() {
 
   if (createSprintMutation.isError) {
     return (
-      <Card className="max-w-md mx-auto">
+      <Card className="max-w-md mx-auto relative">
+        <ButtonClose href={`/projects/${projectId}`} />
         <CardHeader>
           <CardTitle>Erro ao criar sprint</CardTitle>
           <CardDescription>
-            O projeto não foi criado. Por favor, tente novamente.
+            A sprint não foi criada. Por favor, tente novamente.
           </CardDescription>
         </CardHeader>
+        <CardFooter className="flex justify-end">
+          <Button onClick={() => createSprintMutation.reset()}>
+            Tentar novamente
+          </Button>
+        </CardFooter>
       </Card>
     );
   }
@@ -106,7 +114,8 @@ export default function CreateSprintForm() {
         <ButtonClose />
         <CardTitle className="text-2xl">Criar sprint</CardTitle>
         <CardDescription className="text-base">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel, aperiam.
+          A data de início não poderá ser alterada posteriormente. A data de
+          término e o progresso podem ser alterados até o final da sprint.
         </CardDescription>
       </CardHeader>
 
@@ -134,7 +143,7 @@ export default function CreateSprintForm() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Textarea {...field} rows={8} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,11 +159,17 @@ export default function CreateSprintForm() {
                   <FormControl>
                     <Input
                       type="date"
-                      value={field.value.toISOString().split("T")[0]}
-                      onChange={(e) => field.onChange(new Date(e.target.value))}
-                      name={field.name}
-                      ref={field.ref}
-                      onBlur={field.onBlur}
+                      value={
+                        field.value instanceof Date
+                          ? field.value.toISOString().split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const dateValue = e.target.value
+                          ? new Date(e.target.value)
+                          : new Date();
+                        field.onChange(dateValue);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -171,11 +186,17 @@ export default function CreateSprintForm() {
                   <FormControl>
                     <Input
                       type="date"
-                      value={field.value.toISOString().split("T")[0]}
-                      onChange={(e) => field.onChange(new Date(e.target.value))}
-                      name={field.name}
-                      ref={field.ref}
-                      onBlur={field.onBlur}
+                      value={
+                        field.value instanceof Date
+                          ? field.value.toISOString().split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const dateValue = e.target.value
+                          ? new Date(e.target.value)
+                          : new Date();
+                        field.onChange(dateValue);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

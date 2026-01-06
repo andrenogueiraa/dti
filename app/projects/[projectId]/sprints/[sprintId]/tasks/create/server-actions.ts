@@ -4,18 +4,24 @@ import { db } from "@/drizzle";
 import { tasks } from "@/drizzle/core-schema";
 import { user } from "@/drizzle/auth-schema";
 import { CreateTaskFormSchema } from "./form";
+import { revalidatePath } from "next/cache";
 
 export async function createTask({
   data,
   sprintId,
+  projectId,
 }: {
   data: CreateTaskFormSchema;
   sprintId: string;
+  projectId: string;
 }) {
   const [task] = await db
     .insert(tasks)
     .values({ ...data, sprintId })
     .returning({ id: tasks.id });
+
+  revalidatePath(`/projects/${projectId}/sprints/${sprintId}/tasks`);
+
   return task;
 }
 

@@ -38,7 +38,7 @@ export default async function Page({
   }
 
   return (
-    <Pg className="max-w-[1440px]">
+    <Pg className="max-w-full">
       <ButtonClose />
 
       <PgHeader className="relative">
