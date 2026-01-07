@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "push": "drizzle-kit push",
-    "seed": "tsx drizzle/seeders/index.ts"
+    "seed": "tsx drizzle/seeders/index.ts",
+    "postinstall": "drizzle-kit push"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.913.0",
