@@ -72,18 +72,27 @@ export function MonitoringClient({ teams }: MonitoringClientProps) {
           <CardContent className="space-y-3">
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Último Review:</span>
+                <span className="text-muted-foreground">Sprint Anterior:</span>
                 <span className="font-medium">
-                  {team.lastFinishedDocReviewDate
-                    ? formatDate(team.lastFinishedDocReviewDate)
-                    : "Nunca"}
+                  {team.previousSprint
+                    ? formatDate(team.previousSprint.finishDate)
+                    : "Sem sprints"}
                 </span>
               </div>
-              {team.daysSinceLastReview !== null && (
+              {team.previousSprint && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Dias desde:</span>
-                  <span className="font-medium">
-                    {formatDays(team.daysSinceLastReview)}
+                  <span className="text-muted-foreground">Doc Review:</span>
+                  <span
+                    className={cn(
+                      "font-medium",
+                      team.previousSprint.hasDocReviewFinished
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    )}
+                  >
+                    {team.previousSprint.hasDocReviewFinished
+                      ? "✓ Finalizado"
+                      : "✗ Não finalizado"}
                   </span>
                 </div>
               )}
@@ -93,29 +102,43 @@ export function MonitoringClient({ teams }: MonitoringClientProps) {
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Próxima Sprint:</span>
                 <span className="font-medium">
-                  {team.activeSprintFinishDate
-                    ? formatDate(team.activeSprintFinishDate)
-                    : "Sem sprint ativa"}
+                  {team.nextSprint
+                    ? formatDate(team.nextSprint.finishDate)
+                    : "Sem próxima sprint"}
                 </span>
               </div>
-              {team.lastFinishedDocReviewDate &&
-                team.activeSprintFinishDate && (
-                  <div className="flex justify-between text-sm mt-1">
-                    <span className="text-muted-foreground">
-                      Dias até finalizar:
-                    </span>
-                    <span className="font-medium">
-                      {formatDays(
-                        Math.floor(
-                          (team.activeSprintFinishDate.getTime() -
-                            team.lastFinishedDocReviewDate.getTime()) /
-                            (1000 * 60 * 60 * 24)
-                        )
-                      )}
-                    </span>
-                  </div>
-                )}
+              {team.previousSprint && team.nextSprint && (
+                <div className="flex justify-between text-sm mt-1">
+                  <span className="text-muted-foreground">
+                    Dias entre sprints:
+                  </span>
+                  <span className="font-medium">
+                    {formatDays(
+                      Math.floor(
+                        (team.nextSprint.finishDate.getTime() -
+                          team.previousSprint.finishDate.getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      )
+                    )}
+                  </span>
+                </div>
+              )}
             </div>
+
+            {team.alert && (
+              <div className="pt-2 border-t">
+                <p
+                  className={cn(
+                    "text-xs font-medium text-center",
+                    team.alert.includes("finalizada antes")
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-yellow-600 dark:text-yellow-400"
+                  )}
+                >
+                  {team.alert}
+                </p>
+              </div>
+            )}
 
             <div className="pt-4">
               <Link
@@ -131,4 +154,3 @@ export function MonitoringClient({ teams }: MonitoringClientProps) {
     </div>
   );
 }
-
