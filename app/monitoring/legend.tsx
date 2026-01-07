@@ -12,7 +12,11 @@ export function MonitoringLegend() {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 flex-shrink-0" />
-            <span className="text-muted-foreground">Último Doc Review</span>
+            <span className="text-muted-foreground">Sprint Anterior (com review)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-red-600 flex-shrink-0" />
+            <span className="text-muted-foreground">Sprint Anterior (sem review)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-transparent border-2 border-green-500 flex-shrink-0" />

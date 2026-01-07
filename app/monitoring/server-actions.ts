@@ -6,46 +6,69 @@ export type TeamMonitoringData = {
   id: string;
   name: string | null;
   imageUrl: string | null;
-  lastFinishedDocReviewDate: Date | null;
-  activeSprintFinishDate: Date | null;
-  daysSinceLastReview: number | null;
+
+  // Sprint Anterior (finishDate <= hoje)
+  previousSprint: {
+    finishDate: Date;
+    hasDocReviewFinished: boolean;
+  } | null;
+
+  // Próxima Sprint (finishDate > hoje)
+  nextSprint: {
+    finishDate: Date;
+    hasDocReviewFinished: boolean; // Deve ser sempre false, mas pode ter erro
+  } | null;
+
+  // Status e alertas
   status: "green" | "yellow" | "red";
+  alert: string | null; // Mensagens de alerta
 };
 
 function calculateStatus(
-  lastFinishedDocReview: Date | null,
-  activeSprintFinishDate: Date | null
+  previousSprint: { finishDate: Date; hasDocReviewFinished: boolean } | null,
+  nextSprint: { finishDate: Date; hasDocReviewFinished: boolean } | null,
+  alert: string | null
 ): "green" | "yellow" | "red" {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  if (!lastFinishedDocReview) {
-    // Se nunca teve doc review finalizado, é vermelho
+  // Se tem alerta de erro crítico, é vermelho
+  if (alert && alert.includes("finalizada antes de ocorrer")) {
     return "red";
   }
 
-  const daysSinceLastReview = Math.floor(
-    (now.getTime() - lastFinishedDocReview.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  // Se não tem sprint anterior, é vermelho
+  if (!previousSprint) {
+    return "red";
+  }
 
-  if (activeSprintFinishDate) {
-    // Se existe sprint ativa, calcula dias até ela finalizar
-    const daysUntilSprintFinish = Math.floor(
-      (activeSprintFinishDate.getTime() - lastFinishedDocReview.getTime()) /
+  // Se sprint anterior não tem doc review finalizado, é vermelho
+  if (!previousSprint.hasDocReviewFinished) {
+    return "red";
+  }
+
+  // Se tem próxima sprint, está verde
+  if (nextSprint && !nextSprint.hasDocReviewFinished) {
+    return "green";
+  }
+
+  // Se não tem próxima sprint, verificar dias desde a anterior
+  if (!nextSprint) {
+    const daysSincePrevious = Math.floor(
+      (now.getTime() - previousSprint.finishDate.getTime()) /
         (1000 * 60 * 60 * 24)
     );
-    // Verde: próxima sprint finaliza em menos de 15 dias desde o último review
-    if (daysUntilSprintFinish < 15) {
-      return "green";
+
+    // Amarelo: passaram 7+ dias desde a sprint anterior
+    if (daysSincePrevious >= 7) {
+      return "yellow";
     }
+
+    // Verde: ainda está dentro do prazo
+    return "green";
   }
 
-  // Amarelo: passaram 7+ dias do último review E não existe sprint ativa
-  if (daysSinceLastReview >= 7 && !activeSprintFinishDate) {
-    return "yellow";
-  }
-
-  // Vermelho: todos os outros casos
+  // Default: vermelho
   return "red";
 }
 
@@ -80,89 +103,98 @@ export async function getTeamsMonitoringData(): Promise<MonitoringData> {
 
   const monitoringData: TeamMonitoringData[] = [];
   let oldestDocReviewDate: Date | null = null;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
 
   for (const team of teams) {
     // Coletar todas as sprints de todos os projetos da equipe
     const allSprints = team.projects.flatMap((project) => project.sprints);
 
-    // Encontrar a data do último doc review finalizado
-    let lastFinishedDocReviewDate: Date | null = null;
-    for (const sprint of allSprints) {
-      if (sprint.docReview?.finishedAt) {
-        const finishedDate = new Date(sprint.docReview.finishedAt);
-        finishedDate.setHours(0, 0, 0, 0);
-        if (
-          !lastFinishedDocReviewDate ||
-          finishedDate > lastFinishedDocReviewDate
-        ) {
-          lastFinishedDocReviewDate = finishedDate;
-        }
-        // Também atualizar a data mais antiga global
-        if (!oldestDocReviewDate || finishedDate < oldestDocReviewDate) {
-          oldestDocReviewDate = finishedDate;
-        }
+    // Separar sprints por data de término
+    const sprintsWithDates = allSprints
+      .filter((sprint) => sprint.finishDate !== null)
+      .map((sprint) => {
+        const finishDate = new Date(sprint.finishDate!);
+        finishDate.setHours(0, 0, 0, 0);
+        return {
+          sprint,
+          finishDate,
+          hasDocReviewFinished:
+            sprint.docReview?.finishedAt !== null &&
+            sprint.docReview?.finishedAt !== undefined,
+        };
+      })
+      .sort((a, b) => a.finishDate.getTime() - b.finishDate.getTime());
+
+    // Sprint Anterior: última sprint com finishDate <= hoje
+    const previousSprints = sprintsWithDates.filter(
+      (s) => s.finishDate <= now
+    );
+    const previousSprint =
+      previousSprints.length > 0
+        ? previousSprints[previousSprints.length - 1]
+        : null;
+
+    // Próxima Sprint: primeira sprint com finishDate > hoje
+    const nextSprints = sprintsWithDates.filter((s) => s.finishDate > now);
+    const nextSprint = nextSprints.length > 0 ? nextSprints[0] : null;
+
+    // Validar e gerar alertas
+    let alert: string | null = null;
+
+    if (nextSprint) {
+      // Próxima sprint não pode ter doc review finalizado
+      if (nextSprint.hasDocReviewFinished) {
+        alert = "Sprint Review finalizada antes de ocorrer a reunião";
+      }
+    } else {
+      // Não tem próxima sprint
+      alert = "Atenção! Criar sprint!";
+    }
+
+    // Atualizar data mais antiga de doc review (apenas de sprints anteriores)
+    if (previousSprint && previousSprint.hasDocReviewFinished) {
+      const finishedDate = previousSprint.finishDate;
+      if (!oldestDocReviewDate || finishedDate < oldestDocReviewDate) {
+        oldestDocReviewDate = finishedDate;
       }
     }
 
-    // Encontrar sprint ativa mais próxima
-    // Sprint ativa = sprint sem doc review finalizado (independente da data de término)
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    let activeSprintFinishDate: Date | null = null;
-    for (const sprint of allSprints) {
-      const isDocReviewFinished =
-        sprint.docReview?.finishedAt !== null &&
-        sprint.docReview?.finishedAt !== undefined;
-
-      // Se o doc review não está finalizado, é uma sprint ativa
-      if (!isDocReviewFinished) {
-        if (sprint.finishDate) {
-          const finishDate = new Date(sprint.finishDate);
-          finishDate.setHours(0, 0, 0, 0);
-
-          // Pega a sprint ativa com a data de término mais próxima
-          if (
-            !activeSprintFinishDate ||
-            finishDate < activeSprintFinishDate
-          ) {
-            activeSprintFinishDate = finishDate;
-          }
-        } else {
-          // Sprint sem data de término definida, considera ativa
-          // Usa uma data futura para indicar que existe sprint ativa
-          if (!activeSprintFinishDate) {
-            activeSprintFinishDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 dias no futuro como placeholder
-          }
-        }
-      }
-    }
-
-    // Calcular dias desde o último review
-    let daysSinceLastReview: number | null = null;
-    if (lastFinishedDocReviewDate) {
-      const now = new Date();
-      now.setHours(0, 0, 0, 0);
-      lastFinishedDocReviewDate.setHours(0, 0, 0, 0);
-      daysSinceLastReview = Math.floor(
-        (now.getTime() - lastFinishedDocReviewDate.getTime()) /
-          (1000 * 60 * 60 * 24)
-      );
-    }
-
+    // Calcular status
     const status = calculateStatus(
-      lastFinishedDocReviewDate,
-      activeSprintFinishDate
+      previousSprint
+        ? {
+            finishDate: previousSprint.finishDate,
+            hasDocReviewFinished: previousSprint.hasDocReviewFinished,
+          }
+        : null,
+      nextSprint
+        ? {
+            finishDate: nextSprint.finishDate,
+            hasDocReviewFinished: nextSprint.hasDocReviewFinished,
+          }
+        : null,
+      alert
     );
 
     monitoringData.push({
       id: team.id,
       name: team.name,
       imageUrl: team.imageUrl,
-      lastFinishedDocReviewDate,
-      activeSprintFinishDate,
-      daysSinceLastReview,
+      previousSprint: previousSprint
+        ? {
+            finishDate: previousSprint.finishDate,
+            hasDocReviewFinished: previousSprint.hasDocReviewFinished,
+          }
+        : null,
+      nextSprint: nextSprint
+        ? {
+            finishDate: nextSprint.finishDate,
+            hasDocReviewFinished: nextSprint.hasDocReviewFinished,
+          }
+        : null,
       status,
+      alert,
     });
   }
 

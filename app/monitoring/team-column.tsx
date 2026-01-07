@@ -67,22 +67,33 @@ export function TeamColumn({ team, height }: TeamColumnProps) {
         {/* Content */}
         <div className="flex flex-col justify-center py-2">
           <h3 className="font-medium">{team.name}</h3>
-          {team.daysSinceLastReview !== null ? (
+          {team.alert && (
+            <p
+              className={cn(
+                "text-xs font-medium mt-0.5",
+                team.alert.includes("finalizada antes")
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-yellow-600 dark:text-yellow-400"
+              )}
+            >
+              {team.alert}
+            </p>
+          )}
+          {team.previousSprint && !team.alert && (
             <p
               className={cn(
                 "text-xs font-medium mt-0.5",
                 getDaysTextColor(team.status)
               )}
             >
-              {team.daysSinceLastReview === 0
-                ? "Hoje"
-                : team.daysSinceLastReview === 1
-                  ? "1 dia"
-                  : `${team.daysSinceLastReview} dias`}
+              {team.previousSprint.hasDocReviewFinished
+                ? "✓ Review OK"
+                : "✗ Sem review"}
             </p>
-          ) : (
+          )}
+          {!team.previousSprint && !team.alert && (
             <p className="text-xs text-muted-foreground mt-0.5">
-              Sem reviews
+              Sem sprints
             </p>
           )}
         </div>
