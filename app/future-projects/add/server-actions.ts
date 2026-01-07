@@ -7,7 +7,6 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { devTeams } from "@/drizzle/core-schema";
 
 export default async function createFutureProject(
   data: CreateFutureProjectFormSchema
@@ -33,6 +32,7 @@ export default async function createFutureProject(
   });
 
   revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/future-projects");
 }
 
@@ -45,4 +45,3 @@ export async function getAllDevTeams() {
     },
   });
 }
-
