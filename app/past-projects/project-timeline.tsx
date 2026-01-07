@@ -276,7 +276,7 @@ export function ProjectTimeline({
       <Link
         href={`/projects/${project.id}`}
         className={cn(
-          "block h-full rounded-md border-2 border-border/50 hover:border-primary transition-colors shadow-md hover:shadow-lg relative",
+          "block h-full rounded-md shadow hover:shadow-lg relative hover:ring",
           colorClass
         )}
       >
@@ -288,9 +288,9 @@ export function ProjectTimeline({
         {/* Sprint Segments */}
         {positions.map((pos) => (
           <Tooltip key={pos.sprint.id}>
-            <TooltipTrigger asChild>
+            <TooltipTrigger asChild className="border-r border-black">
               <div
-                className="absolute rounded-sm bg-primary/20 hover:bg-primary/30 border border-primary/30 transition-colors group cursor-pointer"
+                className="absolute group cursor-pointer"
                 style={{
                   left: `${pos.left}px`,
                   width: `${pos.width}px`,
@@ -300,7 +300,7 @@ export function ProjectTimeline({
               >
                 {/* Sprint Name */}
                 <div className="absolute inset-0 flex items-center px-2 overflow-hidden">
-                  <span className="text-xs font-medium text-foreground truncate whitespace-nowrap">
+                  <span className="text-xs font-medium text-muted-foreground truncate whitespace-nowrap">
                     {pos.sprint.name}
                   </span>
                 </div>
@@ -317,7 +317,10 @@ export function ProjectTimeline({
                   )}
               </div>
             </TooltipTrigger>
-            <TooltipContent className="w-80" side="top">
+            <TooltipContent
+              className="w-80 bg-card text-card-foreground "
+              side="top"
+            >
               <div className="space-y-2">
                 <div>
                   <h4 className="text-sm font-semibold">{pos.sprint.name}</h4>

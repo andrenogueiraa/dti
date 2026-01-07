@@ -245,6 +245,28 @@ export function PastProjectsCalendar({
     };
   }, [initialProjects, overallStart, overallEnd]);
 
+  // Convert vertical mouse wheel scrolling to horizontal scrolling
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Only handle vertical scrolling (deltaY)
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        // Prevent default vertical scrolling
+        e.preventDefault();
+        // Convert vertical scroll to horizontal scroll
+        scrollContainer.scrollLeft += e.deltaY;
+      }
+    };
+
+    scrollContainer.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      scrollContainer.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
   return (
     <div className="w-full h-screen flex overflow-hidden">
       {/* Frozen Dev Team Column - fixed position */}

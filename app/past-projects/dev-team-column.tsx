@@ -16,7 +16,7 @@ interface DevTeamColumnProps {
 
 export function DevTeamColumn({
   team,
-  projectCount,
+  // projectCount,
   height,
 }: DevTeamColumnProps) {
   if (!team) {
@@ -53,9 +53,9 @@ export function DevTeamColumn({
           {team.description && (
             <p className="text-xs text-muted-foreground">{team.description}</p>
           )}
-          <p className="text-xs text-muted-foreground mt-2">
+          {/* <p className="text-xs text-muted-foreground mt-2">
             {projectCount} {projectCount === 1 ? "projeto" : "projetos"}
-          </p>
+          </p> */}
         </div>
       </Link>
     </div>
