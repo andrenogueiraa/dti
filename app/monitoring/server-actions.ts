@@ -85,7 +85,6 @@ export async function getTeamsMonitoringData(): Promise<MonitoringData> {
     orderBy: (devTeams, { asc }) => [asc(devTeams.name)],
     with: {
       projects: {
-        where: (projects, { ne }) => ne(projects.status, "CO"), // Apenas projetos não concluídos
         with: {
           sprints: {
             with: {

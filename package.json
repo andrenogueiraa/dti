@@ -9,7 +9,13 @@
     "lint": "eslint",
     "push": "drizzle-kit push",
     "seed": "tsx drizzle/seeders/index.ts",
-    "postinstall": "drizzle-kit push"
+    "postinstall": "drizzle-kit push",
+    "db:backup": "tsx scripts/db-backup.ts",
+    "db:backup:prod": "tsx scripts/db-backup.ts --prod",
+    "db:backup:docker": "tsx scripts/db-backup-docker.ts",
+    "db:backup:docker:prod": "tsx scripts/db-backup-docker.ts --prod",
+    "db:restore": "tsx scripts/db-restore.ts",
+    "db:list-backups": "ls -lh backups/"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.913.0",
