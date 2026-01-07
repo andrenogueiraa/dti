@@ -18,9 +18,8 @@ import { Button } from "@/components/ui/button";
 import { getDevTeams, revalidateDevTeams } from "./server-actions";
 import { Metadata } from "next";
 
-const title = "Visão Geral";
-const description =
-  "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Amet, fugit nostrum maxime consectetur obcaecati repellendus consequatur sequi omnis ab earum!";
+const title = "Projetos em Andamento";
+const description = "Visualização e administração de projetos em andamento";
 
 export const metadata: Metadata = {
   title,
