@@ -15,16 +15,16 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import { Button } from "@/components/ui/button";
-import {
-  getDevTeams,
-  revalidateDevTeams,
-} from "./server-actions";
-import { CalendarIcon } from "lucide-react";
+import { getDevTeams, revalidateDevTeams } from "./server-actions";
+import { Metadata } from "next";
 
-export const metadata = {
-  title: "Visão Geral",
-  description:
-    "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Amet, fugit nostrum maxime consectetur obcaecati repellendus consequatur sequi omnis ab earum!",
+const title = "Visão Geral";
+const description =
+  "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Amet, fugit nostrum maxime consectetur obcaecati repellendus consequatur sequi omnis ab earum!";
+
+export const metadata: Metadata = {
+  title,
+  description,
 };
 
 export default async function Server() {
@@ -32,8 +32,8 @@ export default async function Server() {
   return (
     <Pg className="max-w-full relative">
       <PgHeader>
-        <PgTitle>{metadata.title}</PgTitle>
-        <PgDescription>{metadata.description}</PgDescription>
+        <PgTitle>{title}</PgTitle>
+        <PgDescription>{description}</PgDescription>
       </PgHeader>
 
       <PgContent className="space-y-8 pr-0">
@@ -41,32 +41,12 @@ export default async function Server() {
           <DevTeams />
         </Suspense>
 
-
         <section>
           <form action={revalidateDevTeams} className="flex justify-end">
             <Button type="submit" className="w-fit" variant={"link"}>
               .
             </Button>
           </form>
-        </section>
-
-        <section className="flex justify-center gap-4 pt-8 border-t">
-          <Link href="/dashboard">
-            <Button variant="outline" className="flex items-center gap-2">
-              Dashboard Kanban
-            </Button>
-          </Link>
-          <Link href="/future-projects">
-            <Button variant="outline" className="flex items-center gap-2">
-              Ver Projetos Futuros
-            </Button>
-          </Link>
-          <Link href="/past-projects">
-            <Button variant="outline" className="flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4" />
-              Ver Projetos Concluídos
-            </Button>
-          </Link>
         </section>
       </PgContent>
     </Pg>
@@ -87,7 +67,6 @@ async function DevTeams() {
   if (devTeams.length > 0) {
     return (
       <section className="space-y-8">
-        
         {devTeams.map((devTeam) => (
           <div key={devTeam.name} className="flex gap-6">
             <Link
@@ -157,5 +136,3 @@ async function DevTeams() {
 
   return <div>Erro desconhecido</div>;
 }
-
-

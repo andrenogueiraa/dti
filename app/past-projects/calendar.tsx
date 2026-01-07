@@ -6,7 +6,7 @@ import { DevTeamColumn } from "./dev-team-column";
 import { ProjectTimeline } from "./project-timeline";
 import { CALENDAR_CONSTANTS } from "./constants";
 import { Button } from "@/components/ui/button";
-import { ArrowRightCircle, ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon } from "lucide-react";
 
 type Project = NonNullable<
   Awaited<
@@ -251,11 +251,17 @@ export function PastProjectsCalendar({
       <div className="flex-shrink-0 border-r bg-background/75">
         <div className="sticky top-0 z-20 bg-background border-b">
           <div
-            className="flex items-center justify-center font-semibold px-4"
+            className="text-sm tracking-wide p-4"
             style={{ height: `${uniformRowHeight}px` }}
-          ></div>
+          >
+            <span className="text-muted-foreground">Projetos</span>
+            <br />
+            <span className="font-medium text-primary uppercase">
+              Concluídos
+            </span>
+          </div>
         </div>
-        <div>
+        <div className="bg-card">
           {projectsByTeam.map(({ team, projects }, index) => (
             <div
               key={team?.id || `no-team-${index}`}
@@ -290,7 +296,7 @@ export function PastProjectsCalendar({
               className="absolute top-0 bottom-0 border-l-2 border-primary z-30 pointer-events-none"
               style={{ left: `${todayPosition}px` }}
             >
-              <div className="absolute -top-0 -left-6 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-sm font-semibold whitespace-nowrap">
+              <div className="absolute -top-0 -left-6 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-sm font-semibold whitespace-nowrap">
                 HOJE
               </div>
             </div>
@@ -313,7 +319,7 @@ export function PastProjectsCalendar({
             </div>
 
             {/* Calendar Rows */}
-            <div>
+            <div className="bg-muted">
               {projectsByTeam.map(({ team, projects }, index) => (
                 <div
                   key={team?.id || `no-team-${index}`}
