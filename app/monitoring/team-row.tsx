@@ -71,23 +71,11 @@ export function TeamRow({
     return new Date(date).toLocaleDateString("pt-BR");
   };
 
-  // Verificar se a equipe não tem dados
-  const hasNoData = previousSprintPosition === null && nextSprintPosition === null;
-
   return (
     <div
       className="relative border-b border-border/25"
       style={{ height: `${rowHeight}px` }}
     >
-      {/* Indicador para equipes sem dados */}
-      {hasNoData && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <span className="text-xs">⚠️</span>
-            <span className="text-xs font-medium">Sem reviews</span>
-          </div>
-        </div>
-      )}
       {/* Linha de conexão entre marcadores */}
       {previousSprintPosition !== null && nextSprintPosition !== null && (() => {
         const daysBetween = team.previousSprint && team.nextSprint
@@ -198,17 +186,6 @@ export function TeamRow({
             </div>
           </TooltipContent>
         </Tooltip>
-      )}
-
-      {/* Alerta se não tem próxima sprint */}
-      {nextSprintPosition === null && team.alert && (
-        <div
-          className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-20 bg-yellow-500/10 border border-yellow-500 rounded px-3 py-1.5"
-        >
-          <p className="text-xs font-medium text-yellow-700 dark:text-yellow-400">
-            {team.alert}
-          </p>
-        </div>
       )}
 
       {/* Área de 15 dias (zona segura) - destacada a partir da sprint anterior */}

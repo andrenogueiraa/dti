@@ -22,6 +22,16 @@ export function MonitoringClient({ teams }: MonitoringClientProps) {
     }
   };
 
+  const getAlertColor = (alert: string) => {
+    if (alert.includes("finalizada antes")) {
+      return "text-red-600 dark:text-red-400";
+    }
+    if (alert.includes("Finalizar review")) {
+      return "text-red-600 dark:text-red-400";
+    }
+    return "text-yellow-600 dark:text-yellow-400";
+  };
+
   const formatDate = (date: Date | null) => {
     if (!date) return "N/A";
     return new Date(date).toLocaleDateString("pt-BR");
@@ -125,18 +135,19 @@ export function MonitoringClient({ teams }: MonitoringClientProps) {
               )}
             </div>
 
-            {team.alert && (
-              <div className="pt-2 border-t">
-                <p
-                  className={cn(
-                    "text-xs font-medium text-center",
-                    team.alert.includes("finalizada antes")
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-yellow-600 dark:text-yellow-400"
-                  )}
-                >
-                  {team.alert}
-                </p>
+            {team.state.alerts.length > 0 && (
+              <div className="pt-2 border-t space-y-1">
+                {team.state.alerts.map((alert, index) => (
+                  <p
+                    key={index}
+                    className={cn(
+                      "text-xs font-medium text-center",
+                      getAlertColor(alert)
+                    )}
+                  >
+                    {alert}
+                  </p>
+                ))}
               </div>
             )}
 

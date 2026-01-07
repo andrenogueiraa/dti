@@ -33,6 +33,16 @@ export function TeamColumn({ team, height }: TeamColumnProps) {
     }
   };
 
+  const getAlertColor = (alert: string) => {
+    if (alert.includes("finalizada antes")) {
+      return "text-red-600 dark:text-red-400";
+    }
+    if (alert.includes("Finalizar review")) {
+      return "text-red-600 dark:text-red-400";
+    }
+    return "text-yellow-600 dark:text-yellow-400";
+  };
+
   return (
     <div className="flex items-center" style={{ height: `${height}px` }}>
       <Link
@@ -67,33 +77,30 @@ export function TeamColumn({ team, height }: TeamColumnProps) {
         {/* Content */}
         <div className="flex flex-col justify-center py-2">
           <h3 className="font-medium">{team.name}</h3>
-          {team.alert && (
+
+          {/* Renderizar todos os alertas */}
+          {team.state.alerts.map((alert, index) => (
             <p
-              className={cn(
-                "text-xs font-medium mt-0.5",
-                team.alert.includes("finalizada antes")
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-yellow-600 dark:text-yellow-400"
-              )}
+              key={index}
+              className={cn("text-xs font-medium mt-0.5", getAlertColor(alert))}
             >
-              {team.alert}
+              {alert}
             </p>
+          ))}
+
+          {/* Mensagem de estado baseada no tipo */}
+          {team.state.type === "no_sprints" && (
+            <p className="text-xs text-muted-foreground mt-0.5">Sem sprints</p>
           )}
-          {team.previousSprint && !team.alert && (
+
+          {team.state.type === "ok" && team.state.alerts.length === 0 && (
             <p
               className={cn(
                 "text-xs font-medium mt-0.5",
                 getDaysTextColor(team.status)
               )}
             >
-              {team.previousSprint.hasDocReviewFinished
-                ? "✓ Review OK"
-                : "✗ Sem review"}
-            </p>
-          )}
-          {!team.previousSprint && !team.alert && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Sem sprints
+              ✓ Review OK
             </p>
           )}
         </div>
@@ -101,4 +108,3 @@ export function TeamColumn({ team, height }: TeamColumnProps) {
     </div>
   );
 }
-
