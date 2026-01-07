@@ -5,7 +5,6 @@ import Providers from "./_providers/providers";
 import { Analytics } from "@vercel/analytics/next";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { Separator } from "@/components/ui/separator";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,6 +26,15 @@ export default async function RootLayout({
         <Providers>
           {children}
           <footer className="bg-background/75 p-2 rounded-full shadow fixed bottom-4 left-1/2 -translate-x-1/2 flex justify-center items-center gap-4">
+            <Link href="/monitoring" className="pl-2">
+              <Icon
+                icon="material-symbols:calendar-month-outline-rounded"
+                className="text-4xl text-muted-foreground hover:text-primary"
+              />
+            </Link>
+
+            <span className="text-border">|</span>
+
             <Link href="/past-projects">
               <Icon
                 icon="material-symbols:fast-rewind-rounded"
