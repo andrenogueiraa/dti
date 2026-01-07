@@ -11,11 +11,7 @@ import {
   PgDescription,
   PgHeader,
   PgTitle,
-  PgAction,
 } from "@/components/ui/pg";
-import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
-import Link from "next/link";
 import { cacheLife } from "next/cache";
 import { getAllProjects } from "./server-actions";
 import Kanban from "./kanban";
@@ -36,14 +32,6 @@ export default async function DashboardPage() {
           <PgDescription>
             Visualização Kanban de todos os projetos organizados por status
           </PgDescription>
-          <PgAction>
-            <Link href="/future-projects/add">
-              <Button className="flex items-center gap-2">
-                <PlusIcon className="h-4 w-4" />
-                Adicionar Projeto
-              </Button>
-            </Link>
-          </PgAction>
         </PgHeader>
 
         <PgContent className="p-8">
@@ -75,5 +63,3 @@ async function ProjectsKanban() {
 
   return <Kanban projects={projects} />;
 }
-
-
