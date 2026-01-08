@@ -110,7 +110,9 @@ export function MonitoringClient({ teams }: MonitoringClientProps) {
 
             <div className="pt-2 border-t">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Próxima Sprint:</span>
+                <span className="text-muted-foreground">
+                  Próxima Sprint Review:
+                </span>
                 <span className="font-medium">
                   {team.nextSprint
                     ? formatDate(team.nextSprint.finishDate)

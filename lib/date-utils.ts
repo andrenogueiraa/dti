@@ -103,3 +103,69 @@ export function formatLocalDateTime(
   });
 }
 
+/**
+ * Formats a date as a relative time string (e.g., "há 2 horas", "há 3 dias")
+ *
+ * @param date - Date object or string
+ * @param locale - Locale string (defaults to "pt-BR")
+ * @returns Relative time string
+ */
+export function formatRelativeTime(
+  date: Date | string,
+  locale: string = APP_LOCALE
+): string {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
+
+  if (diffInSeconds < 0) {
+    return locale === "pt-BR" ? "agora" : "now";
+  }
+
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60,
+  };
+
+  const ptBRLabels = {
+    year: { singular: "ano", plural: "anos" },
+    month: { singular: "mês", plural: "meses" },
+    week: { singular: "semana", plural: "semanas" },
+    day: { singular: "dia", plural: "dias" },
+    hour: { singular: "hora", plural: "horas" },
+    minute: { singular: "minuto", plural: "minutos" },
+  };
+
+  const enLabels = {
+    year: { singular: "year", plural: "years" },
+    month: { singular: "month", plural: "months" },
+    week: { singular: "week", plural: "weeks" },
+    day: { singular: "day", plural: "days" },
+    hour: { singular: "hour", plural: "hours" },
+    minute: { singular: "minute", plural: "minutes" },
+  };
+
+  const labels = locale === "pt-BR" ? ptBRLabels : enLabels;
+  const prefix = locale === "pt-BR" ? "há" : "";
+  const suffix = locale === "pt-BR" ? "" : "ago";
+
+  for (const [key, seconds] of Object.entries(intervals)) {
+    const interval = Math.floor(diffInSeconds / seconds);
+    if (interval >= 1) {
+      const label = labels[key as keyof typeof labels];
+      const timeUnit = interval === 1 ? label.singular : label.plural;
+      if (locale === "pt-BR") {
+        return `${prefix} ${interval} ${timeUnit}`;
+      } else {
+        return `${interval} ${timeUnit} ${suffix}`;
+      }
+    }
+  }
+
+  return locale === "pt-BR" ? "agora" : "now";
+}
+

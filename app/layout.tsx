@@ -59,9 +59,16 @@ export default async function RootLayout({
 
             <span className="text-border">|</span>
 
-            <Link href="/dashboard" className="pr-2">
+            <Link href="/dashboard">
               <Icon
                 icon="mynaui:kanban-solid"
+                className="text-4xl text-muted-foreground hover:text-primary"
+              />
+            </Link>
+
+            <Link href="/feed" className="pr-2">
+              <Icon
+                icon="material-symbols:timeline-outline"
                 className="text-4xl text-muted-foreground hover:text-primary"
               />
             </Link>
