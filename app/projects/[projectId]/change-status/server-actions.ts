@@ -24,6 +24,8 @@ export async function changeProjectStatus({
 
   revalidateDevTeams();
   revalidatePath(`/projects/${projectId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/future-projects");
 }
 
 export async function getProjectStatus(projectId: string) {
