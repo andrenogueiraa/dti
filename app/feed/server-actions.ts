@@ -248,8 +248,8 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         metadata: {
           projectName: sprint.project?.name || undefined,
           projectId: sprint.projectId,
-          sprintStartDate: sprint.startDate,
-          sprintFinishDate: sprint.finishDate,
+          sprintStartDate: sprint.startDate || undefined,
+          sprintFinishDate: sprint.finishDate || undefined,
           description: sprint.description || undefined,
         },
       });
@@ -267,8 +267,8 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         metadata: {
           projectName: sprint.project?.name || undefined,
           projectId: sprint.projectId,
-          sprintStartDate: sprint.startDate,
-          sprintFinishDate: sprint.finishDate,
+          sprintStartDate: sprint.startDate || undefined,
+          sprintFinishDate: sprint.finishDate || undefined,
           description: sprint.description || undefined,
         },
       });
