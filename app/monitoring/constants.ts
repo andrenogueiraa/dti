@@ -9,7 +9,7 @@ export const MONITORING_CALENDAR_CONSTANTS = {
   PIXELS_PER_DAY: 30, // 30 days = 900px, which is readable
 
   // Row dimensions
-  ROW_HEIGHT: 80, // Height of each team row
+  ROW_HEIGHT_MIN: 80, // Minimum height of each team row
 
   // Marker dimensions
   MARKER_SIZE: 16, // Size of doc review and sprint markers

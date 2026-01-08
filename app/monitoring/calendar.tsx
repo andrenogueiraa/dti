@@ -16,7 +16,7 @@ interface MonitoringCalendarProps {
   calendarEndDate: Date;
 }
 
-const { PIXELS_PER_DAY, ROW_HEIGHT } = MONITORING_CALENDAR_CONSTANTS;
+const { PIXELS_PER_DAY, ROW_HEIGHT_MIN } = MONITORING_CALENDAR_CONSTANTS;
 
 export function MonitoringCalendar({
   teams,
@@ -24,6 +24,9 @@ export function MonitoringCalendar({
   calendarEndDate,
 }: MonitoringCalendarProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const teamColumnRef = useRef<HTMLDivElement>(null);
+  const calendarAreaRef = useRef<HTMLDivElement>(null);
+  const [rowHeight, setRowHeight] = useState<number>(ROW_HEIGHT_MIN);
 
   // Calculate calendar width
   const calendarWidth = useMemo(() => {
@@ -31,6 +34,32 @@ export function MonitoringCalendar({
     const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
     return totalDays * PIXELS_PER_DAY;
   }, [calendarStartDate, calendarEndDate]);
+
+  // Calculate dynamic row height based on available space
+  // Divide equally: header + all team rows
+  useEffect(() => {
+    const calculateRowHeight = () => {
+      if (!calendarAreaRef.current) return;
+
+      // Get the height of the calendar area
+      const containerHeight = calendarAreaRef.current.clientHeight;
+
+      // Total rows = 1 header + number of teams
+      const totalRows = 1 + teams.length;
+
+      // Divide available height equally among all rows
+      const calculatedHeight = Math.floor(containerHeight / totalRows);
+
+      // Ensure minimum height
+      setRowHeight(Math.max(ROW_HEIGHT_MIN, calculatedHeight));
+    };
+
+    calculateRowHeight();
+
+    // Recalculate on window resize
+    window.addEventListener("resize", calculateRowHeight);
+    return () => window.removeEventListener("resize", calculateRowHeight);
+  }, [teams.length]);
 
   // Calculate position for a date (absolute from timeline start)
   const getDatePosition = useCallback(
@@ -130,38 +159,40 @@ export function MonitoringCalendar({
   }
 
   return (
-    <div className="w-full h-screen flex overflow-hidden">
+    <div className="w-full h-full flex overflow-hidden">
       {/* Frozen Team Column - fixed position */}
-      <div className="flex-shrink-0 border-r bg-background/75">
-        <div className="sticky top-0 z-20 bg-background border-b">
+      <div className="flex-shrink-0 border-r bg-background/75 flex flex-col">
+        <div className="flex-shrink-0 z-20 bg-background border-b">
           <div
-            className="text-sm tracking-wide p-4"
-            style={{ height: `${ROW_HEIGHT}px` }}
+            className="text-sm tracking-wide p-4 flex flex-col justify-start"
+            style={{ height: `${rowHeight}px` }}
           >
             <span className="text-muted-foreground">Acompanhamento</span>
-            <br />
             <span className="font-medium text-primary uppercase">
               Sprint Reviews
             </span>
           </div>
         </div>
-        <div className="bg-card">
+        <div ref={teamColumnRef} className="bg-card flex-1 overflow-hidden">
           {teams.map((team) => (
-            <div key={team.id} style={{ height: `${ROW_HEIGHT}px` }}>
-              <TeamColumn team={team} height={ROW_HEIGHT} />
+            <div key={team.id} style={{ height: `${rowHeight}px` }}>
+              <TeamColumn team={team} height={rowHeight} />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Scrollable Calendar Area - only horizontal scroll */}
-      <div className="flex-1 relative min-w-0">
+      {/* Scrollable Calendar Area - horizontal scroll only */}
+      <div
+        ref={calendarAreaRef}
+        className="flex-1 relative min-w-0 flex flex-col overflow-hidden"
+      >
         {/* Legend */}
         <MonitoringLegend />
 
         <div
           ref={scrollContainerRef}
-          className="w-full h-full overflow-x-auto overflow-y-hidden relative"
+          className="w-full flex-1 overflow-x-auto overflow-y-hidden relative"
         >
           {/* "Today" Vertical Marker */}
           {todayPosition >= 0 && todayPosition <= calendarWidth && (
@@ -182,7 +213,7 @@ export function MonitoringCalendar({
             {/* Calendar Header */}
             <div
               className="sticky top-0 z-10 bg-background border-b"
-              style={{ height: `${ROW_HEIGHT}px` }}
+              style={{ height: `${rowHeight}px` }}
             >
               <CalendarHeader
                 startDate={calendarStartDate}
@@ -200,7 +231,7 @@ export function MonitoringCalendar({
                   startDate={calendarStartDate}
                   getDatePosition={getDatePosition}
                   pixelsPerDay={PIXELS_PER_DAY}
-                  rowHeight={ROW_HEIGHT}
+                  rowHeight={rowHeight}
                 />
               ))}
             </div>
@@ -230,4 +261,3 @@ export function MonitoringCalendar({
     </div>
   );
 }
-

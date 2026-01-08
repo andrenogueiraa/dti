@@ -19,18 +19,22 @@ export const metadata: Metadata = {
 export default async function MonitoringPage() {
   cacheLife("max");
   return (
-    <Bg>
-      <div className="relative w-full h-screen">
-        <ButtonClose href="/" />
-        <Suspense
-          fallback={
-            <ContainerCenter>
-              <LoadingSpinner />
-            </ContainerCenter>
-          }
-        >
-          <MonitoringContent />
-        </Suspense>
+    <Bg className="h-screen">
+      <div className="relative w-full h-full flex flex-col">
+        <div className="flex-shrink-0">
+          <ButtonClose href="/" />
+        </div>
+        <div className="flex-1 min-h-0">
+          <Suspense
+            fallback={
+              <ContainerCenter>
+                <LoadingSpinner />
+              </ContainerCenter>
+            }
+          >
+            <MonitoringContent />
+          </Suspense>
+        </div>
       </div>
     </Bg>
   );
