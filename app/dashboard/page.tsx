@@ -1,8 +1,6 @@
 "use cache";
 
 import { Suspense } from "react";
-import { Bg } from "@/components/custom/bg";
-import { ButtonClose } from "@/components/custom/button-close";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 import {
@@ -16,37 +14,37 @@ import { cacheLife } from "next/cache";
 import { getAllProjects } from "./server-actions";
 import Kanban from "./kanban";
 
+const title = "Todos os Projetos";
+const description =
+  "Visualização Kanban de todos os projetos organizados por status";
+
 export const metadata = {
-  title: "Dashboard de Projetos",
-  description: "Visualização Kanban de todos os projetos",
+  title,
+  description,
 };
 
 export default async function DashboardPage() {
   cacheLife("max");
-  return (
-    <Bg>
-      <Pg className="max-w-full relative">
-        <ButtonClose href="/" />
-        <PgHeader>
-          <PgTitle>Dashboard de Projetos</PgTitle>
-          <PgDescription>
-            Visualização Kanban de todos os projetos organizados por status
-          </PgDescription>
-        </PgHeader>
 
-        <PgContent className="p-8">
-          <Suspense
-            fallback={
-              <ContainerCenter>
-                <LoadingSpinner />
-              </ContainerCenter>
-            }
-          >
-            <ProjectsKanban />
-          </Suspense>
-        </PgContent>
-      </Pg>
-    </Bg>
+  return (
+    <Pg className="max-w-full relative min-h-screen">
+      <PgHeader>
+        <PgTitle>{title}</PgTitle>
+        <PgDescription>{description}</PgDescription>
+      </PgHeader>
+
+      <PgContent>
+        <Suspense
+          fallback={
+            <ContainerCenter>
+              <LoadingSpinner />
+            </ContainerCenter>
+          }
+        >
+          <ProjectsKanban />
+        </Suspense>
+      </PgContent>
+    </Pg>
   );
 }
 

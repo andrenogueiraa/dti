@@ -10,16 +10,19 @@ import { getTeamsMonitoringData } from "./server-actions";
 import { MonitoringCalendar } from "./calendar";
 import { Metadata } from "next";
 
+const title = "Acompanhamento de Sprint Reviews";
+const description =
+  "Monitoramento de conformidade com a regra de máximo 15 dias sem doc review de sprint finalizado";
+
 export const metadata: Metadata = {
-  title: "Acompanhamento de Sprint Reviews",
-  description:
-    "Monitoramento de conformidade com a regra de máximo 15 dias sem doc review de sprint finalizado",
+  title,
+  description,
 };
 
 export default async function MonitoringPage() {
   cacheLife("max");
   return (
-    <Bg className="h-screen">
+    <Bg className="h-screen bg-background">
       <div className="relative w-full h-full flex flex-col">
         <div className="flex-shrink-0">
           <ButtonClose href="/" />
@@ -59,4 +62,3 @@ async function MonitoringContent() {
     />
   );
 }
-

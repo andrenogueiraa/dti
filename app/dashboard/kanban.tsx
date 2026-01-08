@@ -169,8 +169,8 @@ function Column({
   projects: Project[];
 }) {
   return (
-    <div className="flex flex-col w-full flex-shrink-0">
-      <div className="flex items-center justify-between mb-4 px-1">
+    <div className="flex flex-col w-full flex-shrink-0 h-full">
+      <div className="flex items-center justify-between mb-4 px-1 flex-shrink-0">
         <h3 className="font-semibold text-sm flex items-center gap-2">
           {column.title}
           <Badge
@@ -184,12 +184,10 @@ function Column({
 
       <div
         className={cn(
-          "rounded-lg p-3 transition-all duration-300 ease-in-out overflow-y-auto",
+          "rounded-lg p-3 transition-all duration-300 ease-in-out overflow-y-auto flex-1",
           column.color
         )}
         style={{
-          maxHeight: "calc(100vh - 280px)",
-          minHeight: "200px",
           display: "flex",
           flexDirection: "column",
           gap: "0.75rem",
@@ -216,8 +214,8 @@ export default function Kanban({ projects: initialProjects }: { projects: DbProj
   };
 
   return (
-    <main className="h-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-full w-full">
+    <div className="h-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-full">
         {columns.map((column) => {
           const columnProjects = getProjectsForColumn(column.id);
 
@@ -230,6 +228,6 @@ export default function Kanban({ projects: initialProjects }: { projects: DbProj
           );
         })}
       </div>
-    </main>
+    </div>
   );
 }
