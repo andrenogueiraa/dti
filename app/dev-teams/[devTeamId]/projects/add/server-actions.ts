@@ -24,4 +24,6 @@ export default async function createProject(data: CreateProjectFormSchema) {
 
   revalidatePath("/");
   revalidatePath(`/dev-teams/${data.responsibleTeamId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/future-projects");
 }
