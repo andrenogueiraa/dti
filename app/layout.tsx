@@ -68,7 +68,7 @@ export default async function RootLayout({
 
             <Link href="/feed" className="pr-2">
               <Icon
-                icon="material-symbols:timeline-outline"
+                icon="material-symbols:dynamic-feed-rounded"
                 className="text-4xl text-muted-foreground hover:text-primary"
               />
             </Link>
