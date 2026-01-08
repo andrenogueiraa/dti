@@ -14,11 +14,19 @@ export type Activity = {
   timestamp: Date;
   metadata?: {
     projectName?: string;
+    projectId?: string;
     sprintName?: string;
+    sprintStartDate?: Date;
+    sprintFinishDate?: Date;
     tags?: string[];
     status?: string;
     color?: string;
+    description?: string;
     docType?: string;
+    docDate?: Date;
+    docFinishedAt?: Date | null;
+    docProjectId?: string;
+    docSprintId?: string;
   };
 };
 
@@ -29,6 +37,7 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
       columns: {
         id: true,
         name: true,
+        description: true,
         createdAt: true,
         createdBy: true,
         updatedAt: true,
@@ -43,6 +52,7 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
       columns: {
         id: true,
         name: true,
+        description: true,
         createdAt: true,
         createdBy: true,
         updatedAt: true,
@@ -55,7 +65,7 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
           columns: { name: true },
           with: {
             project: {
-              columns: { name: true },
+              columns: { id: true, name: true },
             },
           },
         },
@@ -67,6 +77,10 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
       columns: {
         id: true,
         name: true,
+        description: true,
+        projectId: true,
+        startDate: true,
+        finishDate: true,
         createdAt: true,
         createdBy: true,
         updatedAt: true,
@@ -85,6 +99,8 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         id: true,
         content: true,
         type: true,
+        date: true,
+        finishedAt: true,
         createdAt: true,
         createdBy: true,
         updatedAt: true,
@@ -152,6 +168,7 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         metadata: {
           color: project.color || undefined,
           status: project.status || undefined,
+          description: project.description || undefined,
         },
       });
     }
@@ -168,6 +185,7 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         metadata: {
           color: project.color || undefined,
           status: project.status || undefined,
+          description: project.description || undefined,
         },
       });
     }
@@ -186,9 +204,11 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         timestamp: task.createdAt,
         metadata: {
           projectName: task.sprint?.project?.name || undefined,
+          projectId: task.sprint?.project?.id || undefined,
           sprintName: task.sprint?.name || undefined,
           tags: task.tags || undefined,
           status: task.status || undefined,
+          description: task.description || undefined,
         },
       });
     }
@@ -204,9 +224,11 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         timestamp: task.updatedAt,
         metadata: {
           projectName: task.sprint?.project?.name || undefined,
+          projectId: task.sprint?.project?.id || undefined,
           sprintName: task.sprint?.name || undefined,
           tags: task.tags || undefined,
           status: task.status || undefined,
+          description: task.description || undefined,
         },
       });
     }
@@ -225,6 +247,10 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         timestamp: sprint.createdAt,
         metadata: {
           projectName: sprint.project?.name || undefined,
+          projectId: sprint.projectId,
+          sprintStartDate: sprint.startDate,
+          sprintFinishDate: sprint.finishDate,
+          description: sprint.description || undefined,
         },
       });
     }
@@ -240,13 +266,54 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         timestamp: sprint.updatedAt,
         metadata: {
           projectName: sprint.project?.name || undefined,
+          projectId: sprint.projectId,
+          sprintStartDate: sprint.startDate,
+          sprintFinishDate: sprint.finishDate,
+          description: sprint.description || undefined,
         },
       });
     }
   }
 
-  // Process docs
+  // Process docs - find related sprints for link generation
+  const docIds = allDocs.map((doc) => doc.id);
+  const sprintsForDocs =
+    docIds.length > 0
+      ? await db.query.sprints.findMany({
+          where: (sprints, { or, inArray }) =>
+            or(
+              inArray(sprints.docReviewId, docIds),
+              inArray(sprints.docRetrospectiveId, docIds)
+            ),
+          columns: {
+            id: true,
+            docReviewId: true,
+            docRetrospectiveId: true,
+            projectId: true,
+          },
+        })
+      : [];
+
+  // Create a map of docId -> {sprintId, projectId}
+  const docToSprintMap = new Map<string, { sprintId: string; projectId: string }>();
+  for (const sprint of sprintsForDocs) {
+    if (sprint.docReviewId) {
+      docToSprintMap.set(sprint.docReviewId, {
+        sprintId: sprint.id,
+        projectId: sprint.projectId,
+      });
+    }
+    if (sprint.docRetrospectiveId) {
+      docToSprintMap.set(sprint.docRetrospectiveId, {
+        sprintId: sprint.id,
+        projectId: sprint.projectId,
+      });
+    }
+  }
+
   for (const doc of allDocs) {
+    const sprintInfo = docToSprintMap.get(doc.id);
+
     if (doc.createdAt) {
       activities.push({
         id: `doc-create-${doc.id}`,
@@ -259,6 +326,10 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         timestamp: doc.createdAt,
         metadata: {
           docType: doc.type || undefined,
+          docDate: doc.date,
+          docFinishedAt: doc.finishedAt,
+          docProjectId: sprintInfo?.projectId,
+          docSprintId: sprintInfo?.sprintId,
         },
       });
     }
@@ -275,6 +346,10 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         timestamp: doc.updatedAt,
         metadata: {
           docType: doc.type || undefined,
+          docDate: doc.date,
+          docFinishedAt: doc.finishedAt,
+          docProjectId: sprintInfo?.projectId,
+          docSprintId: sprintInfo?.sprintId,
         },
       });
     }

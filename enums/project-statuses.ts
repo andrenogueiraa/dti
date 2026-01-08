@@ -24,3 +24,9 @@ export const PROJECT_STATUSES = [
 export const PROJECT_STATUS_VALUES = PROJECT_STATUSES.map((s) => s.value);
 
 export type ProjectStatus = (typeof PROJECT_STATUS_VALUES)[number];
+
+export function getProjectStatusLabel(value: string | undefined): string {
+  if (!value) return "";
+  const status = PROJECT_STATUSES.find((s) => s.value === value);
+  return status ? status.label : value;
+}

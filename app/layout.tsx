@@ -26,7 +26,7 @@ export default async function RootLayout({
         <Providers>
           {children}
 
-          <footer className="z-50 bg-background/75 p-2 rounded-full shadow fixed bottom-4 left-1/2 -translate-x-1/2 flex justify-center items-center gap-4">
+          <footer className="z-50 bg-background/75 p-2 rounded-full shadow fixed bottom-4 right-4 flex justify-center items-center gap-4">
             <Link href="/monitoring" className="pl-2">
               <Icon
                 icon="material-symbols:calendar-month-outline-rounded"

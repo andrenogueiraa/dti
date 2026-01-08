@@ -20,3 +20,9 @@ export const DOC_TYPES = [
 export const DOC_TYPE_VALUES = DOC_TYPES.map((s) => s.value);
 
 export type DocType = (typeof DOC_TYPE_VALUES)[number];
+
+export function getDocTypeLabel(value: string | undefined): string {
+  if (!value) return "";
+  const docType = DOC_TYPES.find((d) => d.value === value);
+  return docType ? docType.label : value;
+}

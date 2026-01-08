@@ -4,6 +4,9 @@ import { db } from "@/drizzle";
 import { docs, images, sprints } from "@/drizzle/core-schema";
 import { eq } from "drizzle-orm";
 import { EditSprintReviewFormSchema } from "./form";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function getSprintReview(sprintId: string) {
   return await db.query.sprints.findFirst({
@@ -30,19 +33,41 @@ export async function updateSprintReview({
   docId: string;
   data: EditSprintReviewFormSchema;
 }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/login");
+  }
+
   return await db
     .update(docs)
     .set({
       ...data,
+      updatedAt: new Date(),
+      updatedBy: session.user.id,
     })
     .where(eq(docs.id, docId))
     .returning({ id: docs.id });
 }
 
 export async function finishSprintReview(docId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/login");
+  }
+
   return await db
     .update(docs)
-    .set({ finishedAt: new Date() })
+    .set({
+      finishedAt: new Date(),
+      updatedAt: new Date(),
+      updatedBy: session.user.id,
+    })
     .where(eq(docs.id, docId))
     .returning({ id: docs.id });
 }
