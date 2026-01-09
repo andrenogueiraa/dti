@@ -1,8 +1,6 @@
 "use server";
 
 import { db } from "@/drizzle";
-import { projects } from "@/drizzle/core-schema";
-import { eq } from "drizzle-orm";
 
 export async function getFutureProjects() {
   return await db.query.projects.findMany({
