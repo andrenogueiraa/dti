@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/pg";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
-import Link from "next/link";
 import { cacheLife } from "next/cache";
 import { getFutureProjects } from "./server-actions";
 import {
@@ -28,6 +27,8 @@ import {
 } from "@/components/ui/table";
 import { COMPLEXITY_LEVELS } from "@/enums/complexity-levels";
 import { Badge } from "@/components/ui/badge";
+import { FutureProjectTableActions } from "./table-actions";
+import Link from "next/link";
 
 export const metadata = {
   title: "Projetos Futuros",
@@ -121,11 +122,7 @@ async function FutureProjectsTable() {
               {project.responsibleTeam?.name ?? "-"}
             </TableCell>
             <TableCell>
-              <Link href={`/projects/${project.id}`}>
-                <Button variant="link" size="sm">
-                  Ver detalhes
-                </Button>
-              </Link>
+              <FutureProjectTableActions projectId={project.id} />
             </TableCell>
           </TableRow>
         ))}
