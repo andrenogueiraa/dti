@@ -106,6 +106,53 @@ async function Project({ projectId }: { projectId: string }) {
         <ProjectCarousel images={project.images} projectId={projectId} />
 
         <div className="prose">
+          <h2 className="prose">Documento de Abertura de Projeto</h2>
+        </div>
+
+        <div>
+          {!project.docOpening ? (
+            <Link
+              href={`/projects/${projectId}/opening/edit`}
+              className="flex items-center gap-2 rounded bg-border/30 px-2 py-1 w-fit"
+            >
+              <Icon
+                icon="solar:document-text-bold"
+                className="w-7 h-7 cursor-pointer text-primary"
+              />
+              <span className="text-xs">
+                Criar Documento de Abertura de Projeto
+              </span>
+            </Link>
+          ) : project.docOpening.finishedAt ? (
+            <Link
+              href={`/projects/${projectId}/opening`}
+              className="flex items-center gap-2 rounded bg-border/30 px-2 py-1 w-fit"
+            >
+              <Icon
+                icon="solar:document-text-bold"
+                className="w-7 h-7 cursor-pointer text-muted-foreground"
+              />
+              <span className="text-xs">
+                Ver Documento de Abertura de Projeto
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href={`/projects/${projectId}/opening/edit`}
+              className="flex items-center gap-2 rounded bg-border/30 px-2 py-1 w-fit"
+            >
+              <Icon
+                icon="solar:document-text-bold"
+                className="w-7 h-7 cursor-pointer text-primary"
+              />
+              <span className="text-xs">
+                Editar Documento de Abertura de Projeto
+              </span>
+            </Link>
+          )}
+        </div>
+
+        <div className="prose">
           <h2 className="prose">Sprints</h2>
         </div>
 
@@ -231,7 +278,7 @@ async function Project({ projectId }: { projectId: string }) {
           return (
             <Tooltip>
               <TooltipTrigger>
-                <div>
+                <>
                   <Button
                     className="flex items-center gap-2"
                     variant="secondary"
@@ -239,7 +286,7 @@ async function Project({ projectId }: { projectId: string }) {
                   >
                     {buttonContent}
                   </Button>
-                </div>
+                </>
               </TooltipTrigger>
               <TooltipContent>
                 <p>

@@ -25,6 +25,12 @@ export async function getProject(projectId: string) {
           },
         },
       },
+      docOpening: {
+        columns: {
+          id: true,
+          finishedAt: true,
+        },
+      },
       images: true,
       pdfs: true,
       sprints: {

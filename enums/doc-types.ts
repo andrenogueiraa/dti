@@ -15,6 +15,10 @@ export const DOC_TYPES = [
     value: "DOC",
     label: "Documentação",
   },
+  {
+    value: "POPEN",
+    label: "Abertura de Projeto",
+  },
 ] as const;
 
 export const DOC_TYPE_VALUES = DOC_TYPES.map((s) => s.value);
