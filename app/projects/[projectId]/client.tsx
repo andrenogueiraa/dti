@@ -45,7 +45,7 @@ export function EndDate({
     (userDevTeam) => userDevTeam.userId
   );
 
-  const extraAllowedUsers = process.env.EXTRA_ALLOWED_USERS?.split(";") ?? [];
+  const extraAllowedUsers = process.env.REVIEW_PLANNERS_IDS?.split(";") ?? [];
   allowedUserIds = [...new Set([...allowedUserIds, ...extraAllowedUsers])];
 
   const userIsAllowedToChangeEndDate = allowedUserIds.includes(userId);
