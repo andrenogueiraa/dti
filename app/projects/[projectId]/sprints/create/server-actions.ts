@@ -7,6 +7,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { eq, desc } from "drizzle-orm";
 
 export async function createSprint({
   data,
@@ -26,6 +27,16 @@ export async function createSprint({
   const userId = session.user.id;
 
   await db.transaction(async (tx) => {
+    // Buscar última sprint do projeto
+    const sprintAnteriorPossuiDocReviewFinalizado = await checkSprintAnteriorPossuiDocReviewFinalizado(projectId);
+
+    // Validar se a review foi finalizada
+    if (!sprintAnteriorPossuiDocReviewFinalizado) {
+      throw new Error(
+        "Não é possível criar uma nova sprint sem finalizar a Sprint Review da sprint anterior."
+      );
+    }
+
     const [docReview] = await tx
       .insert(docs)
       .values({
@@ -54,4 +65,43 @@ export async function createSprint({
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/`);
+}
+
+
+export async function checkSprintAnteriorPossuiDocReviewFinalizado(projectId: string) {
+
+  const project = await db.query.projects.findFirst({
+    where: (projects, { eq }) => eq(projects.id, projectId),
+    with: {
+      sprints: {
+        orderBy: (sprints, { desc }) => [desc(sprints.startDate), desc(sprints.id)],
+        limit: 1,
+        with: {
+          docReview: {
+            columns: { finishedAt: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!project) {
+    return false;
+  }
+  
+  if (project.sprints.length === 0) {
+    return true;
+  }
+
+  const lastSprint = project.sprints[0];
+
+  if (!lastSprint.docReview) {
+    return false;
+  }
+
+  if (lastSprint.docReview.finishedAt === null) {
+    return false;
+  }
+  
+  return true;
 }

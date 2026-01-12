@@ -27,6 +27,11 @@ import { EndDate } from "./client";
 import { formatLocalDate } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { PROJECT_STATUSES } from "@/enums/project-statuses";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const metadata = {
   title: "Projeto",
@@ -201,12 +206,50 @@ async function Project({ projectId }: { projectId: string }) {
       </PgContent>
 
       <PgFooter className="flex justify-end mt-auto">
-        <Link href={`/projects/${projectId}/sprints/create`}>
-          <Button className="flex items-center gap-2" variant="secondary">
-            <PlusIcon />
-            Criar nova Sprint
-          </Button>
-        </Link>
+        {(() => {
+          const lastSprint = project.sprints[project.sprints.length - 1];
+          const canCreateSprint =
+            !lastSprint || lastSprint.docReview?.finishedAt !== null;
+
+          const buttonContent = (
+            <>
+              <PlusIcon />
+              Criar nova Sprint
+            </>
+          );
+
+          if (canCreateSprint) {
+            return (
+              <Link href={`/projects/${projectId}/sprints/create`}>
+                <Button className="flex items-center gap-2" variant="secondary">
+                  {buttonContent}
+                </Button>
+              </Link>
+            );
+          }
+
+          return (
+            <Tooltip>
+              <TooltipTrigger>
+                <div>
+                  <Button
+                    className="flex items-center gap-2"
+                    variant="secondary"
+                    disabled
+                  >
+                    {buttonContent}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  Finalize a Sprint Review da sprint anterior para criar uma
+                  nova sprint.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })()}
       </PgFooter>
     </>
   );

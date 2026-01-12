@@ -86,7 +86,7 @@ export default function EditSprintReviewForm({
   });
 
   const finishSprintReviewMutation = useMutation({
-    mutationFn: finishSprintReview,
+    mutationFn: (docId: string) => finishSprintReview(docId, projectId),
     onSuccess() {
       toast.success("Sprint Review finalizado com sucesso");
       router.push(`/projects/${projectId}/sprints/${sprintId}/review`);
