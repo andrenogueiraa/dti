@@ -51,6 +51,7 @@ export default async function Server({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+  const reviewPlannersIds = process.env.REVIEW_PLANNERS_IDS?.split(";") ?? [];
 
   return (
     <Bg>
@@ -63,14 +64,23 @@ export default async function Server({
             </ContainerCenter>
           }
         >
-          <Project projectId={projectId} />
+          <Project
+            projectId={projectId}
+            reviewPlannersIds={reviewPlannersIds}
+          />
         </Suspense>
       </Pg>
     </Bg>
   );
 }
 
-async function Project({ projectId }: { projectId: string }) {
+async function Project({
+  projectId,
+  reviewPlannersIds,
+}: {
+  projectId: string;
+  reviewPlannersIds: string[];
+}) {
   const project = await getProject(projectId);
 
   if (!project) {
@@ -127,6 +137,7 @@ async function Project({ projectId }: { projectId: string }) {
                         project={project}
                         sprintId={sprint.id}
                         sprintFinishDate={new Date(sprint.finishDate)}
+                        reviewPlannersIds={reviewPlannersIds}
                       />
                     )}
                   </div>

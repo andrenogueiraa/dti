@@ -10,10 +10,12 @@ export function EndDate({
   project,
   sprintId,
   sprintFinishDate,
+  reviewPlannersIds,
 }: {
   project: NonNullable<Awaited<ReturnType<typeof getProject>>>;
   sprintId: string;
   sprintFinishDate: Date;
+  reviewPlannersIds: string[];
 }) {
   const { data: session, error, isPending } = authClient.useSession();
 
@@ -45,7 +47,7 @@ export function EndDate({
     (userDevTeam) => userDevTeam.userId
   );
 
-  const extraAllowedUsers = process.env.REVIEW_PLANNERS_IDS?.split(";") ?? [];
+  const extraAllowedUsers = reviewPlannersIds;
   allowedUserIds = [...new Set([...allowedUserIds, ...extraAllowedUsers])];
 
   const userIsAllowedToChangeEndDate = allowedUserIds.includes(userId);
