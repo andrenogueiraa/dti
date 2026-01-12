@@ -48,10 +48,13 @@ export async function getSprint(sprintId: string) {
     },
   });
 
-  const allowedUserIds =
+  let allowedUserIds =
     sprint?.project?.responsibleTeam?.userDevTeams.map(
       (userDevTeam) => userDevTeam.userId
     ) ?? [];
+
+  const reviewPlannersIds = process.env.REVIEW_PLANNERS_IDS?.split(";") ?? [];
+  allowedUserIds = [...new Set([...allowedUserIds, ...reviewPlannersIds])];
 
   if (!allowedUserIds.includes(userId)) {
     unauthorized();
