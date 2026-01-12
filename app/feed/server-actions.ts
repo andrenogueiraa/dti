@@ -295,7 +295,10 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
       : [];
 
   // Create a map of docId -> {sprintId, projectId}
-  const docToSprintMap = new Map<string, { sprintId: string; projectId: string }>();
+  const docToSprintMap = new Map<
+    string,
+    { sprintId: string; projectId: string }
+  >();
   for (const sprint of sprintsForDocs) {
     if (sprint.docReviewId) {
       docToSprintMap.set(sprint.docReviewId, {
@@ -326,7 +329,7 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         timestamp: doc.createdAt,
         metadata: {
           docType: doc.type || undefined,
-          docDate: doc.date,
+          docDate: doc.date || undefined,
           docFinishedAt: doc.finishedAt,
           docProjectId: sprintInfo?.projectId,
           docSprintId: sprintInfo?.sprintId,
@@ -346,7 +349,7 @@ export async function getActivities(limit: number = 50): Promise<Activity[]> {
         timestamp: doc.updatedAt,
         metadata: {
           docType: doc.type || undefined,
-          docDate: doc.date,
+          docDate: doc.date || undefined,
           docFinishedAt: doc.finishedAt,
           docProjectId: sprintInfo?.projectId,
           docSprintId: sprintInfo?.sprintId,

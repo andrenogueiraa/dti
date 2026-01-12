@@ -14,7 +14,7 @@ export function EndDate({
 }: {
   project: NonNullable<Awaited<ReturnType<typeof getProject>>>;
   sprintId: string;
-  sprintFinishDate: Date;
+  sprintFinishDate: Date | null;
   reviewPlannersIds: string[];
 }) {
   const { data: session, error, isPending } = authClient.useSession();
@@ -51,6 +51,19 @@ export function EndDate({
   allowedUserIds = [...new Set([...allowedUserIds, ...extraAllowedUsers])];
 
   const userIsAllowedToChangeEndDate = allowedUserIds.includes(userId);
+
+  if (!sprintFinishDate) {
+    if (userIsAllowedToChangeEndDate) {
+      return (
+        <Link
+          href={`/projects/${project.id}/sprints/${sprintId}/change-end-date`}
+        >
+          <small className="text-muted-foreground italic">Sem data</small>
+        </Link>
+      );
+    }
+    return <small className="text-muted-foreground italic">Sem data</small>;
+  }
 
   if (userIsAllowedToChangeEndDate) {
     return (

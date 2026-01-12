@@ -255,7 +255,7 @@ export const docs = pgTable("docs", {
     .primaryKey()
     .$defaultFn(() => uuidv7()),
   content: text().notNull(),
-  date: timestamp().notNull(),
+  date: timestamp(),
   type: docTypeEnum("type").notNull(),
   finishedAt: timestamp(),
   ...auditColumns,

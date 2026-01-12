@@ -71,7 +71,7 @@ export default function EditSprintReviewForm({
     resolver: zodResolver(editSprintReviewFormSchema),
     defaultValues: {
       content: docReview.content,
-      date: docReview.date,
+      date: docReview.date || new Date(),
     },
   });
 

@@ -82,9 +82,9 @@ function getActivityDescription(activity: Activity) {
             {activity.entityName}
           </p>
         )}
-        {startDate && finishDate && (
+        {startDate && (
           <p className="text-xs text-muted-foreground">
-            {startDate} - {finishDate}
+            {startDate} - {finishDate || "Sem data"}
           </p>
         )}
         {activity.metadata?.description && (

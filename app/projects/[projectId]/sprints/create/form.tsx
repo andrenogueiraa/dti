@@ -32,7 +32,6 @@ const createSprintFormSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
   startDate: z.date(),
-  finishDate: z.date(),
   progress: z.number().min(0).max(100),
 });
 
@@ -48,7 +47,6 @@ export default function CreateSprintForm() {
       name: "",
       description: "",
       startDate: new Date(),
-      finishDate: new Date(new Date().setDate(new Date().getDate() + 15)),
       progress: 0,
     },
   });
@@ -156,33 +154,6 @@ export default function CreateSprintForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Start Date</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      value={
-                        field.value instanceof Date
-                          ? field.value.toISOString().split("T")[0]
-                          : ""
-                      }
-                      onChange={(e) => {
-                        const dateValue = e.target.value
-                          ? new Date(e.target.value)
-                          : new Date();
-                        field.onChange(dateValue);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="finishDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Finish Date</FormLabel>
                   <FormControl>
                     <Input
                       type="date"

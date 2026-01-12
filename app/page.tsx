@@ -116,9 +116,11 @@ async function DevTeams() {
                                 ).toLocaleDateString("pt-br")}
                               </small>
                               <small>
-                                {new Date(
-                                  sprint.finishDate ?? ""
-                                ).toLocaleDateString("pt-br")}
+                                {sprint.finishDate
+                                  ? new Date(
+                                      sprint.finishDate
+                                    ).toLocaleDateString("pt-br")
+                                  : "Sem data"}
                               </small>
                             </div>
                           </div>

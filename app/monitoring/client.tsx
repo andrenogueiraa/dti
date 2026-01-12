@@ -116,6 +116,8 @@ export function MonitoringClient({ teams }: MonitoringClientProps) {
                 <span className="font-medium">
                   {team.nextSprint
                     ? formatDate(team.nextSprint.finishDate)
+                    : team.hasSprintsWithoutDates
+                    ? "Sem data"
                     : "Sem próxima sprint"}
                 </span>
               </div>

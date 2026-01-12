@@ -132,14 +132,14 @@ async function Project({
                         {formatLocalDate(sprint.startDate, "pt-BR")}
                       </small>
                     )}
-                    {sprint.finishDate && (
-                      <EndDate
-                        project={project}
-                        sprintId={sprint.id}
-                        sprintFinishDate={new Date(sprint.finishDate)}
-                        reviewPlannersIds={reviewPlannersIds}
-                      />
-                    )}
+                    <EndDate
+                      project={project}
+                      sprintId={sprint.id}
+                      sprintFinishDate={
+                        sprint.finishDate ? new Date(sprint.finishDate) : null
+                      }
+                      reviewPlannersIds={reviewPlannersIds}
+                    />
                   </div>
                 </div>
 

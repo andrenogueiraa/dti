@@ -30,7 +30,7 @@ export async function createSprint({
       .insert(docs)
       .values({
         type: "SREV",
-        date: data.finishDate,
+        date: null,
         content:
           "## Tópicos abordados\n- Tópico 1\n- Tópico 2\n\n## Metas para a próxima sprint\n- Meta 1\n- Meta 2\n\n## Participantes\n- Participante 1\n- Participante 2",
         createdBy: userId,
@@ -42,7 +42,7 @@ export async function createSprint({
       .values({
         ...data,
         startDate: data.startDate,
-        finishDate: data.finishDate,
+        finishDate: null,
         projectId,
         createdBy: userId,
         docReviewId: docReview.id,

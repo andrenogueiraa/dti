@@ -27,7 +27,8 @@ export type TeamMonitoringData = {
 
   // Status e alertas
   status: "green" | "yellow" | "red";
-  state: TeamState; // Substitui 'alert' com tipo discriminado
+  state: TeamState;
+  hasSprintsWithoutDates: boolean;
 };
 
 /**
@@ -36,7 +37,8 @@ export type TeamMonitoringData = {
  */
 function classifyTeamState(
   previousSprint: { finishDate: Date; hasDocReviewFinished: boolean } | null,
-  nextSprint: { finishDate: Date; hasDocReviewFinished: boolean } | null
+  nextSprint: { finishDate: Date; hasDocReviewFinished: boolean } | null,
+  hasSprintsWithoutDates: boolean
 ): TeamState {
   const alerts: string[] = [];
 
@@ -45,6 +47,8 @@ function classifyTeamState(
     if (nextSprint.hasDocReviewFinished) {
       alerts.push("Sprint Review finalizada antes de ocorrer a reunião");
     }
+  } else if (hasSprintsWithoutDates) {
+    alerts.push("Definir data da próxima sprint");
   } else {
     // Não tem próxima sprint
     alerts.push("Criar próxima sprint");
@@ -75,7 +79,9 @@ function calculateStatus(
   now.setHours(0, 0, 0, 0);
 
   // Se tem alerta de erro crítico, é vermelho
-  if (state.alerts.some((alert) => alert.includes("finalizada antes de ocorrer"))) {
+  if (
+    state.alerts.some((alert) => alert.includes("finalizada antes de ocorrer"))
+  ) {
     return "red";
   }
 
@@ -178,6 +184,10 @@ export async function getTeamsMonitoringData(): Promise<MonitoringData> {
     const nextSprints = sprintsWithDates.filter((s) => s.finishDate > now);
     const nextSprint = nextSprints.length > 0 ? nextSprints[0] : null;
 
+    const hasSprintsWithoutDates = allSprints.some(
+      (s) => s.finishDate === null
+    );
+
     // Classificar o estado da equipe (centraliza toda a lógica de alertas)
     const state = classifyTeamState(
       previousSprint
@@ -191,7 +201,8 @@ export async function getTeamsMonitoringData(): Promise<MonitoringData> {
             finishDate: nextSprint.finishDate,
             hasDocReviewFinished: nextSprint.hasDocReviewFinished,
           }
-        : null
+        : null,
+      hasSprintsWithoutDates
     );
 
     // Atualizar data mais antiga de doc review (apenas de sprints anteriores)
@@ -237,6 +248,7 @@ export async function getTeamsMonitoringData(): Promise<MonitoringData> {
         : null,
       status,
       state,
+      hasSprintsWithoutDates,
     });
   }
 

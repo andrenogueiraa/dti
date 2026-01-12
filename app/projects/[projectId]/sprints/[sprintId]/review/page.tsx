@@ -62,7 +62,11 @@ async function SprintReview({ sprintId }: { sprintId: string }) {
       <SimpleMarkdownPreview
         content={sprintReview.docReview.content}
         typeLabel="Sprint Review"
-        date={sprintReview.docReview.date.toLocaleDateString("pt-BR")}
+        date={
+          sprintReview.docReview.date
+            ? sprintReview.docReview.date.toLocaleDateString("pt-BR")
+            : "Sem data"
+        }
       />
 
       {images.length > 0 && (
