@@ -7,7 +7,6 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { eq, desc } from "drizzle-orm";
 
 export async function createSprint({
   data,
@@ -28,13 +27,11 @@ export async function createSprint({
 
   await db.transaction(async (tx) => {
     // Buscar última sprint do projeto
-    const sprintAnteriorPossuiDocReviewFinalizado = await checkSprintAnteriorPossuiDocReviewFinalizado(projectId);
+    const { success, message } = await canCreateSprint(projectId);
 
     // Validar se a review foi finalizada
-    if (!sprintAnteriorPossuiDocReviewFinalizado) {
-      throw new Error(
-        "Não é possível criar uma nova sprint sem finalizar a Sprint Review da sprint anterior."
-      );
+    if (!success) {
+      throw new Error(message || "Não é possível criar uma nova sprint.");
     }
 
     const [docReview] = await tx
@@ -67,14 +64,21 @@ export async function createSprint({
   revalidatePath(`/`);
 }
 
-
-export async function checkSprintAnteriorPossuiDocReviewFinalizado(projectId: string) {
-
+export async function canCreateSprint(projectId: string): Promise<{
+  success: boolean;
+  message?: string;
+}> {
   const project = await db.query.projects.findFirst({
     where: (projects, { eq }) => eq(projects.id, projectId),
     with: {
+      docOpening: {
+        columns: { finishedAt: true },
+      },
       sprints: {
-        orderBy: (sprints, { desc }) => [desc(sprints.startDate), desc(sprints.id)],
+        orderBy: (sprints, { desc }) => [
+          desc(sprints.startDate),
+          desc(sprints.id),
+        ],
         limit: 1,
         with: {
           docReview: {
@@ -86,22 +90,49 @@ export async function checkSprintAnteriorPossuiDocReviewFinalizado(projectId: st
   });
 
   if (!project) {
-    return false;
+    return {
+      success: false,
+      message: "Projeto não encontrado.",
+    };
   }
-  
+
+  if (!project.docOpening) {
+    return {
+      success: false,
+      message:
+        "Não é possível criar uma nova sprint sem um documento de abertura.",
+    };
+  }
+
+  if (project.docOpening.finishedAt === null) {
+    return {
+      success: false,
+      message:
+        "O documento de abertura do projeto ainda não foi finalizado. Finalize-o para poder criar uma sprint.",
+    };
+  }
+
   if (project.sprints.length === 0) {
-    return true;
+    return { success: true };
   }
 
   const lastSprint = project.sprints[0];
 
   if (!lastSprint.docReview) {
-    return false;
+    return {
+      success: false,
+      message:
+        "A sprint anterior não possui um documento de revisão (Sprint Review).",
+    };
   }
 
   if (lastSprint.docReview.finishedAt === null) {
-    return false;
+    return {
+      success: false,
+      message:
+        "Finalize a Sprint Review da sprint anterior antes de criar uma nova sprint.",
+    };
   }
-  
-  return true;
+
+  return { success: true };
 }

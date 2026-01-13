@@ -1,8 +1,14 @@
 import { Bg } from "@/components/custom/bg";
 import CreateSprintForm from "./form";
-import { checkSprintAnteriorPossuiDocReviewFinalizado } from "./server-actions";
+import { canCreateSprint } from "./server-actions";
 import { ButtonClose } from "@/components/custom/button-close";
-import { Pg, PgDescription, PgTitle, PgHeader, PgContent } from "@/components/ui/pg";
+import {
+  Pg,
+  PgDescription,
+  PgTitle,
+  PgHeader,
+  PgContent,
+} from "@/components/ui/pg";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -13,9 +19,9 @@ export default async function Server({
 }) {
   const { projectId } = await params;
 
-  const sprintAnteriorPossuiDocReviewFinalizado = await checkSprintAnteriorPossuiDocReviewFinalizado(projectId);
-  console.log(sprintAnteriorPossuiDocReviewFinalizado);
-  if (!sprintAnteriorPossuiDocReviewFinalizado) {
+  const canCreateSprintResult = await canCreateSprint(projectId);
+
+  if (!canCreateSprintResult.success) {
     return (
       <Bg>
         <Pg className="relative">
@@ -23,14 +29,13 @@ export default async function Server({
           <PgHeader>
             <PgTitle>Não é possível criar uma nova sprint</PgTitle>
             <PgDescription>
-              Finalize a Sprint Review da sprint anterior antes de criar uma nova sprint.
+              {canCreateSprintResult.message ||
+                "Verifique os pré-requisitos antes de criar uma nova sprint."}
             </PgDescription>
           </PgHeader>
           <PgContent>
             <Button asChild>
-              <Link href={`/projects/${projectId}`}>
-                Voltar ao projeto
-              </Link>
+              <Link href={`/projects/${projectId}`}>Voltar ao projeto</Link>
             </Button>
           </PgContent>
         </Pg>

@@ -27,6 +27,7 @@ import { EndDate } from "./client";
 import { formatLocalDate } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { PROJECT_STATUSES } from "@/enums/project-statuses";
+import { canCreateSprint } from "./sprints/create/server-actions";
 import {
   Tooltip,
   TooltipContent,
@@ -253,51 +254,51 @@ async function Project({ projectId }: { projectId: string }) {
       </PgContent>
 
       <PgFooter className="flex justify-end mt-auto">
-        {(() => {
-          const lastSprint = project.sprints[project.sprints.length - 1];
-          const canCreateSprint =
-            !lastSprint || lastSprint.docReview?.finishedAt !== null;
-
-          const buttonContent = (
-            <>
-              <PlusIcon />
-              Criar nova Sprint
-            </>
-          );
-
-          if (canCreateSprint) {
-            return (
-              <Link href={`/projects/${projectId}/sprints/create`}>
-                <Button className="flex items-center gap-2" variant="secondary">
-                  {buttonContent}
-                </Button>
-              </Link>
-            );
-          }
-
-          return (
-            <Tooltip>
-              <TooltipTrigger>
-                <>
-                  <Button
-                    className="flex items-center gap-2"
-                    variant="secondary"
-                    disabled
-                  >
-                    {buttonContent}
-                  </Button>
-                </>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  Finalize a Sprint Review da sprint anterior para criar uma
-                  nova sprint.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          );
-        })()}
+        <SprintCreationButton projectId={projectId} />
       </PgFooter>
     </>
+  );
+}
+
+async function SprintCreationButton({ projectId }: { projectId: string }) {
+  const { success, message } = await canCreateSprint(projectId);
+
+  const buttonContent = (
+    <>
+      <PlusIcon />
+      Criar nova Sprint
+    </>
+  );
+
+  if (success) {
+    return (
+      <Link href={`/projects/${projectId}/sprints/create`}>
+        <Button className="flex items-center gap-2" variant="secondary">
+          {buttonContent}
+        </Button>
+      </Link>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="w-fit">
+          <Button
+            className="flex items-center gap-2"
+            variant="secondary"
+            disabled
+          >
+            {buttonContent}
+          </Button>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>
+          {message ||
+            "Verifique os pré-requisitos antes de criar uma nova sprint."}
+        </p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
