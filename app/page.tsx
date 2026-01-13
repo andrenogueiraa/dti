@@ -1,5 +1,6 @@
 "use cache";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Pg,
   PgContent,
@@ -10,7 +11,6 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { getColorClassName } from "@/enums/colors";
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
@@ -72,13 +72,15 @@ async function DevTeams() {
               href={`/dev-teams/${devTeam.id}`}
               className="flex flex-col items-center justify-center min-w-48 max-w-48"
             >
-              <Image
-                src={devTeam.imageUrl ?? ""}
-                alt={devTeam.name ?? ""}
-                width={100}
-                height={100}
-                className="rounded-full w-20 h-20"
-              />
+              <Avatar className="w-20 h-20">
+                <AvatarImage
+                  src={devTeam.imageUrl ?? ""}
+                  alt={devTeam.name ?? ""}
+                />
+                <AvatarFallback className="text-xl font-bold bg-slate-200 dark:bg-slate-700">
+                  {devTeam.name?.substring(0, 2).toUpperCase() ?? "??"}
+                </AvatarFallback>
+              </Avatar>
               <h1 className="font-semibold mt-2">{devTeam.name}</h1>
               <p className="leading-4 text-sm text-muted-foreground">
                 {devTeam.description ?? ""}
