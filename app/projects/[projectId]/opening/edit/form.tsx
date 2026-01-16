@@ -26,9 +26,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { SimpleMarkdownPreview } from "@/components/custom/simple-markdown-preview";
 import {
   deleteImage,
-  finishSprintReview,
-  SprintReviewType,
-  updateSprintReview,
+  finishProjectOpening,
+  ProjectOpeningType,
+  updateProjectOpening,
 } from "./server-actions";
 import FormUploadImage from "@/app/projects/[projectId]/images/add/form";
 import Image from "next/image";
@@ -47,52 +47,50 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, Trash2Icon } from "lucide-react";
 
-const editSprintReviewFormSchema = z.object({
+const editProjectOpeningFormSchema = z.object({
   date: z.date(),
   content: z.string().min(1),
 });
 
-export type EditSprintReviewFormSchema = z.infer<
-  typeof editSprintReviewFormSchema
+export type EditProjectOpeningFormSchema = z.infer<
+  typeof editProjectOpeningFormSchema
 >;
 
-export default function EditSprintReviewForm({
-  docReview,
+export default function EditProjectOpeningForm({
+  docOpening,
   projectId,
-  sprintId,
 }: {
-  docReview: NonNullable<SprintReviewType>;
+  docOpening: NonNullable<ProjectOpeningType>;
   projectId: string;
-  sprintId: string;
 }) {
   const router = useRouter();
 
-  const form = useForm<EditSprintReviewFormSchema>({
-    resolver: zodResolver(editSprintReviewFormSchema),
+  const form = useForm<EditProjectOpeningFormSchema>({
+    resolver: zodResolver(editProjectOpeningFormSchema),
     defaultValues: {
-      content: docReview.content,
-      date: docReview.date || new Date(),
+      content: docOpening.content,
+      date: docOpening.date,
     },
   });
 
-  const updateSprintReviewMutation = useMutation({
-    mutationFn: updateSprintReview,
+  const updateProjectOpeningMutation = useMutation({
+    mutationFn: updateProjectOpening,
     onSuccess() {
-      toast.success("Sprint Review atualizado com sucesso");
+      toast.success("Documento de Abertura atualizado com sucesso");
     },
     onError(error) {
-      toast.error(error.message || "Erro ao atualizar Sprint Review");
+      toast.error(error.message || "Erro ao atualizar Documento de Abertura");
     },
   });
 
-  const finishSprintReviewMutation = useMutation({
-    mutationFn: (docId: string) => finishSprintReview(docId, projectId),
+  const finishProjectOpeningMutation = useMutation({
+    mutationFn: (docId: string) => finishProjectOpening(docId, projectId),
     onSuccess() {
-      toast.success("Sprint Review finalizado com sucesso");
-      router.push(`/projects/${projectId}/sprints/${sprintId}/review`);
+      toast.success("Documento de Abertura finalizado com sucesso");
+      router.push(`/projects/${projectId}/opening`);
     },
     onError(error) {
-      toast.error(error.message || "Erro ao finalizar Sprint Review");
+      toast.error(error.message || "Erro ao finalizar Documento de Abertura");
     },
   });
 
@@ -107,8 +105,8 @@ export default function EditSprintReviewForm({
     },
   });
 
-  const onSubmit = (data: EditSprintReviewFormSchema) => {
-    updateSprintReviewMutation.mutate({ docId: docReview.id, data });
+  const onSubmit = (data: EditProjectOpeningFormSchema) => {
+    updateProjectOpeningMutation.mutate({ docId: docOpening.id, data });
   };
 
   return (
@@ -117,11 +115,11 @@ export default function EditSprintReviewForm({
         <Card className="relative">
           <ButtonClose href={`/projects/${projectId}`} />
           <CardHeader>
-            <CardTitle>Editar Sprint Review</CardTitle>
+            <CardTitle>Editar Documento de Abertura de Projeto</CardTitle>
             <CardDescription>
-              Edite o Sprint Review. Se precisar, adicione imagens. Atenção,
-              após clicar em &quot;Finalizar Documento&quot;, você não poderá
-              editá-lo novamente.
+              Edite o Documento de Abertura. Se precisar, adicione imagens.
+              Atenção, após clicar em &quot;Finalizar Documento&quot;, você não
+              poderá editá-lo novamente.
             </CardDescription>
           </CardHeader>
 
@@ -151,9 +149,9 @@ export default function EditSprintReviewForm({
 
                 <Button
                   type="submit"
-                  disabled={updateSprintReviewMutation.isPending}
+                  disabled={updateProjectOpeningMutation.isPending}
                 >
-                  {updateSprintReviewMutation.isPending ? (
+                  {updateProjectOpeningMutation.isPending ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
                     "Salvar alterações"
@@ -166,7 +164,7 @@ export default function EditSprintReviewForm({
 
         <Card>
           <CardContent className="px-0 space-y-4">
-            <FormUploadImage docId={docReview.id} />
+            <FormUploadImage docId={docOpening.id} />
           </CardContent>
         </Card>
 
@@ -187,11 +185,11 @@ export default function EditSprintReviewForm({
               <AlertDialogCancel>Cancelar</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => {
-                  finishSprintReviewMutation.mutate(docReview.id);
+                  finishProjectOpeningMutation.mutate(docOpening.id);
                 }}
-                disabled={finishSprintReviewMutation.isPending}
+                disabled={finishProjectOpeningMutation.isPending}
               >
-                {finishSprintReviewMutation.isPending ? (
+                {finishProjectOpeningMutation.isPending ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
                   "Finalizar Documento"
@@ -211,15 +209,15 @@ export default function EditSprintReviewForm({
         <CardContent>
           <SimpleMarkdownPreview
             content={form.watch("content")}
-            typeLabel={"Sprint Review"}
+            typeLabel={"Documento deAbertura de Projeto"}
             date={form.watch("date").toLocaleDateString("pt-BR")}
           />
 
-          {docReview.images.length > 0 && (
+          {docOpening.images.length > 0 && (
             <section className="prose mt-6">
               <h2>Anexos</h2>
               <div className="grid gap-6 mt-4">
-                {docReview.images.map((image) => (
+                {docOpening.images.map((image) => (
                   <div key={image.id} className="relative">
                     <Image
                       src={image.url || ""}

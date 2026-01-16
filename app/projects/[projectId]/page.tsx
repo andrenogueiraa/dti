@@ -27,6 +27,12 @@ import { EndDate } from "./client";
 import { formatLocalDate } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { PROJECT_STATUSES } from "@/enums/project-statuses";
+import { canCreateSprint } from "./sprints/create/server-actions";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const metadata = {
   title: "Projeto",
@@ -109,6 +115,53 @@ async function Project({
 
       <PgContent className="space-y-6">
         <ProjectCarousel images={project.images} projectId={projectId} />
+
+        <div className="prose">
+          <h2 className="prose">Documento de Abertura de Projeto</h2>
+        </div>
+
+        <div>
+          {!project.docOpening ? (
+            <Link
+              href={`/projects/${projectId}/opening/edit`}
+              className="flex items-center gap-2 rounded bg-border/30 px-2 py-1 w-fit"
+            >
+              <Icon
+                icon="solar:document-text-bold"
+                className="w-7 h-7 cursor-pointer text-primary"
+              />
+              <span className="text-xs">
+                Criar Documento de Abertura de Projeto
+              </span>
+            </Link>
+          ) : project.docOpening.finishedAt ? (
+            <Link
+              href={`/projects/${projectId}/opening`}
+              className="flex items-center gap-2 rounded bg-border/30 px-2 py-1 w-fit"
+            >
+              <Icon
+                icon="solar:document-text-bold"
+                className="w-7 h-7 cursor-pointer text-muted-foreground"
+              />
+              <span className="text-xs">
+                Ver Documento de Abertura de Projeto
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href={`/projects/${projectId}/opening/edit`}
+              className="flex items-center gap-2 rounded bg-border/30 px-2 py-1 w-fit"
+            >
+              <Icon
+                icon="solar:document-text-bold"
+                className="w-7 h-7 cursor-pointer text-primary"
+              />
+              <span className="text-xs">
+                Editar Documento de Abertura de Projeto
+              </span>
+            </Link>
+          )}
+        </div>
 
         <div className="prose">
           <h2 className="prose">Sprints</h2>
@@ -212,13 +265,51 @@ async function Project({
       </PgContent>
 
       <PgFooter className="flex justify-end mt-auto">
-        <Link href={`/projects/${projectId}/sprints/create`}>
-          <Button className="flex items-center gap-2" variant="secondary">
-            <PlusIcon />
-            Criar nova Sprint
-          </Button>
-        </Link>
+        <SprintCreationButton projectId={projectId} />
       </PgFooter>
     </>
+  );
+}
+
+async function SprintCreationButton({ projectId }: { projectId: string }) {
+  const { success, message } = await canCreateSprint(projectId);
+
+  const buttonContent = (
+    <>
+      <PlusIcon />
+      Criar nova Sprint
+    </>
+  );
+
+  if (success) {
+    return (
+      <Link href={`/projects/${projectId}/sprints/create`}>
+        <Button className="flex items-center gap-2" variant="secondary">
+          {buttonContent}
+        </Button>
+      </Link>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="w-fit">
+          <Button
+            className="flex items-center gap-2"
+            variant="secondary"
+            disabled
+          >
+            {buttonContent}
+          </Button>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>
+          {message ||
+            "Verifique os pré-requisitos antes de criar uma nova sprint."}
+        </p>
+      </TooltipContent>
+    </Tooltip>
   );
 }

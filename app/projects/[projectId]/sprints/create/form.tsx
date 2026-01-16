@@ -57,6 +57,9 @@ export default function CreateSprintForm() {
       toast.success("Sprint criada com sucesso");
       router.push(`/projects/${projectId}`);
     },
+    onError(error: Error) {
+      toast.error(error.message || "Erro ao criar sprint");
+    },
   });
 
   const onSubmit = (data: CreateSprintFormSchema) => {

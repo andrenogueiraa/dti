@@ -7,6 +7,7 @@ import { EditSprintReviewFormSchema } from "./form";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function getSprintReview(sprintId: string) {
   return await db.query.sprints.findFirst({
@@ -52,7 +53,7 @@ export async function updateSprintReview({
     .returning({ id: docs.id });
 }
 
-export async function finishSprintReview(docId: string) {
+export async function finishSprintReview(docId: string, projectId: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -61,7 +62,7 @@ export async function finishSprintReview(docId: string) {
     redirect("/login");
   }
 
-  return await db
+  const [doc] = await db
     .update(docs)
     .set({
       finishedAt: new Date(),
@@ -70,6 +71,10 @@ export async function finishSprintReview(docId: string) {
     })
     .where(eq(docs.id, docId))
     .returning({ id: docs.id });
+
+    revalidatePath(`/projects/${projectId}`);
+
+    return doc;
 }
 
 export async function deleteImage(imageId: string) {
