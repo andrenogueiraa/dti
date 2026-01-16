@@ -69,7 +69,7 @@ export default function EditProjectOpeningForm({
     resolver: zodResolver(editProjectOpeningFormSchema),
     defaultValues: {
       content: docOpening.content,
-      date: docOpening.date,
+      date: docOpening.date ?? new Date(),
     },
   });
 
@@ -210,7 +210,7 @@ export default function EditProjectOpeningForm({
           <SimpleMarkdownPreview
             content={form.watch("content")}
             typeLabel={"Documento deAbertura de Projeto"}
-            date={form.watch("date").toLocaleDateString("pt-BR")}
+            date={form.watch("date")?.toLocaleDateString("pt-BR") ?? "Sem data"}
           />
 
           {docOpening.images.length > 0 && (

@@ -63,7 +63,7 @@ async function ProjectOpening({ projectId }: { projectId: string }) {
       <SimpleMarkdownPreview
         content={docOpening.content}
         typeLabel="Documento de Abertura de Projeto"
-        date={docOpening.date.toLocaleDateString("pt-BR")}
+        date={docOpening.date?.toLocaleDateString("pt-BR") ?? "Sem data"}
       />
 
       {images.length > 0 && (
