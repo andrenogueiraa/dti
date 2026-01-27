@@ -97,13 +97,10 @@ function compareValues(
     return direction === "asc" ? result : -result;
   }
 
-  // Datas
-  if (
-    (a instanceof Date || typeof a === "string") &&
-    (b instanceof Date || typeof b === "string")
-  ) {
-    const dateA = a instanceof Date ? a : new Date(a);
-    const dateB = b instanceof Date ? b : new Date(b);
+  // Datas (somente quando já são Date válidas)
+  if (a instanceof Date && b instanceof Date) {
+    const dateA = a;
+    const dateB = b;
     const result = dateA.getTime() - dateB.getTime();
     return direction === "asc" ? result : -result;
   }
