@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { COMPLEXITY_LEVELS } from "@/enums/complexity-levels";
+import { AREAS } from "@/enums/areas";
 import { FutureProjectTableActions } from "./table-actions";
 
 type FutureProject = {
@@ -36,6 +37,7 @@ type FutureProject = {
   semarhImpact: number | null;
   estimatedWeeks: number | null;
   createdAt: string | Date | null;
+  area: string | null;
   responsibleTeam?: {
     id: string;
     name: string | null;
@@ -51,7 +53,8 @@ type SortColumn =
   | "semarhImpact"
   | "estimatedWeeks"
   | "createdAt"
-  | "responsibleTeamName";
+  | "responsibleTeamName"
+  | "area";
 
 type QuickFilter = "all" | "highComplexity" | "noTeam";
 
@@ -121,6 +124,7 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
   const [complexityFilter, setComplexityFilter] = useState<string>("all");
   const [teamFilter, setTeamFilter] = useState<string>("all");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
+  const [areaFilter, setAreaFilter] = useState<string>("all");
 
   const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -129,12 +133,14 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
     const initialSearch = searchParams.get("q") ?? "";
     const initialComplexity = searchParams.get("complexity") ?? "all";
     const initialTeam = searchParams.get("team") ?? "all";
+    const initialArea = searchParams.get("area") ?? "all";
     const initialQuickFilter =
       (searchParams.get("card") as QuickFilter | null) ?? "all";
 
     setSearch(initialSearch);
     setComplexityFilter(initialComplexity);
     setTeamFilter(initialTeam);
+    setAreaFilter(initialArea);
     setQuickFilter(initialQuickFilter);
   }, [searchParams]);
 
@@ -142,6 +148,7 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
     search?: string;
     complexityFilter?: string;
     teamFilter?: string;
+    areaFilter?: string;
     quickFilter?: QuickFilter;
   }) {
     const current = new URLSearchParams(searchParams.toString());
@@ -160,6 +167,14 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
     if (params.teamFilter !== undefined) {
       if (params.teamFilter !== "all") current.set("team", params.teamFilter);
       else current.delete("team");
+    }
+
+    if (params.areaFilter !== undefined) {
+      if (params.areaFilter !== "all") {
+        current.set("area", params.areaFilter);
+      } else {
+        current.delete("area");
+      }
     }
 
     if (params.quickFilter !== undefined) {
@@ -216,6 +231,11 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
         (teamFilter === "none" && !project.responsibleTeam?.id) ||
         project.responsibleTeam?.name === teamFilter;
 
+      const matchesDepartment =
+        areaFilter === "all" ||
+        (areaFilter === "none" && !project.area) ||
+        project.area === areaFilter;
+
       const matchesQuickFilter =
         quickFilter === "all" ||
         (quickFilter === "highComplexity" &&
@@ -223,10 +243,14 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
         (quickFilter === "noTeam" && !project.responsibleTeam?.id);
 
       return (
-        matchesSearch && matchesComplexity && matchesTeam && matchesQuickFilter
+        matchesSearch &&
+        matchesComplexity &&
+        matchesTeam &&
+        matchesDepartment &&
+        matchesQuickFilter
       );
     });
-  }, [projects, search, complexityFilter, teamFilter, quickFilter]);
+  }, [projects, search, complexityFilter, teamFilter, areaFilter, quickFilter]);
 
   const sortedProjects = useMemo(() => {
     if (!sortColumn) {
@@ -259,6 +283,8 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
             b.responsibleTeam?.name ?? "",
             sortDirection
           );
+        case "area":
+          return compareValues(a.area ?? "", b.area ?? "", sortDirection);
         default:
           return 0;
       }
@@ -310,6 +336,11 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
     updateUrl({ teamFilter: value });
   }
 
+  function handleAreaChange(value: string) {
+    setAreaFilter(value);
+    updateUrl({ areaFilter: value });
+  }
+
   return (
     <div className="space-y-6">
       {/* Cards de resumo */}
@@ -338,7 +369,7 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
       </div>
 
       {/* Filtros */}
-      <div className="grid gap-4 md:grid-cols-[2fr,1fr,1fr] items-end">
+      <div className="grid gap-4 md:grid-cols-[2fr,1fr,1fr,1fr] items-end">
         <div className="space-y-1">
           <Label htmlFor="search">Busca global</Label>
           <div className="relative">
@@ -355,13 +386,15 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
           </div>
         </div>
 
-        <div className="space-y-1">
+        <div className="flex gap-4 justify-between">
+        <div className="space-y-1 flex-1 min-w-0">
           <Label htmlFor="complexity">Complexidade</Label>
           <Select
             value={complexityFilter}
             onValueChange={handleComplexityChange}
+            
           >
-            <SelectTrigger id="complexity">
+            <SelectTrigger id="complexity" className="w-full">
               <SelectValue placeholder="Todas" />
             </SelectTrigger>
             <SelectContent>
@@ -376,10 +409,10 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
           </Select>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 flex-1 min-w-0">
           <Label htmlFor="team">Equipe responsável</Label>
           <Select value={teamFilter} onValueChange={handleTeamChange}>
-            <SelectTrigger id="team">
+            <SelectTrigger id="team" className="w-full">
               <SelectValue placeholder="Todas" />
             </SelectTrigger>
             <SelectContent>
@@ -393,6 +426,28 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
             </SelectContent>
           </Select>
         </div>
+
+        <div className="space-y-1 flex-1 min-w-0">
+          <Label htmlFor="area">Área</Label>
+          <Select
+            value={areaFilter}
+            onValueChange={handleAreaChange}
+          >
+            <SelectTrigger id="area" className="w-full">
+              <SelectValue placeholder="Todas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="none">Sem área</SelectItem>
+              {AREAS.map((area) => (
+                <SelectItem key={area.value} value={area.value}>
+                  {area.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        </div>
       </div>
 
       {/* Tabela */}
@@ -400,48 +455,86 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <SortableHeader
-                label="Nome"
-                column="name"
-                onSort={handleSort}
-                icon={getSortIcon("name")}
-              />
-              <SortableHeader
-                label="Complexidade"
-                column="complexity"
-                onSort={handleSort}
-                icon={getSortIcon("complexity")}
-              />
-              <SortableHeader
-                label="Impacto social"
-                column="socialImpact"
-                onSort={handleSort}
-                icon={getSortIcon("socialImpact")}
-              />
-              <SortableHeader
-                label="Impacto SEMARH"
-                column="semarhImpact"
-                onSort={handleSort}
-                icon={getSortIcon("semarhImpact")}
-              />
-              <SortableHeader
-                label="Tempo estimado"
-                column="estimatedWeeks"
-                onSort={handleSort}
-                icon={getSortIcon("estimatedWeeks")}
-              />
-              <SortableHeader
-                label="Equipe responsável"
-                column="responsibleTeamName"
-                onSort={handleSort}
-                icon={getSortIcon("responsibleTeamName")}
-              />
-              <SortableHeader
-                label="Criado em"
-                column="createdAt"
-                onSort={handleSort}
-                icon={getSortIcon("createdAt")}
-              />
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("name")}
+                >
+                  <span>Nome</span>
+                  {getSortIcon("name")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("complexity")}
+                >
+                  <span>Complexidade</span>
+                  {getSortIcon("complexity")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("socialImpact")}
+                >
+                  <span>Impacto<br/> social</span>
+                  {getSortIcon("socialImpact")}
+                </button>
+              </TableHead>
+              <TableHead>         
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("semarhImpact")}
+                >
+                  <span>Impacto <br/> SEMARH</span>
+                  {getSortIcon("semarhImpact")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("estimatedWeeks")}
+                >
+                  <span>Tempo<br/> estimado</span>
+                  {getSortIcon("estimatedWeeks")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("area")}
+                >
+                  <span>Área</span>
+                  {getSortIcon("area")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("responsibleTeamName")}
+                >
+                  <span>Equipe<br/> responsável</span>
+                  {getSortIcon("responsibleTeamName")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("createdAt")}
+                >
+                  <span>Criado em</span>
+                  {getSortIcon("createdAt")}
+                </button>
+              </TableHead>
               <TableHead className="w-[80px] text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -449,7 +542,7 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
             {sortedProjects.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="py-8 text-center text-muted-foreground"
                 >
                   Nenhum projeto encontrado para os filtros atuais.
@@ -458,11 +551,11 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
             ) : (
               sortedProjects.map((project) => (
                 <TableRow key={project.id}>
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium max-w-[250px] whitespace-normal">
                     <div className="flex flex-col gap-1">
                       <span>{project.name ?? "-"}</span>
                       {project.description && (
-                        <span className="text-xs text-muted-foreground line-clamp-2">
+                        <span className="text-xs text-muted-foreground line-clamp-2 truncate">
                           {project.description}
                         </span>
                       )}
@@ -480,6 +573,14 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
                   <TableCell>{formatNumber(project.socialImpact)}</TableCell>
                   <TableCell>{formatNumber(project.semarhImpact)}</TableCell>
                   <TableCell>{formatWeeks(project.estimatedWeeks)}</TableCell>
+                  <TableCell>
+                    {project.area ? (
+                      AREAS.find((d) => d.value === project.area)?.label ??
+                      project.area
+                    ) : (
+                      <span className="text-muted-foreground">Sem área</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     {project.responsibleTeam?.name ?? (
                       <span className="text-muted-foreground">Sem equipe</span>
@@ -539,33 +640,6 @@ function SummaryCard({
         </CardContent>
       </Card>
     </button>
-  );
-}
-
-type SortableHeaderProps = {
-  label: string;
-  column: SortColumn;
-  icon: React.ReactNode;
-  onSort: (column: SortColumn) => void;
-};
-
-function SortableHeader({
-  label,
-  column,
-  icon,
-  onSort,
-}: SortableHeaderProps) {
-  return (
-    <TableHead>
-      <button
-        type="button"
-        className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
-        onClick={() => onSort(column)}
-      >
-        <span>{label}</span>
-        {icon}
-      </button>
-    </TableHead>
   );
 }
 

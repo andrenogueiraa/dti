@@ -16,6 +16,7 @@ export async function getAllProjects() {
       semarhImpact: true,
       estimatedWeeks: true,
       createdAt: true,
+      area: true,
     },
     with: {
       responsibleTeam: {

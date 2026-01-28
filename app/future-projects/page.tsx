@@ -2,7 +2,6 @@
 
 import { Suspense } from "react";
 import { Bg } from "@/components/custom/bg";
-import { ButtonClose } from "@/components/custom/button-close";
 import { ContainerCenter } from "@/components/custom/container-center";
 import { LoadingSpinner } from "@/components/custom/loading-spinner";
 import {

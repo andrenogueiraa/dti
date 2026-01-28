@@ -101,9 +101,15 @@ async function Project({
     <>
       <PgHeader>
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
+          <div className="flex-1 space-y-2">
             <PgTitle className="max-w-xl">{project.name}</PgTitle>
             <PgDescription>{project.description}</PgDescription>
+            {project.area && (
+              <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                <span className="font-medium">Área solicitante:</span>
+                <span>{project.area}</span>
+              </div>
+            )}
           </div>
           <Link href={`/projects/${projectId}/change-status`}>
             <Badge variant="outline" className="cursor-pointer">
