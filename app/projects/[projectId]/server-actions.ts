@@ -13,6 +13,7 @@ export async function getProject(projectId: string) {
       description: true,
       color: true,
       status: true,
+      area: true,
     },
     with: {
       responsibleTeam: {

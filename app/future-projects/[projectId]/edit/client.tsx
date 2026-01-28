@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { COLOR_VALUES, getColorClassName } from "@/enums/colors";
 import { COMPLEXITY_LEVELS } from "@/enums/complexity-levels";
+import { AREAS } from "@/enums/areas";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -50,6 +51,7 @@ const editFutureProjectFormSchema = z.object({
   socialImpact: z.number().min(1).max(10).optional(),
   semarhImpact: z.number().min(1).max(10).optional(),
   estimatedWeeks: z.number().min(1).optional(),
+  area: z.string().optional(),
 });
 
 export type EditFutureProjectFormSchema = z.infer<
@@ -74,6 +76,7 @@ export default function EditFutureProject({ project }: { project: Project }) {
       socialImpact: project.socialImpact ?? undefined,
       semarhImpact: project.semarhImpact ?? undefined,
       estimatedWeeks: project.estimatedWeeks ?? undefined,
+      area: project.area ?? undefined,
     },
   });
 
@@ -215,6 +218,34 @@ export default function EditFutureProject({ project }: { project: Project }) {
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="area"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Setor solicitante</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ""}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione um setor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AREAS.map((area) => (
+                          <SelectItem key={area.value} value={area.value}>
+                            {area.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

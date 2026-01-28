@@ -16,6 +16,7 @@ export async function getFutureProjects() {
       semarhImpact: true,
       estimatedWeeks: true,
       createdAt: true,
+      area: true,
     },
     with: {
       responsibleTeam: {
@@ -42,6 +43,7 @@ export async function getFutureProject(projectId: string) {
       semarhImpact: true,
       estimatedWeeks: true,
       createdAt: true,
+      area: true,
     },
     with: {
       responsibleTeam: {

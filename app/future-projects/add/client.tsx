@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { COLOR_VALUES, getColorClassName } from "@/enums/colors";
 import { COMPLEXITY_LEVELS } from "@/enums/complexity-levels";
+import { AREAS } from "@/enums/areas";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -45,6 +46,7 @@ const createFutureProjectFormSchema = z.object({
   socialImpact: z.number().min(1).max(10).optional(),
   semarhImpact: z.number().min(1).max(10).optional(),
   estimatedWeeks: z.number().min(1).optional(),
+  area: z.string().optional(),
 });
 
 export type CreateFutureProjectFormSchema = z.infer<
@@ -64,6 +66,7 @@ export default function CreateFutureProject() {
       socialImpact: undefined,
       semarhImpact: undefined,
       estimatedWeeks: undefined,
+      area: undefined,
     },
   });
 
@@ -80,12 +83,13 @@ export default function CreateFutureProject() {
       router.replace("/future-projects");
     },
   });
+  const { isSuccess, reset } = createProjectMutation;
 
   useEffect(() => {
-    if (createProjectMutation.isSuccess) {
-      createProjectMutation.reset();
+    if (isSuccess) {
+      reset();
     }
-  }, []);
+  }, [isSuccess, reset]);
 
   const onSubmit = (data: CreateFutureProjectFormSchema) => {
     createProjectMutation.mutate({
@@ -201,6 +205,34 @@ export default function CreateFutureProject() {
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="area"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Área</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ""}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione uma área de aplicação" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AREAS.map((area) => (
+                          <SelectItem key={area.value} value={area.value}>
+                            {area.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

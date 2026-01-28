@@ -28,6 +28,7 @@ export default async function createFutureProject(
     socialImpact: data.socialImpact || null,
     semarhImpact: data.semarhImpact || null,
     estimatedWeeks: data.estimatedWeeks || null,
+    area: data.area || null,
     createdBy: session.user.id,
   });
 

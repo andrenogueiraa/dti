@@ -33,12 +33,14 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { AREAS } from "@/enums/areas";
 
 const createProjectFormSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
   color: z.string().min(1),
   responsibleTeamId: z.string(),
+  area: z.string().optional(),
 });
 
 export type CreateProjectFormSchema = z.infer<typeof createProjectFormSchema>;
@@ -52,6 +54,7 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
       description: "",
       color: "",
       responsibleTeamId: devTeamId,
+      area: undefined,
     },
   });
 
@@ -137,6 +140,33 @@ export default function CreateProject({ devTeamId }: { devTeamId: string }) {
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="area"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Área</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ""}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione uma área de aplicação" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AREAS.map((area) => (
+                          <SelectItem key={area.value} value={area.value}>
+                            {area.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
