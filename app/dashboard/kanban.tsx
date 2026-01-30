@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { getColorClassName } from "@/enums/colors";
 import { COMPLEXITY_LEVELS } from "@/enums/complexity-levels";
+import { AREAS } from "@/enums/areas";
 import { PROJECT_STATUSES } from "@/enums/project-statuses";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ type DbProject = {
   semarhImpact: number | null;
   estimatedWeeks: number | null;
   createdAt: Date | null;
+  area: string | null;
   responsibleTeam: {
     id: string;
     name: string | null;
@@ -47,6 +49,7 @@ interface Project {
   socialImpact: number | null;
   semarhImpact: number | null;
   estimatedWeeks: number | null;
+  area: string | null;
   responsibleTeam: {
     id: string;
     name: string | null;
@@ -68,6 +71,7 @@ function convertDbProjectToProject(dbProject: DbProject): Project {
     socialImpact: dbProject.socialImpact,
     semarhImpact: dbProject.semarhImpact,
     estimatedWeeks: dbProject.estimatedWeeks,
+    area: dbProject.area,
     responsibleTeam: dbProject.responsibleTeam,
     sprints: dbProject.sprints,
   };
@@ -132,6 +136,13 @@ function ProjectCard({ project }: { project: Project }) {
           )}
 
           <div className="flex flex-wrap gap-1.5">
+            {project.area && (
+              <Badge variant="outline" className="text-xs">
+                {
+                  AREAS.find((d) => d.value === project.area)?.label ?? project.area
+                }
+              </Badge>
+            )}
             {project.responsibleTeam && (
               <Badge variant="outline" className="text-xs">
                 {project.responsibleTeam.name}

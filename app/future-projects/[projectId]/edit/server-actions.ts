@@ -33,6 +33,7 @@ export async function updateFutureProject(
       socialImpact: data.socialImpact || null,
       semarhImpact: data.semarhImpact || null,
       estimatedWeeks: data.estimatedWeeks || null,
+      area: data.area || null,
     })
     .where(eq(projects.id, projectId));
 

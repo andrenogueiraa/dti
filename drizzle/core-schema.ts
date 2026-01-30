@@ -16,6 +16,7 @@ import { TASK_STATUS_VALUES } from "@/enums/task-statuses";
 import { PROJECT_STATUS_VALUES } from "@/enums/project-statuses";
 import { DOC_TYPE_VALUES } from "@/enums/doc-types";
 import { COLOR_VALUES } from "@/enums/colors";
+import { AREA_VALUES } from "@/enums/areas";
 
 export const taskStatusEnum = pgEnum(
   "task_status",
@@ -32,7 +33,12 @@ export const docTypeEnum = pgEnum(
   DOC_TYPE_VALUES as [string, ...string[]]
 );
 
-export const colorEnum = pgEnum("color", COLOR_VALUES as [string, ...string[]]);
+export const colorEnum = pgEnum(
+  "color",
+  COLOR_VALUES as [string, ...string[]]
+);
+
+export const areaEnum = pgEnum("area", AREA_VALUES as unknown as [string, ...string[]]);
 
 const baseColumns = {
   id: uuid()
@@ -88,6 +94,7 @@ export const projects = pgTable("projects", {
   socialImpact: integer(),
   semarhImpact: integer(),
   estimatedWeeks: integer(),
+  area: areaEnum("area"),
   docOpeningId: uuid().references(() => docs.id, {
     onDelete: "restrict",
   }),
