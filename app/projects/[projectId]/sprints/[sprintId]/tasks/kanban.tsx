@@ -11,7 +11,9 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  closestCorners,
+  pointerWithin,
+  rectIntersection,
+  CollisionDetection,
 } from "@dnd-kit/core";
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -581,6 +583,18 @@ function DroppableColumn({
   );
 }
 
+// --- Custom collision detection ---
+// pointerWithin detects when the cursor is physically inside a droppable area,
+// solving the issue where middle columns (EP/ER) lose the distance competition
+// against edge columns when using closestCorners.
+const kanbanCollisionDetection: CollisionDetection = (args) => {
+  const pointerCollisions = pointerWithin(args);
+  if (pointerCollisions.length > 0) {
+    return pointerCollisions;
+  }
+  return rectIntersection(args);
+};
+
 // --- Main Kanban ---
 
 export default function Kanban({
@@ -809,7 +823,7 @@ export default function Kanban({
     <>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={kanbanCollisionDetection}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
