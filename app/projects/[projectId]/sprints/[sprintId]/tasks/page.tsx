@@ -85,13 +85,19 @@ export default async function Page({
       </PgHeader>
 
       <PgContent className="mt-4">
-        <Tasks sprintId={sprintId} />
+        <Tasks sprintId={sprintId} projectId={projectId} />
       </PgContent>
     </Pg>
   );
 }
 
-async function Tasks({ sprintId }: { sprintId: string }) {
+async function Tasks({
+  sprintId,
+  projectId,
+}: {
+  sprintId: string;
+  projectId: string;
+}) {
   const tasks = await getTasks(sprintId);
 
   if (!tasks) {
@@ -105,7 +111,7 @@ async function Tasks({ sprintId }: { sprintId: string }) {
   if (tasks.length > 0) {
     return (
       <ClientOnly fallback={<div>Carregando...</div>}>
-        <Kanban tasks={tasks} />
+        <Kanban tasks={tasks} projectId={projectId} sprintId={sprintId} />
       </ClientOnly>
     );
   }
