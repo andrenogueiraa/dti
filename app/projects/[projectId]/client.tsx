@@ -10,7 +10,7 @@ export function EndDate({
   project,
   sprintId,
   sprintFinishDate,
-  reviewPlannersIds,
+  // reviewPlannersIds,
 }: {
   project: NonNullable<Awaited<ReturnType<typeof getProject>>>;
   sprintId: string;
@@ -37,35 +37,56 @@ export function EndDate({
     return <div>Não existe usuário na sessão</div>;
   }
 
-  const responsibleTeam = project.responsibleTeam;
-
-  if (!responsibleTeam) {
-    return <div>Não existe equipe responsável pelo projeto</div>;
-  }
-
-  let allowedUserIds = responsibleTeam.userDevTeams.map(
-    (userDevTeam) => userDevTeam.userId
-  );
-
-  const extraAllowedUsers = reviewPlannersIds;
-  allowedUserIds = [...new Set([...allowedUserIds, ...extraAllowedUsers])];
-
-  const userIsAllowedToChangeEndDate = allowedUserIds.includes(userId);
+  // Lógica antiga de verificação de permissão para alterar a data final:
+  // const responsibleTeam = project.responsibleTeam;
+  //
+  // if (!responsibleTeam) {
+  //   return <div>Não existe equipe responsável pelo projeto</div>;
+  // }
+  //
+  // let allowedUserIds = responsibleTeam.userDevTeams.map(
+  //   (userDevTeam) => userDevTeam.userId
+  // );
+  //
+  // const extraAllowedUsers = reviewPlannersIds;
+  // allowedUserIds = [...new Set([...allowedUserIds, ...extraAllowedUsers])];
+  //
+  // const userIsAllowedToChangeEndDate = allowedUserIds.includes(userId);
+  //
+  // if (!sprintFinishDate) {
+  //   if (userIsAllowedToChangeEndDate) {
+  //     return (
+  //       <Link
+  //         href={`/projects/${project.id}/sprints/${sprintId}/change-end-date`}
+  //       >
+  //         <small className="text-muted-foreground italic">Sem data</small>
+  //       </Link>
+  //     );
+  //   }
+  //   return <small className="text-muted-foreground italic">Sem data</small>;
+  // }
+  //
+  // if (userIsAllowedToChangeEndDate) {
+  //   return (
+  //     <Link
+  //       href={`/projects/${project.id}/sprints/${sprintId}/change-end-date`}
+  //     >
+  //       <small>{formatLocalDate(sprintFinishDate, "pt-BR")}</small>
+  //     </Link>
+  //   );
+  // } else {
+  //   return <small>{formatLocalDate(sprintFinishDate, "pt-BR")}</small>;
+  // }
 
   if (!sprintFinishDate) {
-    if (userIsAllowedToChangeEndDate) {
-      return (
-        <Link
-          href={`/projects/${project.id}/sprints/${sprintId}/change-end-date`}
-        >
-          <small className="text-muted-foreground italic">Sem data</small>
-        </Link>
-      );
-    }
-    return <small className="text-muted-foreground italic">Sem data</small>;
-  }
-
-  if (userIsAllowedToChangeEndDate) {
+    return (
+      <Link
+        href={`/projects/${project.id}/sprints/${sprintId}/change-end-date`}
+      >
+        <small className="text-muted-foreground italic">Sem data</small>
+      </Link>
+    );
+  } else {
     return (
       <Link
         href={`/projects/${project.id}/sprints/${sprintId}/change-end-date`}
@@ -73,7 +94,5 @@ export function EndDate({
         <small>{formatLocalDate(sprintFinishDate, "pt-BR")}</small>
       </Link>
     );
-  } else {
-    return <small>{formatLocalDate(sprintFinishDate, "pt-BR")}</small>;
   }
 }

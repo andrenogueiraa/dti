@@ -168,4 +168,3 @@ export function formatRelativeTime(
 
   return locale === "pt-BR" ? "agora" : "now";
 }
-
