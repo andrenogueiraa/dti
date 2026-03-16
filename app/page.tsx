@@ -11,12 +11,13 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { getColorClassName } from "@/enums/colors";
-import Link from "next/link";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import { Button } from "@/components/ui/button";
 import { getDevTeams, revalidateDevTeams } from "./server-actions";
 import { Metadata } from "next";
+import Link from "next/link";
+import { CreateDevTeamButton } from "@/components/custom/create-dev-team-button";
 
 const title = "Projetos em Andamento";
 const description = "Visualização e administração de projetos em andamento";
@@ -35,7 +36,9 @@ export default async function Server() {
         <PgDescription>{description}</PgDescription>
       </PgHeader>
 
-      <PgContent className="space-y-8 pr-0">
+      <PgContent className="space-y-8 pr-8">
+        <CreateDevTeamButton />
+
         <Suspense fallback={<div>Carregando projetos...</div>}>
           <DevTeams />
         </Suspense>

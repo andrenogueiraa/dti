@@ -76,16 +76,32 @@ async function DevTeam({ devTeamId }: { devTeamId: string }) {
   return (
     <>
       <PgHeader>
-        <Image
-          src={devTeam.imageUrl ?? ""}
-          alt={devTeam.name ?? ""}
-          width={150}
-          height={150}
-          className="rounded-lg w-32 h-32"
-          priority
-        />
+        <div className="flex items-start justify-between gap-4 w-full">
+          <div className="flex items-start gap-4">
+            {devTeam.imageUrl ? (
+              <Image
+                src={devTeam.imageUrl}
+                alt={devTeam.name ?? ""}
+                width={150}
+                height={150}
+                className="rounded-lg w-32 h-32"
+                priority
+              />
+            ) : null}
 
-        <PgTitle className="mt-4">Equipe {devTeam.name}</PgTitle>
+            <div>
+              <PgTitle className="mt-4">Equipe {devTeam.name}</PgTitle>
+            </div>
+          </div>
+
+          <ButtonLinkRole
+            variant="outline"
+            href={`/dev-teams/${devTeamId}/edit`}
+            roles={["admin"]}
+            label="Editar equipe"
+            allowedUsersIds={usersIds}
+          />
+        </div>
         <PgDescription>{devTeam.description}</PgDescription>
       </PgHeader>
 

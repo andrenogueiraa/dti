@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 export async function getDevTeams() {
   return await db.query.devTeams.findMany({
+    where: (devTeams, { eq }) => eq(devTeams.isActive, true),
     orderBy: (devTeams, { asc }) => [asc(devTeams.name)],
     with: {
       projects: {
