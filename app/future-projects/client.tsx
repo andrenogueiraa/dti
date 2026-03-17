@@ -26,6 +26,7 @@ import {
 import { COMPLEXITY_LEVELS } from "@/enums/complexity-levels";
 import { AREAS } from "@/enums/areas";
 import { FutureProjectTableActions } from "./table-actions";
+import { calculateScore, ProjectScoreBadge } from "./project-score";
 
 type FutureProject = {
   id: string;
@@ -48,6 +49,7 @@ type SortDirection = "asc" | "desc";
 
 type SortColumn =
   | "name"
+  | "score"
   | "complexity"
   | "socialImpact"
   | "semarhImpact"
@@ -126,8 +128,8 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [areaFilter, setAreaFilter] = useState<string>("all");
 
-  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>("score");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   useEffect(() => {
     const initialSearch = searchParams.get("q") ?? "";
@@ -263,6 +265,8 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
       switch (sortColumn) {
         case "name":
           return compareValues(a.name, b.name, sortDirection);
+        case "score":
+          return compareValues(calculateScore(a), calculateScore(b), sortDirection);
         case "complexity":
           return compareValues(a.complexity, b.complexity, sortDirection);
         case "socialImpact":
@@ -469,6 +473,16 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
                 <button
                   type="button"
                   className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  onClick={() => handleSort("score")}
+                >
+                  <span>Pontuação</span>
+                  {getSortIcon("score")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
                   onClick={() => handleSort("complexity")}
                 >
                   <span>Complexidade</span>
@@ -542,7 +556,7 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
             {sortedProjects.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={10}
                   className="py-8 text-center text-muted-foreground"
                 >
                   Nenhum projeto encontrado para os filtros atuais.
@@ -560,6 +574,9 @@ export function FutureProjectsClient({ projects }: FutureProjectsClientProps) {
                         </span>
                       )}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <ProjectScoreBadge project={project} />
                   </TableCell>
                   <TableCell>
                     {project.complexity ? (
