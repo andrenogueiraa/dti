@@ -27,6 +27,7 @@ import {
 import {
   bulkUpdateTaskOrders,
   bulkUpdateTaskStatusAndOrders,
+  deleteTask,
   updateTask,
   getUsers,
 } from "./server-actions";
@@ -64,6 +65,18 @@ import { Button } from "@/components/ui/button";
 import { TASK_PRIORITIES } from "@/enums/task-priorities";
 import { Loader2 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useSession } from "@/lib/auth-client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // --- Schema ---
 
@@ -199,16 +212,21 @@ function EditTaskDialog({
   open,
   onOpenChange,
   onTaskUpdated,
+  onTaskDeleted,
   projectId,
   sprintId,
+  allowedUsersIds,
 }: {
   task: Task | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onTaskUpdated: (updatedTask: Task) => void;
+  onTaskDeleted: (taskId: string) => void;
   projectId: string;
   sprintId: string;
+  allowedUsersIds: string[];
 }) {
+  const { data: session } = useSession();
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["users"],
     queryFn: getUsers,
@@ -248,6 +266,24 @@ function EditTaskDialog({
       toast.error("Erro ao atualizar tarefa");
     },
   });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: deleteTask,
+    onSuccess() {
+      toast.success("Tarefa apagada!");
+      if (task) onTaskDeleted(task.id);
+      onOpenChange(false);
+    },
+    onError(error) {
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao apagar tarefa"
+      );
+    },
+  });
+
+  const canDelete =
+    !!session?.user &&
+    (session.user.role === "admin" || allowedUsersIds.includes(session.user.id));
 
   const onSubmit = (data: EditTaskFormData) => {
     if (!task) return;
@@ -419,6 +455,51 @@ function EditTaskDialog({
                   "Salvar alterações"
                 )}
               </Button>
+
+              {task && canDelete ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="w-full"
+                      disabled={deleteTaskMutation.isPending}
+                    >
+                      {deleteTaskMutation.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Apagando...
+                        </>
+                      ) : (
+                        "Apagar tarefa"
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Apagar tarefa?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Essa ação não pode ser desfeita. A tarefa será removida
+                        permanentemente.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          deleteTaskMutation.mutate({
+                            taskId: task.id,
+                            projectId,
+                            sprintId,
+                          });
+                        }}
+                      >
+                        Apagar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : null}
             </form>
           </Form>
         )}
@@ -601,10 +682,12 @@ export default function Kanban({
   tasks: initialTasks,
   projectId,
   sprintId,
+  allowedUsersIds,
 }: {
   tasks: DbTask[];
   projectId: string;
   sprintId: string;
+  allowedUsersIds: string[];
 }) {
   const [tasks, setTasks] = useState<Task[]>(
     initialTasks.map(convertDbTaskToTask)
@@ -613,6 +696,10 @@ export default function Kanban({
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setTasks(initialTasks.map(convertDbTaskToTask));
+  }, [initialTasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -631,6 +718,11 @@ export default function Kanban({
     setTasks((prev) =>
       prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
     );
+    router.refresh();
+  };
+
+  const handleTaskDeleted = (taskId: string) => {
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
     router.refresh();
   };
 
@@ -862,8 +954,10 @@ export default function Kanban({
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onTaskUpdated={handleTaskUpdated}
+        onTaskDeleted={handleTaskDeleted}
         projectId={projectId}
         sprintId={sprintId}
+        allowedUsersIds={allowedUsersIds}
       />
     </>
   );

@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { ButtonClose } from "@/components/custom/button-close";
 import { ClientOnly } from "@/components/custom/client-only";
-import { getTasks } from "./server-actions";
+import { getProjectResponsibleTeamUserIds, getTasks } from "./server-actions";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Kanban from "./kanban";
@@ -98,7 +98,10 @@ async function Tasks({
   sprintId: string;
   projectId: string;
 }) {
-  const tasks = await getTasks(sprintId);
+  const [tasks, allowedUsersIds] = await Promise.all([
+    getTasks(sprintId),
+    getProjectResponsibleTeamUserIds(projectId),
+  ]);
 
   if (!tasks) {
     return <div>Erro ao carregar tarefas</div>;
@@ -111,7 +114,13 @@ async function Tasks({
   if (tasks.length > 0) {
     return (
       <ClientOnly fallback={<div>Carregando...</div>}>
-        <Kanban tasks={tasks} projectId={projectId} sprintId={sprintId} />
+        <Kanban
+          key={`${sprintId}:${tasks.map((t) => t.id).join("|")}`}
+          tasks={tasks}
+          projectId={projectId}
+          sprintId={sprintId}
+          allowedUsersIds={allowedUsersIds}
+        />
       </ClientOnly>
     );
   }

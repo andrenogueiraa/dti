@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +33,7 @@ import { createTask, getUsers } from "./server-actions";
 import { useRouter } from "next/navigation";
 import { TASK_PRIORITIES } from "@/enums/task-priorities";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 const createTaskFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -53,6 +54,10 @@ function TagsInput({
 }) {
   // Initialize from form value, but then maintain independent state
   const [inputValue, setInputValue] = useState(() => value?.join(", ") || "");
+
+  useEffect(() => {
+    setInputValue(value?.join(", ") || "");
+  }, [value]);
 
   return (
     <Input
@@ -100,7 +105,13 @@ export default function CreateTaskForm({
   const createTaskMutation = useMutation({
     mutationFn: createTask,
     onSuccess() {
+      toast.success("Tarefa criada!");
       router.push(`/projects/${projectId}/sprints/${sprintId}/tasks`);
+      // Garantir refresh no destino após navegação suave
+      setTimeout(() => router.refresh(), 0);
+    },
+    onError() {
+      toast.error("Erro ao criar tarefa");
     },
   });
 
@@ -116,17 +127,6 @@ export default function CreateTaskForm({
           <CardDescription>
             Carregando usuários. Por favor, aguarde.
           </CardDescription>
-        </CardHeader>
-      </>
-    );
-  }
-
-  if (createTaskMutation.isSuccess) {
-    return (
-      <>
-        <CardHeader>
-          <CardTitle>Tarefa criada com sucesso</CardTitle>
-          <CardDescription>A tarefa foi criada com sucesso.</CardDescription>
         </CardHeader>
       </>
     );
